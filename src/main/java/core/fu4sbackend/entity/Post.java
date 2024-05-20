@@ -19,20 +19,20 @@ import java.util.Date;
 public class Post {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    protected Integer id;
 
-    private Date postTime;
-    private String title;
-    private boolean isTest;
+    protected Date postTime;
+    protected String title;
+    protected boolean isTest;
 
     @Enumerated(EnumType.STRING)
-    private PostStatus status;
+    protected PostStatus status;
 
     @ManyToOne
     @JoinColumn(name = "username")
-    private User user;
+    protected User user;
 
     @ManyToOne
     @JoinColumn(name = "subject_code")
-    private Subject subject;
+    protected Subject subject;
 }

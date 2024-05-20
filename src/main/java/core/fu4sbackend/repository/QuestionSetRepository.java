@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface QuestionSetRepository extends JpaRepository<QuestionSet, Integer> {
+    public QuestionSet findById(int id);
 }
