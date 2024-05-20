@@ -3,8 +3,10 @@ package core.fu4sbackend.entity;
 import core.fu4sbackend.constant.PostStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.util.Date;
 
@@ -13,6 +15,7 @@ import java.util.Date;
 @NoArgsConstructor
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
+@SuperBuilder
 public class Post {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
