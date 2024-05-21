@@ -16,7 +16,6 @@ public class PostService {
     public List<Post> findAll() {
         return postRepository.findAll();
     }
-    @Query("select * from post where ")
     public List<Post> findBySubject(String subject) {
         return postRepository.findBySubject(subject);
     }
