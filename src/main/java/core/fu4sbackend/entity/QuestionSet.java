@@ -8,6 +8,7 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 @Getter
 @Setter
@@ -19,8 +20,8 @@ public class QuestionSet extends Post {
     private int attempts;
 
     @OneToMany(mappedBy = "questionSet", cascade = CascadeType.ALL)
-    private ArrayList<Question> questions;
+    private Collection<Question> questions;
 
     @OneToMany(mappedBy = "questionSet", cascade = CascadeType.ALL)
-    private ArrayList<TestResult> results;
+    private Collection<TestResult> results;
 }

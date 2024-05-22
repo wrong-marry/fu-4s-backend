@@ -36,16 +36,16 @@ public class User implements UserDetails {
     private UserStatus status;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Notification> notifications;
+    private Collection<Notification> notifications;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Comment> comments;
+    private Collection<Comment> comments;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Post> posts;
+    private Collection<Post> posts;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<TestResult> testResults;
+    private Collection<TestResult> testResults;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

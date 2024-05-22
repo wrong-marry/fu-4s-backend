@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 @Data
 @AllArgsConstructor
@@ -25,5 +26,5 @@ public class Question {
     private QuestionSet questionSet;
 
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL)
-    private ArrayList<Answer> answers;
+    private Collection<Answer> answers;
 }
