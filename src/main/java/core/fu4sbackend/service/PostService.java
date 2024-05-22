@@ -9,8 +9,6 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -18,20 +16,12 @@ import java.util.List;
 
 @Service
 public class PostService {
-    @Autowired
-    private PostRepository postRepository;
+    private final PostRepository postRepository;
+    private final EntityManager em;
 
-    @Autowired
-    EntityManager em;
-
-    public List<Post> findAll() {
-        return postRepository.findAll();
-    }
-    public List<Post> findBySubject(String subject) {
-        return postRepository.findBySubject(subject);
-    }
-    public List<Post> findByTitle(String title) {
-        return postRepository.findByTitle(title);
+    public PostService(PostRepository postRepository, EntityManager em) {
+        this.postRepository = postRepository;
+        this.em = em;
     }
 
     public List<Post> findAllByCriteria(SearchRequest searchRequest) {
