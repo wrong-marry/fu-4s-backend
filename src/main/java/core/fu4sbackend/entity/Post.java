@@ -3,12 +3,12 @@ package core.fu4sbackend.entity;
 import core.fu4sbackend.constant.PostStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -35,4 +35,7 @@ public class Post {
     @ManyToOne
     @JoinColumn(name = "subject_code")
     private Subject subject;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    private List<Comment> comments;
 }
