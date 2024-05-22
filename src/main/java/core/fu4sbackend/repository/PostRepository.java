@@ -14,6 +14,10 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     List<Post> findBySubject(String subject);
     @Query(value="select * from post where title like '%?1%'", nativeQuery=true)
     List<Post> findByTitle(String title);
+
     @Query(value="select * from post where subject_code like '%?1?' and title like '%?2%'", nativeQuery=true)
     List<Post> findBySubjectAndTitle(String subject, String title);
+
+
+
 }

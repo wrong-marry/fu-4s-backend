@@ -15,8 +15,11 @@ import java.util.List;
 @RestController
 @RequestMapping("/posts")
 public class PostController {
-    @Autowired
     private PostService postService;
+
+    public PostController(PostService postService) {
+        this.postService = postService;
+    }
 
     @GetMapping("/")
     public ResponseEntity<List<Post>> showAllPosts(@RequestParam(required = false) String title,
