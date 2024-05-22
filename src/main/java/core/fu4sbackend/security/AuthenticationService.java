@@ -4,12 +4,16 @@ import core.fu4sbackend.constant.UserRole;
 import core.fu4sbackend.constant.UserStatus;
 import core.fu4sbackend.entity.User;
 import core.fu4sbackend.repository.UserRepository;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Service;
+import org.json.JSONObject;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class AuthenticationService {
@@ -29,7 +33,7 @@ public class AuthenticationService {
         this.jwtService = jwtService;
     }
 
-    public User signup(RegisterDTO input) {
+    public JSONObject signup(RegisterDTO input) {
         //System.out.println(userRepository.findByUsername(input.getUsername()).get());
         if(userRepository.findByUsername(input.getUsername()).isPresent()) {
             throw new UsernameNotFoundException("Username is already in use");
@@ -45,17 +49,25 @@ public class AuthenticationService {
                 .password(passwordEncoder.encode(input.getPassword()))
                 .build();
 
-        return userRepository.save(user);
+        userRepository.save(user);
+
+        Map<String, String> res = new HashMap<>();
+        res.put("username", user.getUsername());
+        res.put("firstName", user.getFirstName());
+        res.put("lastName", user.getLastName());
+        res.put("email", user.getEmail());
+
+        return new JSONObject(res);
     }
 
-    public String authenticate(LoginDTO input) {
+    public JSONObject authenticate(LoginDTO input) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         input.getUsername(),
                         input.getPassword()
                 )
         );
-        System.out.println(2);
+
         if(authentication.isAuthenticated()) {
             User u = User
                     .builder()
@@ -63,7 +75,11 @@ public class AuthenticationService {
                     .password(passwordEncoder.encode(input.getPassword()))
                     .build();
 
-            return jwtService.generateToken(u);
+            Map<String, String> res = new HashMap<>();
+            res.put("username", u.getUsername());
+            res.put("token", jwtService.generateToken(u));
+
+            return new JSONObject(res);
         }
         else throw new UsernameNotFoundException("Invalid username or password");
     }

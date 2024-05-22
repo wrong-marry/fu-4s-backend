@@ -1,6 +1,5 @@
 package core.fu4sbackend.controller;
 
-import core.fu4sbackend.entity.User;
 import core.fu4sbackend.security.AuthenticationService;
 import core.fu4sbackend.security.LoginDTO;
 import core.fu4sbackend.security.RegisterDTO;
@@ -11,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/v1/auth")
 public class AuthController {
     private final AuthenticationService authenticationService;
 
@@ -20,12 +19,12 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<User> register(@RequestBody RegisterDTO registerUserDto) {
-        return ResponseEntity.ok(authenticationService.signup(registerUserDto));
+    public ResponseEntity<String> register(@RequestBody RegisterDTO registerUserDto) {
+        return ResponseEntity.ok(authenticationService.signup(registerUserDto).toString());
     }
 
     @PostMapping("/login")
     public ResponseEntity<String> authenticate(@RequestBody LoginDTO input) {
-        return ResponseEntity.ok(authenticationService.authenticate(input));
+        return ResponseEntity.ok(authenticationService.authenticate(input).toString());
     }
 }

@@ -2,18 +2,19 @@ package core.fu4sbackend.controller;
 
 import core.fu4sbackend.dto.SearchRequest;
 import core.fu4sbackend.entity.Post;
-import core.fu4sbackend.repository.PostRepository;
 import core.fu4sbackend.service.PostService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
 import java.util.List;
 
 @RestController
-@RequestMapping("/posts")
+@RequestMapping("/api/v1")
 public class PostController {
     private PostService postService;
 
@@ -21,7 +22,7 @@ public class PostController {
         this.postService = postService;
     }
 
-    @GetMapping("/")
+    @GetMapping("/getAllPost")
     public ResponseEntity<List<Post>> showAllPosts(@RequestParam(required = false) String title,
                                                    @RequestParam(required = false) String subject_code,
                                                    @RequestParam(required = false) Date post_time,
