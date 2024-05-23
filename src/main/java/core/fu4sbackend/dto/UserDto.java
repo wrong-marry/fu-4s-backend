@@ -2,15 +2,9 @@ package core.fu4sbackend.dto;
 
 import core.fu4sbackend.constant.UserRole;
 import core.fu4sbackend.constant.UserStatus;
-import core.fu4sbackend.entity.Comment;
-import core.fu4sbackend.entity.Notification;
-import core.fu4sbackend.entity.Post;
-import core.fu4sbackend.entity.TestResult;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
 
 @Data
 @AllArgsConstructor
@@ -22,8 +16,8 @@ public class UserDto {
     private String email;
     private UserRole role;
     private UserStatus status;
-    private ArrayList<Notification> notifications;
-    private ArrayList<Comment> comments;
-    private ArrayList<Post> posts;
-    private ArrayList<TestResult> testResults;
+//    private ArrayList<Notification> notifications;
+//    private ArrayList<Comment> comments;
+//    private ArrayList<Post> posts;
+//    private ArrayList<TestResult> testResults;
 }
