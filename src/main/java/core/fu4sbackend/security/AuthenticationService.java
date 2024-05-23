@@ -51,13 +51,11 @@ public class AuthenticationService {
 
         userRepository.save(user);
 
-        Map<String, String> res = new HashMap<>();
-        res.put("username", user.getUsername());
-        res.put("firstName", user.getFirstName());
-        res.put("lastName", user.getLastName());
-        res.put("email", user.getEmail());
+        LoginDTO loginDTO = new LoginDTO();
+        loginDTO.setUsername(user.getUsername());
+        loginDTO.setPassword(input.getPassword());
 
-        return new JSONObject(res);
+        return this.authenticate(loginDTO);
     }
 
     public JSONObject authenticate(LoginDTO input) {

@@ -1,11 +1,14 @@
 package core.fu4sbackend.service;
 
+import core.fu4sbackend.dto.UserDto;
 import core.fu4sbackend.entity.User;
 import core.fu4sbackend.repository.UserRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -16,9 +19,11 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public User getUserByUsername(String username) {
-        User u =userRepository.findByUsername(username).orElseThrow(()->new RuntimeException("User not found"));
-        return u;
+    public UserDto getByUsername(String username) {
+        ModelMapper modelMapper = new ModelMapper();
+        User user = userRepository.findByUsername(username).orElse(null);
+        UserDto userDto = modelMapper.map(user,UserDto.class);
+        return userDto;
     }
 
     public List<User> getAllUsers() {
