@@ -1,5 +1,6 @@
 package core.fu4sbackend.controller;
 
+import core.fu4sbackend.dto.LearningMaterialDto;
 import core.fu4sbackend.dto.SearchRequest;
 import core.fu4sbackend.entity.LearningMaterial;
 import core.fu4sbackend.entity.Post;
@@ -24,7 +25,7 @@ public class LearningMaterialController {
         this.learningMaterialService = learningMaterialService;
     }
     @GetMapping("/getAll")
-    public List<LearningMaterial> getAllLearningMaterials(){
+    public List<LearningMaterialDto> getAllLearningMaterials(){
         return learningMaterialService.getAllLearningMaterials();
     }
 
