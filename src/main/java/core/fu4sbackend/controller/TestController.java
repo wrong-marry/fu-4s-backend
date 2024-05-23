@@ -41,9 +41,9 @@ public class TestController {
     }
 
     @GetMapping("/v1/users/profile/{username}")
-    public ResponseEntity<User> test3(@PathVariable("username") String username) {
-        User u = userService.getUserByUsername(username);
-        return new ResponseEntity<>(userService.getUserByUsername(username), HttpStatus.OK);
+    public ResponseEntity<UserDto> test3(@PathVariable("username") String username) {
+        UserDto u = userService.getByUsername(username);
+        return new ResponseEntity<>(userService.getByUsername(username), HttpStatus.OK);
     }
 
     @GetMapping("/v1/getRecentPost")

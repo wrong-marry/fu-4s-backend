@@ -19,4 +19,8 @@ public class UserController {
         return new ResponseEntity<>(
         userService.getByUsername(username), HttpStatus.OK);
     }
+    @PutMapping("/edit-profile")
+    public UserDto editEmailFirstNameLastName(@RequestBody UserDto userDto,@RequestParam String username){
+        return userService.editEmailFirstNameLastName(userDto,username);
+    }
 }
