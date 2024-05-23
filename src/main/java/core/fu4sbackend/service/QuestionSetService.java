@@ -11,6 +11,7 @@ import org.modelmapper.ModelMapper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class QuestionSetService {
@@ -32,12 +33,15 @@ public class QuestionSetService {
         List<QuestionSetDto> questionSetDtos = new ArrayList<>();
 
         ModelMapper modelMapper = new ModelMapper();
-        for (QuestionSet questionSet : questionSets) {
-            QuestionSetDto questionSetDto = modelMapper.map(questionSet, QuestionSetDto.class);
-           // questionSetDto.setUsername(questionSet.getUser().getUsername());
-            questionSetDto.setUsername(questionSet.getUser().getFirstName()+" "+questionSet.getUser().getLastName() );
-            questionSetDtos.add(questionSetDto);
-        }
+        questionSetDtos = questionSets
+                .stream()
+                .map(questionSet -> {
+                    QuestionSetDto questionSetDto =  modelMapper.map(questionSet, QuestionSetDto.class);
+                    questionSetDto.setUsername(questionSet.getUser().getFirstName()+" "+questionSet.getUser().getLastName());
+                    return questionSetDto ;
+                })
+                .collect(Collectors.toList());
+
 
         return questionSetDtos;
     }
