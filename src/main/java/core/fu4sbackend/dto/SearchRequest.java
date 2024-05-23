@@ -13,5 +13,5 @@ public class SearchRequest {
     private String title;
     private String subjectCode;
     private Date postTime;
-    private boolean isTest;
+    private Boolean isTest;
 }
