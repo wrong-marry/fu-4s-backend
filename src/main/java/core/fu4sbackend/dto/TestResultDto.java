@@ -1,6 +1,5 @@
 package core.fu4sbackend.dto;
 
-import core.fu4sbackend.entity.QuestionSet;
 import core.fu4sbackend.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,5 +15,5 @@ public class TestResultDto {
     private float result;
     private Date date;
     private User user;
-    private QuestionSet questionSet;
+//    private QuestionSet questionSet;
 }

@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -37,5 +38,5 @@ public class Post {
     private Subject subject;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
-    private List<Comment> comments;
+    private Collection<Comment> comments;
 }

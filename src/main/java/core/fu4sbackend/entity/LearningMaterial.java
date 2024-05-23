@@ -8,6 +8,7 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 @Getter
 @Setter
@@ -19,5 +20,5 @@ public class LearningMaterial extends Post {
     private String content;
 
     @OneToMany(mappedBy = "learningMaterial", cascade = CascadeType.ALL)
-    private ArrayList<MaterialImage> images;
+    private Collection<MaterialImage> images;
 }

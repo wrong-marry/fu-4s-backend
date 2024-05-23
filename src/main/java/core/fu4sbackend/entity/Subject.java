@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 @Data
 @AllArgsConstructor
@@ -24,5 +25,5 @@ public class Subject {
     private int semester;
 
     @OneToMany(mappedBy = "subject", cascade = CascadeType.ALL)
-    private ArrayList<Post> posts;
+    private Collection<Post> posts;
 }
