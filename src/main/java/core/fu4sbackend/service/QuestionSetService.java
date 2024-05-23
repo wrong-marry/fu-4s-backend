@@ -34,6 +34,8 @@ public class QuestionSetService {
         ModelMapper modelMapper = new ModelMapper();
         for (QuestionSet questionSet : questionSets) {
             QuestionSetDto questionSetDto = modelMapper.map(questionSet, QuestionSetDto.class);
+           // questionSetDto.setUsername(questionSet.getUser().getUsername());
+            questionSetDto.setUsername(questionSet.getUser().getFirstName()+" "+questionSet.getUser().getLastName() );
             questionSetDtos.add(questionSetDto);
         }
 
