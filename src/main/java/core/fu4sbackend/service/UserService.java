@@ -9,7 +9,7 @@ import java.util.List;
 
 @Service
 public class UserService {
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     @Autowired
     public UserService(UserRepository userRepository) {
@@ -17,7 +17,8 @@ public class UserService {
     }
 
     public User getUserByUsername(String username) {
-        return userRepository.findByUsername(username).orElse(null);
+        User u =userRepository.findByUsername(username).orElseThrow(()->new RuntimeException("User not found"));
+        return u;
     }
 
     public List<User> getAllUsers() {
