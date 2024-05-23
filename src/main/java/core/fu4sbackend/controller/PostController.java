@@ -27,8 +27,9 @@ public class PostController {
     public ResponseEntity<List<PostDto>> showAllPosts(@RequestParam(required = false) String title,
                                                       @RequestParam(required = false) String subject_code,
                                                       @RequestParam(required = false) Date post_time,
-                                                      @RequestParam(required = false) boolean is_test) {
-        SearchRequest sr = new SearchRequest(title, subject_code, post_time, is_test);
+                                                      @RequestParam(required = false) boolean is_test,
+                                                      @RequestParam(required = false) String username) {
+        SearchRequest sr = new SearchRequest(username, title, subject_code, post_time, is_test);
         return new ResponseEntity<>(postService.findAllByCriteria(sr), HttpStatus.OK);
     }
 }
