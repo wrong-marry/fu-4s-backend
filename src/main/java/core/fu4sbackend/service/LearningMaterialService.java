@@ -3,7 +3,6 @@ package core.fu4sbackend.service;
 import core.fu4sbackend.dto.LearningMaterialDto;
 import core.fu4sbackend.entity.LearningMaterial;
 import core.fu4sbackend.repository.LearningMaterialRepository;
-import org.apache.velocity.exception.ResourceNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,8 +35,7 @@ public class LearningMaterialService {
         return learningMaterialDtos;
     }
 
-
-    public LearningMaterialDto getLearningMaterialById(Integer id) {
+    public LearningMaterialDto getLearningMaterialById(Integer id) throws Exception {
         ModelMapper modelMapper = new ModelMapper();
         Optional<LearningMaterial> optionalLearningMaterial = learningMaterialRepository.findById(id);
 
@@ -47,7 +45,14 @@ public class LearningMaterialService {
             learningMaterialDto.setUsername(learningMaterial.getUser().getFirstName() + " " + learningMaterial.getUser().getLastName());
             return learningMaterialDto;
         } else {
-            throw new ResourceNotFoundException("Learning material not found with id: " + id);
+            throw new Exception("Learning material not found with id: " + id);
         }
+    }
+
+    public List<LearningMaterialDto> getLearningMaterialsByUsername(String username) {
+        ModelMapper modelMapper = new ModelMapper();
+        return learningMaterialRepository.getAllByUsername(username)
+                .stream().map(learningMaterial -> modelMapper.map(learningMaterial, LearningMaterialDto.class))
+                .toList();
     }
 }
