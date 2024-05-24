@@ -4,10 +4,7 @@ import core.fu4sbackend.dto.QuestionSetDto;
 import core.fu4sbackend.service.QuestionSetService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -32,5 +29,19 @@ public class QuestionSetController {
     @GetMapping("/getAllByUsername")
     public ResponseEntity<List<QuestionSetDto>> getAllQuestionSetsByUsername(String username){
         return ResponseEntity.ok(questionSetService.getQuestionSetsByUsername(username));
+    }
+
+    @PutMapping("/editQuestionSet")
+    public ResponseEntity<QuestionSetDto> editQuestionSet(@RequestBody QuestionSetDto questionSetDto,
+                                                   @RequestParam String username) throws Exception {
+        questionSetService.editQuestionSet(questionSetDto, username);
+        return ResponseEntity.ok(questionSetDto);
+    }
+
+    @DeleteMapping("/removeQuestionSet")
+    public ResponseEntity<String> removeQuestionSet(@RequestParam Integer id,
+                                                        @RequestParam String username) throws Exception {
+        questionSetService.removeQuestionSet(id, username);
+        return ResponseEntity.ok("ok");
     }
 }
