@@ -11,6 +11,7 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeMap;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -37,19 +38,34 @@ public class PostService {
             predicates.add(titlePredicate);
         }
         if (searchRequest.getSubjectCode() != null) {
-            Predicate subjectCodePredicate = cb.like(root.get("subjectCode"), "%" + searchRequest.getSubjectCode() + "%");
+            Predicate subjectCodePredicate = cb.like(root.get("subject").get("code"), "%" + searchRequest.getSubjectCode() + "%");
             predicates.add(subjectCodePredicate);
         }
         if (searchRequest.getPostTime() != null) {
             Predicate timePredicate = cb.greaterThan(root.get("postTime"), searchRequest.getPostTime());
             predicates.add(timePredicate);
         }
+        if (searchRequest.getIsTest() != null) {
+            System.out.println(searchRequest.getIsTest());
+            Predicate testPredicate;
+            if (searchRequest.getIsTest())
+                testPredicate = cb.isTrue(root.get("isTest"));
+            else testPredicate = cb.isFalse(root.get("isTest"));
+            predicates.add(testPredicate);
+        }
         cq.where(predicates.toArray(new Predicate[predicates.size()]));
         TypedQuery<Post> query = em.createQuery(cq);
-        ModelMapper modelMapper = new ModelMapper();
-        List<PostDto> result = query.getResultList().stream()
-                .map(post -> modelMapper.map(post,PostDto.class))
-                .toList();
+        List<PostDto> result = new ArrayList<>();
+        for (Post post : query.getResultList()) {
+            PostDto postDto = new PostDto();
+            postDto.setId(post.getId());
+            postDto.setTitle(post.getTitle());
+            postDto.setPostTime(post.getPostTime());
+            postDto.setUsername(post.getUser().getUsername());
+            postDto.setSubjectCode(post.getSubject().getCode());
+            postDto.setTest(post.isTest());
+            result.add(postDto);
+        }
         return result;
     }
 

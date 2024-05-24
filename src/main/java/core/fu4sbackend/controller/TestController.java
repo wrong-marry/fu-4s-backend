@@ -48,7 +48,7 @@ public class TestController {
 
     @GetMapping("/v1/getRecentPost")
     public ResponseEntity<List<PostDto>> getRecentPost() {
-        SearchRequest sr = new SearchRequest(null,null,null,null);
+        SearchRequest sr = new SearchRequest(null,null,null,null,null);
         return new ResponseEntity<>(postService.findAllByCriteria(sr), HttpStatus.OK);
     }
 }
