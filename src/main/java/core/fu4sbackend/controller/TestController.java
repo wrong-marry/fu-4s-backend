@@ -40,4 +40,15 @@ public class TestController {
         return "hello from admin";
     }
 
+    @GetMapping("/v1/users/profile/{username}")
+    public ResponseEntity<UserDto> test3(@PathVariable("username") String username) {
+        UserDto u = userService.getByUsername(username);
+        return new ResponseEntity<>(userService.getByUsername(username), HttpStatus.OK);
+    }
+
+    @GetMapping("/v1/getRecentPost")
+    public ResponseEntity<List<PostDto>> getRecentPost() {
+        SearchRequest sr = new SearchRequest(null,null,null,null,null);
+        return new ResponseEntity<>(postService.findAllByCriteria(sr), HttpStatus.OK);
+    }
 }

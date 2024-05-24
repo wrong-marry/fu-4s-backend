@@ -11,6 +11,7 @@ import java.util.Date;
 @NoArgsConstructor
 @SuperBuilder
 @Setter
+@Getter
 public class PostDto {
     private Integer id;
     private Date postTime;
