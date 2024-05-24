@@ -53,7 +53,7 @@ public class UserService {
     public UserDto changePassword(String newPassword,String userName){
         ModelMapper modelMapper = new ModelMapper();
         return modelMapper.map(userRepository.findByUsername(userName)
-                .map(user -> {user.setPassword(newPassword);
+                .map(user -> {user.setPassword(passwordEncoder.encode(newPassword));
                     return userRepository.save(user);})
                 .orElseThrow(()->new UsernameNotFoundException(userName)),UserDto.class);
     }
