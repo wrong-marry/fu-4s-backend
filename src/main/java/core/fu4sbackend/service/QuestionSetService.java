@@ -3,6 +3,7 @@ package core.fu4sbackend.service;
 import core.fu4sbackend.dto.QuestionSetDto;
 import core.fu4sbackend.entity.QuestionSet;
 import core.fu4sbackend.repository.QuestionSetRepository;
+import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.modelmapper.ModelMapper;
@@ -14,7 +15,7 @@ import java.util.stream.Collectors;
 @Service
 public class QuestionSetService {
 
-    private QuestionSetRepository questionSetRepository;
+    private final QuestionSetRepository questionSetRepository;
 
     @Autowired
     public QuestionSetService(QuestionSetRepository questionSetRepository) {
@@ -29,7 +30,7 @@ public class QuestionSetService {
     }
     public List<QuestionSetDto> getAllQuestionSets() {
         List<QuestionSet> questionSets = questionSetRepository.findAll();
-        List<QuestionSetDto> questionSetDtos = new ArrayList<>();
+        List<QuestionSetDto> questionSetDtos;
 
         ModelMapper modelMapper = new ModelMapper();
         questionSetDtos = questionSets
@@ -46,6 +47,21 @@ public class QuestionSetService {
                 .collect(Collectors.toList());
 
 
+        return questionSetDtos;
+    }
+    public List<QuestionSetDto> findByKeyword(String keyword) {
+        List<QuestionSet> questionSets = questionSetRepository.findByKeyword(keyword);
+        List<QuestionSetDto> questionSetDtos;
+
+        ModelMapper modelMapper = new ModelMapper();
+        questionSetDtos = questionSets
+                .stream()
+                .map(questionSet -> {
+                    QuestionSetDto questionSetDto =  modelMapper.map(questionSet, QuestionSetDto.class);
+                    questionSetDto.setUsername(questionSet.getUser().getFirstName()+" "+questionSet.getUser().getLastName());
+                    return questionSetDto ;
+                })
+                .collect(Collectors.toList());
         return questionSetDtos;
     }
 }

@@ -1,8 +1,10 @@
 package core.fu4sbackend.repository;
 
 import core.fu4sbackend.dto.QuestionSetDto;
+import core.fu4sbackend.entity.LearningMaterial;
 import core.fu4sbackend.entity.QuestionSet;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -11,4 +13,6 @@ import java.util.List;
 public interface QuestionSetRepository extends JpaRepository<QuestionSet, Integer> {
     public QuestionSet findById(int id);
 
+    @Query(value = "select q from QuestionSet q where q.title like concat('%',:keyword,'%')")
+    public List<QuestionSet> findByKeyword(String keyword);
 }

@@ -47,6 +47,14 @@ public class PostService {
             Predicate timePredicate = cb.greaterThan(root.get("postTime"), searchRequest.getPostTime());
             predicates.add(timePredicate);
         }
+        if (searchRequest.getIsTest() != null) {
+            System.out.println(searchRequest.getIsTest());
+            Predicate testPredicate;
+            if (searchRequest.getIsTest())
+                testPredicate = cb.isTrue(root.get("isTest"));
+            else testPredicate = cb.isFalse(root.get("isTest"));
+            predicates.add(testPredicate);
+        }
         cq.where(predicates.toArray(new Predicate[predicates.size()]));
         TypedQuery<Post> query = em.createQuery(cq);
         List<PostDto> result = new ArrayList<>();
