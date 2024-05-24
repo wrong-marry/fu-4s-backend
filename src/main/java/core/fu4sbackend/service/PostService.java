@@ -1,7 +1,6 @@
 package core.fu4sbackend.service;
 
 import core.fu4sbackend.dto.PostDto;
-import core.fu4sbackend.dto.QuestionSetDto;
 import core.fu4sbackend.dto.SearchRequest;
 import core.fu4sbackend.entity.Post;
 import core.fu4sbackend.repository.PostRepository;
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class PostService {
@@ -69,5 +67,14 @@ public class PostService {
             result.add(postDto);
         }
         return result;
+    }
+
+    public List<PostDto> getAllByUsername(String username) {
+        List<Post> list = postRepository.getAllByUsername(username);
+        ModelMapper modelMapper = new ModelMapper();
+        return list
+                .stream()
+                .map(post -> modelMapper.map(post, PostDto.class))
+                .toList();
     }
 }

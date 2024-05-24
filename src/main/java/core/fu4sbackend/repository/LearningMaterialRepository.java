@@ -11,4 +11,6 @@ import java.util.List;
 public interface LearningMaterialRepository extends JpaRepository<LearningMaterial, Integer> {
     @Query(value = "select l from LearningMaterial l where l.title like concat('%',:keyword,'%')")
     public List<LearningMaterial> findByKeyword(String keyword);
+    @Query("select l from LearningMaterial l where l.user.username = ?1")
+    public List<LearningMaterial> getAllByUsername(String username);
 }
