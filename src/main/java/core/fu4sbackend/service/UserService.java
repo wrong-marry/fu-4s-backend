@@ -39,4 +39,8 @@ public class UserService {
                     return userRepository.save(user);})
                 .orElseThrow(()->new UsernameNotFoundException(userName)),UserDto.class);
     }
+    public boolean compareOldAndNewPassword(String userName,String newPassword){
+        return userRepository.findByUsername(userName).orElseThrow(()->new UsernameNotFoundException(userName)).getPassword()
+                .equals(newPassword);
+    }
 }
