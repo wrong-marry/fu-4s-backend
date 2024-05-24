@@ -49,6 +49,25 @@ public class LearningMaterialService {
         }
     }
 
+    public List<LearningMaterialDto> findByKeyword(String keyword){
+        List<LearningMaterial> learningMaterials = learningMaterialRepository.findByKeyword(keyword);
+        List<LearningMaterialDto> learningMaterialDtos;
+
+        ModelMapper modelMapper = new ModelMapper();
+        learningMaterialDtos = learningMaterials
+                .stream()
+                .map(learningMaterial -> {
+                    LearningMaterialDto learningMaterialDto =  modelMapper.map(learningMaterial, LearningMaterialDto.class);
+                    learningMaterialDto.setUsername(learningMaterial.getUser().getFirstName()+" "+learningMaterial.getUser().getLastName());
+
+                    return learningMaterialDto ;
+                })
+
+                .collect(Collectors.toList());
+
+        return learningMaterialDtos;
+    }
+
     public List<LearningMaterialDto> getLearningMaterialsByUsername(String username) {
         ModelMapper modelMapper = new ModelMapper();
         return learningMaterialRepository.getAllByUsername(username)
