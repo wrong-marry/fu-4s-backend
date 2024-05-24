@@ -2,7 +2,6 @@ package core.fu4sbackend.controller;
 
 import core.fu4sbackend.dto.PostDto;
 import core.fu4sbackend.dto.SearchRequest;
-import core.fu4sbackend.entity.Post;
 import core.fu4sbackend.service.PostService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,5 +29,10 @@ public class PostController {
                                                       @RequestParam(required = false) boolean is_test) {
         SearchRequest sr = new SearchRequest(title, subject_code, post_time, is_test);
         return new ResponseEntity<>(postService.findAllByCriteria(sr), HttpStatus.OK);
+    }
+
+    @GetMapping("/getAllByUsername")
+    public ResponseEntity<List<PostDto>> showAllPostsByUsername(@RequestParam String username) {
+        return ResponseEntity.ok(postService.getAllByUsername(username));
     }
 }
