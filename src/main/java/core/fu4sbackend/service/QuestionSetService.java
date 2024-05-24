@@ -7,9 +7,9 @@ import core.fu4sbackend.entity.Answer;
 import core.fu4sbackend.entity.Question;
 import core.fu4sbackend.entity.QuestionSet;
 import core.fu4sbackend.repository.QuestionSetRepository;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.modelmapper.ModelMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,17 +42,13 @@ public class QuestionSetService {
                     QuestionSetDto questionSetDto =  modelMapper.map(questionSet, QuestionSetDto.class);
                     questionSetDto.setUsername(questionSet.getUser().getFirstName()+" "+questionSet.getUser().getLastName());
 
-
                     return questionSetDto ;
                 })
 
-
                 .collect(Collectors.toList());
-
 
         return questionSetDtos;
     }
-
     public List<QuestionSetDto> getQuestionSetsByUsername(String username) {
         ModelMapper modelMapper = new ModelMapper();
         List<QuestionSet> questionSetList = questionSetRepository.getAllByUsername(username);

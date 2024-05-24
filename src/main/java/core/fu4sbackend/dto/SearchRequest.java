@@ -10,6 +10,7 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 public class SearchRequest {
+    private String username;
     private String title;
     private String subjectCode;
     private Date postTime;
