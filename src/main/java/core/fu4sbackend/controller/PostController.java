@@ -41,4 +41,16 @@ public class PostController {
     public ResponseEntity<List<PostDto>> showAllPostsByUsername(@RequestParam String username) {
         return ResponseEntity.ok(postService.getAllByUsername(username));
     }
+    @GetMapping("/get")
+    public ResponseEntity<PostDto> getPost(@RequestParam(required = false) String id) {
+        try {
+            if (id==null) throw new Exception();
+            PostDto res = postService.getById(Integer.parseInt(id));
+            if (res == null)
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            return ResponseEntity.ok(res);
+        } catch (Exception e) {
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
+    }
 }

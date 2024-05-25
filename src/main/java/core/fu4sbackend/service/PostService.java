@@ -77,4 +77,11 @@ public class PostService {
                 .map(post -> modelMapper.map(post, PostDto.class))
                 .toList();
     }
+
+    public PostDto getById(int id) {
+        Post p = postRepository.findById(id).orElse(null);
+        if (p==null) return null;
+        ModelMapper modelMapper = new ModelMapper();
+        return modelMapper.map(p, PostDto.class);
+    }
 }
