@@ -53,7 +53,20 @@ public class PostService {
             predicates.add(testPredicate);
         }
         cq.where(predicates.toArray(new Predicate[predicates.size()]));
-        TypedQuery<Post> query = em.createQuery(cq);
+
+        switch (searchRequest.getOrder()) {
+            case DATE_ASC -> cq.orderBy(cb.asc(root.get("postTime")));
+            case TITLE_ASC -> cq.orderBy(cb.asc(root.get("title")));
+            case TITLE_DESC -> cq.orderBy(cb.desc(root.get("title")));
+            case USERNAME_DESC -> cq.orderBy(cb.desc(root.get("username")));
+            case USERNAME_ASC -> cq.orderBy(cb.asc(root.get("username")));
+            case null, default -> cq.orderBy(cb.desc(root.get("postTime")));
+        }
+
+        if (searchRequest.getCurrentPage()==null) searchRequest.setCurrentPage(0);
+        if (searchRequest.getPageSize()==null) searchRequest.setPageSize(1);
+
+        TypedQuery<Post> query = em.createQuery(cq).setMaxResults(searchRequest.getPageSize());
         List<PostDto> result = new ArrayList<>();
         for (Post post : query.getResultList()) {
             result.add(mapPostDto(post));

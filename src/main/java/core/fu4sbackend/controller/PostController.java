@@ -1,5 +1,6 @@
 package core.fu4sbackend.controller;
 
+import core.fu4sbackend.constant.PaginationConstant;
 import core.fu4sbackend.dto.PostDto;
 import core.fu4sbackend.dto.SearchRequest;
 import core.fu4sbackend.entity.Post;
@@ -28,13 +29,16 @@ public class PostController {
                                                       @RequestParam(required = false) String subjectCode,
                                                       @RequestParam(required = false) Date postTime,
                                                       @RequestParam(required = false) Boolean isTest,
-                                                      @RequestParam(required = false) String username) {
-        SearchRequest sr = new SearchRequest(username, title, subjectCode, postTime, isTest);
+                                                      @RequestParam(required = false) String username,
+                                                      @RequestParam(required = false) SearchRequest.SearchOrder order,
+                                                      @RequestParam Integer pageSize,
+                                                      @RequestParam(required = false) Integer pageNo) {
+        SearchRequest sr = new SearchRequest(username, title, subjectCode, postTime, isTest, order, pageSize, pageNo);
         return new ResponseEntity<>(postService.findAllByCriteria(sr), HttpStatus.OK);
     }
     @GetMapping("/recent")
-    public ResponseEntity<List<PostDto>> getRecentPost() {
-        SearchRequest sr = new SearchRequest(null,null,null,null,null);
+    public ResponseEntity<List<PostDto>> getRecentPost(@RequestParam(required = false) Integer pageNo) {
+        SearchRequest sr = new SearchRequest(null,null,null,null,null, SearchRequest.SearchOrder.DATE_DESC, PaginationConstant.RECENT_POST_LOAD_SIZE, pageNo);
         return new ResponseEntity<>(postService.findAllByCriteria(sr), HttpStatus.OK);
     }
     @GetMapping("/getAllByUsername")
