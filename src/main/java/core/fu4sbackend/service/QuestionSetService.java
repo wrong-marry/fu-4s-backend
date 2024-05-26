@@ -37,15 +37,9 @@ public class QuestionSetService {
                 .map(questionSet -> {
                     QuestionSetDto questionSetDto =  modelMapper.map(questionSet, QuestionSetDto.class);
                     questionSetDto.setUsername(questionSet.getUser().getFirstName()+" "+questionSet.getUser().getLastName());
-
-
                     return questionSetDto ;
                 })
-
-
                 .collect(Collectors.toList());
-
-
         return questionSetDtos;
     }
 }

@@ -1,6 +1,8 @@
 package core.fu4sbackend.service;
 
+import core.fu4sbackend.dto.QuestionSetDto;
 import core.fu4sbackend.dto.UserDto;
+import core.fu4sbackend.entity.QuestionSet;
 import core.fu4sbackend.entity.User;
 import core.fu4sbackend.repository.UserRepository;
 import org.modelmapper.ModelMapper;
@@ -8,8 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -27,9 +31,21 @@ public class UserService {
         return userDto;
     }
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public List<UserDto> getAllUsers() {
+        List<User> userList = userRepository.findAll();
+        List<UserDto> userDtos = new ArrayList<>();
+
+        ModelMapper modelMapper = new ModelMapper();
+        userDtos = userList
+                .stream()
+                .map(user  -> {
+                    UserDto userDto =  modelMapper.map(user, UserDto.class);
+                    return userDto ;
+                })
+                .collect(Collectors.toList());
+        return userDtos;
     }
+
     public UserDto editEmailFirstNameLastName(UserDto newUser,String userName){
         ModelMapper modelMapper = new ModelMapper();
         return modelMapper.map(userRepository.findByUsername(userName)
