@@ -11,7 +11,6 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeMap;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -57,16 +56,20 @@ public class PostService {
         TypedQuery<Post> query = em.createQuery(cq);
         List<PostDto> result = new ArrayList<>();
         for (Post post : query.getResultList()) {
-            PostDto postDto = new PostDto();
-            postDto.setId(post.getId());
-            postDto.setTitle(post.getTitle());
-            postDto.setPostTime(post.getPostTime());
-            postDto.setUsername(post.getUser().getUsername());
-            postDto.setSubjectCode(post.getSubject().getCode());
-            postDto.setTest(post.isTest());
-            result.add(postDto);
+            result.add(mapPostDto(post));
         }
         return result;
+    }
+
+    private PostDto mapPostDto(Post post) {
+        PostDto postDto = new PostDto();
+        postDto.setId(post.getId());
+        postDto.setTitle(post.getTitle());
+        postDto.setPostTime(post.getPostTime());
+        postDto.setUsername(post.getUser().getUsername());
+        postDto.setSubjectCode(post.getSubject().getCode());
+        postDto.setTest(post.isTest());
+        return postDto;
     }
 
     public List<PostDto> getAllByUsername(String username) {
@@ -79,9 +82,8 @@ public class PostService {
     }
 
     public PostDto getById(int id) {
-        Post p = postRepository.findById(id).orElse(null);
-        if (p==null) return null;
-        ModelMapper modelMapper = new ModelMapper();
-        return modelMapper.map(p, PostDto.class);
+        Post post = postRepository.findById(id).orElse(null);
+        if (post==null) return null;
+        return mapPostDto(post);
     }
 }
