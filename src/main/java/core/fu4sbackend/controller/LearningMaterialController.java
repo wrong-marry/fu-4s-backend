@@ -28,7 +28,7 @@ public class LearningMaterialController {
         return learningMaterialService.getAllLearningMaterials();
     }
 
-    @GetMapping
+    @GetMapping("/")
     public ResponseEntity<LearningMaterialDto> getLearningMaterialById(@RequestParam(value = "id") String id) {
         LearningMaterialDto learningMaterialDto = learningMaterialService.getLearningMaterialById(Integer.valueOf(id));
         return ResponseEntity.ok(learningMaterialDto);
