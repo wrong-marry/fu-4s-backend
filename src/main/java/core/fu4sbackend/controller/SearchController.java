@@ -40,18 +40,20 @@ public class SearchController {
                                              @RequestParam(required = false) String username,
                                              @RequestParam(required = false) SearchRequest.SearchOrder order,
                                              @RequestParam Integer pageSize,
-                                             @RequestParam(required = false) Integer pageNo) {
+                                             @RequestParam(required = false) Integer page) {
         List<PostDto> questionList;
         List<PostDto> materialList;
         SearchRequest sr;
         JSONObject jsonObject = new JSONObject();
+        Integer totalTest=0, totalMaterial=0;
 
         if (Boolean.FALSE.equals(isTest)) {
             questionList = List.of();
         }
         else {
             sr = new SearchRequest(null,keyword,null,null,true,
-            SearchRequest.SearchOrder.DATE_DESC, pageSize, (pageNo==null)?0:pageNo-1 );
+            SearchRequest.SearchOrder.DATE_DESC, pageSize, (page==null)?0:page-1 );
+            totalTest = postService.countAllByCriteria(sr);
             questionList = postService.findAllByCriteria(sr);
             jsonObject.put("tests", questionList);
         }
@@ -61,11 +63,13 @@ public class SearchController {
         }
         else {
             sr = new SearchRequest(null,keyword,null,null,false,
-                    SearchRequest.SearchOrder.DATE_DESC, pageSize, (pageNo==null)?0:pageNo-1 );
+                    SearchRequest.SearchOrder.DATE_DESC, pageSize, (page==null)?0:page-1 );
             materialList = postService.findAllByCriteria(sr);
+            totalMaterial = postService.countAllByCriteria(sr);
             jsonObject.put("learningMaterials", materialList);
         }
-
+        jsonObject.put("totalTest", totalTest);
+        jsonObject.put("totalMaterial", totalMaterial);
         JSONObject jsonResponse = new JSONObject();
         jsonResponse.put("data", jsonObject);
         return ResponseEntity.ok(jsonResponse.toString());
