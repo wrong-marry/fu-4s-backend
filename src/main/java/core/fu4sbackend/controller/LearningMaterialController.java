@@ -38,7 +38,12 @@ public class LearningMaterialController {
 
     @GetMapping("/")
     public ResponseEntity<LearningMaterialDto> getLearningMaterialById(@RequestParam(value = "id") String id) {
-        LearningMaterialDto learningMaterialDto = learningMaterialService.getLearningMaterialById(Integer.valueOf(id));
+        LearningMaterialDto learningMaterialDto = null;
+        try {
+            learningMaterialDto = learningMaterialService.getLearningMaterialById(Integer.valueOf(id));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         return ResponseEntity.ok(learningMaterialDto);
     }
 }
