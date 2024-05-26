@@ -23,9 +23,17 @@ public class LearningMaterialController {
     public LearningMaterialController(LearningMaterialService learningMaterialService) {
         this.learningMaterialService = learningMaterialService;
     }
+
     @GetMapping("/getAll")
     public List<LearningMaterialDto> getAllLearningMaterials(){
         return learningMaterialService.getAllLearningMaterials();
+    }
+
+    @GetMapping("/getAllByUsername")
+    public ResponseEntity<List<LearningMaterialDto>> getAllLearningMaterialsByUsername(
+            @RequestParam String username
+    ){
+        return ResponseEntity.ok(learningMaterialService.getLearningMaterialsByUsername(username));
     }
 
     @GetMapping("/")
@@ -33,7 +41,7 @@ public class LearningMaterialController {
         LearningMaterialDto learningMaterialDto = learningMaterialService.getLearningMaterialById(Integer.valueOf(id));
         return ResponseEntity.ok(learningMaterialDto);
     }
-
 }
+
 
 

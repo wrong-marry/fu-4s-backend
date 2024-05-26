@@ -1,10 +1,7 @@
 package core.fu4sbackend.dto;
 
 import core.fu4sbackend.constant.PostStatus;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.util.Date;
@@ -13,6 +10,8 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
+@Setter
+@Getter
 public class PostDto {
     private Integer id;
     private Date postTime;

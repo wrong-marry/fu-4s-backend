@@ -1,6 +1,10 @@
 package core.fu4sbackend.service;
 
+import core.fu4sbackend.dto.AnswerDto;
+import core.fu4sbackend.dto.QuestionDto;
 import core.fu4sbackend.dto.QuestionSetDto;
+import core.fu4sbackend.entity.Answer;
+import core.fu4sbackend.entity.Question;
 import core.fu4sbackend.entity.QuestionSet;
 import core.fu4sbackend.repository.QuestionSetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,14 +42,65 @@ public class QuestionSetService {
                     QuestionSetDto questionSetDto =  modelMapper.map(questionSet, QuestionSetDto.class);
                     questionSetDto.setUsername(questionSet.getUser().getFirstName()+" "+questionSet.getUser().getLastName());
 
-
                     return questionSetDto ;
                 })
 
-
                 .collect(Collectors.toList());
 
+        return questionSetDtos;
+    }
+    public List<QuestionSetDto> getQuestionSetsByUsername(String username) {
+        ModelMapper modelMapper = new ModelMapper();
+        List<QuestionSet> questionSetList = questionSetRepository.getAllByUsername(username);
+        List<QuestionSetDto> questionSetDtos = new ArrayList<>();
+        for(QuestionSet questionSet : questionSetList) {
+            QuestionSetDto questionSetDto =  modelMapper.map(questionSet, QuestionSetDto.class);
+            questionSetDto.setUsername(questionSet.getUser().getUsername());
+
+            List<QuestionDto> questionDtos = new ArrayList<>();
+            for(Question question : questionSet.getQuestions()) {
+                QuestionDto questionDto = modelMapper.map(question, QuestionDto.class);
+
+                List<AnswerDto> answerDtos = new ArrayList<>();
+                for(Answer answer : question.getAnswers()) {
+                    answerDtos.add(modelMapper.map(answer, AnswerDto.class));
+                }
+
+                questionDto.setAnswers(answerDtos);
+                questionDtos.add(questionDto);
+            }
+
+            questionSetDto.setQuestions(questionDtos);
+            questionSetDtos.add(questionSetDto);
+        }
 
         return questionSetDtos;
+    }
+
+    public void editQuestionSet(QuestionSetDto questionSetDto, String username) throws Exception {
+        QuestionSet questionSet = questionSetRepository.findById(questionSetDto.getId())
+                .orElse(null);
+
+        if(questionSet == null) throw new Exception("Question Set not found!");
+
+        if(!questionSet.getUser().getUsername().equals(username)) {
+            throw new Exception("Username mismatch!");
+        }
+
+        ModelMapper modelMapper = new ModelMapper();
+        questionSet.setTitle(questionSetDto.getTitle());
+        //questionSet.setQuestions((Collection<Question>) questionSetDto.getQuestions());
+    }
+
+    public void removeQuestionSet(Integer id, String username) throws Exception {
+        QuestionSet questionSet = questionSetRepository.findById(id)
+                .orElse(null);
+
+        if(questionSet == null) throw new Exception("Question Set not found!");
+        if(!questionSet.getUser().getUsername().equals(username)) {
+            throw new Exception("Username mismatch!");
+        }
+
+        questionSetRepository.delete(questionSet);
     }
 }

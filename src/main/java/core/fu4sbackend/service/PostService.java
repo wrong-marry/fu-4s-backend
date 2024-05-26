@@ -1,7 +1,6 @@
 package core.fu4sbackend.service;
 
 import core.fu4sbackend.dto.PostDto;
-import core.fu4sbackend.dto.QuestionSetDto;
 import core.fu4sbackend.dto.SearchRequest;
 import core.fu4sbackend.entity.Post;
 import core.fu4sbackend.repository.PostRepository;
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class PostService {
@@ -39,19 +37,53 @@ public class PostService {
             predicates.add(titlePredicate);
         }
         if (searchRequest.getSubjectCode() != null) {
-            Predicate subjectCodePredicate = cb.like(root.get("subjectCode"), "%" + searchRequest.getSubjectCode() + "%");
+            Predicate subjectCodePredicate = cb.like(root.get("subject").get("code"), "%" + searchRequest.getSubjectCode() + "%");
             predicates.add(subjectCodePredicate);
         }
         if (searchRequest.getPostTime() != null) {
             Predicate timePredicate = cb.greaterThan(root.get("postTime"), searchRequest.getPostTime());
             predicates.add(timePredicate);
         }
+        if (searchRequest.getIsTest() != null) {
+            System.out.println(searchRequest.getIsTest());
+            Predicate testPredicate;
+            if (searchRequest.getIsTest())
+                testPredicate = cb.isTrue(root.get("isTest"));
+            else testPredicate = cb.isFalse(root.get("isTest"));
+            predicates.add(testPredicate);
+        }
         cq.where(predicates.toArray(new Predicate[predicates.size()]));
         TypedQuery<Post> query = em.createQuery(cq);
-        ModelMapper modelMapper = new ModelMapper();
-        List<PostDto> result = query.getResultList().stream()
-                .map(post -> modelMapper.map(post,PostDto.class))
-                .toList();
+        List<PostDto> result = new ArrayList<>();
+        for (Post post : query.getResultList()) {
+            result.add(mapPostDto(post));
+        }
         return result;
+    }
+
+    private PostDto mapPostDto(Post post) {
+        PostDto postDto = new PostDto();
+        postDto.setId(post.getId());
+        postDto.setTitle(post.getTitle());
+        postDto.setPostTime(post.getPostTime());
+        postDto.setUsername(post.getUser().getUsername());
+        postDto.setSubjectCode(post.getSubject().getCode());
+        postDto.setTest(post.isTest());
+        return postDto;
+    }
+
+    public List<PostDto> getAllByUsername(String username) {
+        List<Post> list = postRepository.getAllByUsername(username);
+        ModelMapper modelMapper = new ModelMapper();
+        return list
+                .stream()
+                .map(post -> modelMapper.map(post, PostDto.class))
+                .toList();
+    }
+
+    public PostDto getById(int id) {
+        Post post = postRepository.findById(id).orElse(null);
+        if (post==null) return null;
+        return mapPostDto(post);
     }
 }

@@ -15,12 +15,22 @@ public class UserController {
         this.userService = userService;
     }
     @GetMapping
-    public ResponseEntity<UserDto> getByUsername(@RequestParam("username") String username){
+    public ResponseEntity<UserDto> getByUsername(@RequestParam String username){
         return new ResponseEntity<>(
         userService.getByUsername(username), HttpStatus.OK);
+    }
+    @GetMapping("/compare-password")
+    public boolean compareOldAndNewPassWord(@RequestParam String username,
+                                            @RequestParam String confirmPassword){
+        return userService.compareOldAndNewPassword(username,confirmPassword);
     }
     @PutMapping("/edit-profile")
     public UserDto editEmailFirstNameLastName(@RequestBody UserDto userDto,@RequestParam String username){
         return userService.editEmailFirstNameLastName(userDto,username);
+    }
+    @PutMapping("/change-password")
+    public UserDto changePassword(@RequestParam String username,@RequestParam String newPassword)
+    {
+        return userService.changePassword(newPassword,username);
     }
 }
