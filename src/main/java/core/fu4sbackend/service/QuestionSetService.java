@@ -5,6 +5,9 @@ import core.fu4sbackend.entity.QuestionSet;
 import core.fu4sbackend.repository.QuestionSetRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -45,21 +48,13 @@ public class QuestionSetService {
 
         return questionSetDtos;
     }
-    public List<QuestionSetDto> getQuestionSetsByUsername(String username) {
-        List<QuestionSet> questionSets = questionSetRepository.getAllByUsername(username);
-        List<QuestionSetDto> questionSetDtos;
+    public List<QuestionSetDto> getQuestionSetsByUsername(String username, Integer pageNum) {
+        Pageable paging = PageRequest.of(pageNum, 10, Sort.by("postTime").descending());
 
         ModelMapper modelMapper = new ModelMapper();
-        questionSetDtos = questionSets
-                .stream()
-                .map(questionSet -> {
-                    QuestionSetDto questionSetDto =  modelMapper.map(questionSet, QuestionSetDto.class);
-                    questionSetDto.setUsername(questionSet.getUser().getFirstName()+" "+questionSet.getUser().getLastName());
-                    return questionSetDto ;
-                })
-                .collect(Collectors.toList());
-
-        return questionSetDtos;
+        return questionSetRepository.getAllByUsername(username, paging)
+                .stream().map(learningMaterial -> modelMapper.map(learningMaterial, QuestionSetDto.class))
+                .toList();
     }
 
     public void editQuestionSet(QuestionSetDto questionSetDto, String username) throws Exception {

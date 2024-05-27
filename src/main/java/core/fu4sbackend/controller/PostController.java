@@ -37,10 +37,9 @@ public class PostController {
 
     @GetMapping("/getAllByUsername")
     public ResponseEntity<List<PostDto>> showAllPostsByUsername(@RequestParam String username,
-                                                                @RequestParam Integer pageNum,
-                                                                @RequestParam Integer pageSize) {
+                                                                @RequestParam Integer pageNum) {
         --pageNum;
-        return ResponseEntity.ok(postService.getAllByUsername(username, pageNum, pageSize));
+        return ResponseEntity.ok(postService.getAllByUsername(username, pageNum));
     }
 
     @GetMapping("/get")

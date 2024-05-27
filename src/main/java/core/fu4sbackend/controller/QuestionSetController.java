@@ -27,8 +27,12 @@ public class QuestionSetController {
     }
 
     @GetMapping("/getAllByUsername")
-    public ResponseEntity<List<QuestionSetDto>> getAllQuestionSetsByUsername(String username){
-        return ResponseEntity.ok(questionSetService.getQuestionSetsByUsername(username));
+    public ResponseEntity<List<QuestionSetDto>> getAllQuestionSetsByUsername(
+            @RequestParam String username,
+            @RequestParam Integer pageNum
+    ) {
+        --pageNum;
+        return ResponseEntity.ok(questionSetService.getQuestionSetsByUsername(username, pageNum));
     }
 
     @PutMapping("/editQuestionSet")
