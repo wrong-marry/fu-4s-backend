@@ -1,15 +1,11 @@
 package core.fu4sbackend.service;
 
-import core.fu4sbackend.dto.AnswerDto;
-import core.fu4sbackend.dto.QuestionDto;
 import core.fu4sbackend.dto.QuestionSetDto;
-import core.fu4sbackend.entity.Answer;
-import core.fu4sbackend.entity.Question;
 import core.fu4sbackend.entity.QuestionSet;
 import core.fu4sbackend.repository.QuestionSetRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.modelmapper.ModelMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,29 +46,18 @@ public class QuestionSetService {
         return questionSetDtos;
     }
     public List<QuestionSetDto> getQuestionSetsByUsername(String username) {
+        List<QuestionSet> questionSets = questionSetRepository.getAllByUsername(username);
+        List<QuestionSetDto> questionSetDtos;
+
         ModelMapper modelMapper = new ModelMapper();
-        List<QuestionSet> questionSetList = questionSetRepository.getAllByUsername(username);
-        List<QuestionSetDto> questionSetDtos = new ArrayList<>();
-        for(QuestionSet questionSet : questionSetList) {
-            QuestionSetDto questionSetDto =  modelMapper.map(questionSet, QuestionSetDto.class);
-            questionSetDto.setUsername(questionSet.getUser().getUsername());
-
-            List<QuestionDto> questionDtos = new ArrayList<>();
-            for(Question question : questionSet.getQuestions()) {
-                QuestionDto questionDto = modelMapper.map(question, QuestionDto.class);
-
-                List<AnswerDto> answerDtos = new ArrayList<>();
-                for(Answer answer : question.getAnswers()) {
-                    answerDtos.add(modelMapper.map(answer, AnswerDto.class));
-                }
-
-                questionDto.setAnswers(answerDtos);
-                questionDtos.add(questionDto);
-            }
-
-            questionSetDto.setQuestions(questionDtos);
-            questionSetDtos.add(questionSetDto);
-        }
+        questionSetDtos = questionSets
+                .stream()
+                .map(questionSet -> {
+                    QuestionSetDto questionSetDto =  modelMapper.map(questionSet, QuestionSetDto.class);
+                    questionSetDto.setUsername(questionSet.getUser().getFirstName()+" "+questionSet.getUser().getLastName());
+                    return questionSetDto ;
+                })
+                .collect(Collectors.toList());
 
         return questionSetDtos;
     }
