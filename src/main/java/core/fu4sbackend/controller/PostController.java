@@ -2,14 +2,10 @@ package core.fu4sbackend.controller;
 
 import core.fu4sbackend.dto.PostDto;
 import core.fu4sbackend.dto.SearchRequest;
-import core.fu4sbackend.entity.Post;
 import core.fu4sbackend.service.PostService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.List;
@@ -32,15 +28,21 @@ public class PostController {
         SearchRequest sr = new SearchRequest(username, title, subjectCode, postTime, isTest);
         return new ResponseEntity<>(postService.findAllByCriteria(sr), HttpStatus.OK);
     }
+
     @GetMapping("/recent")
     public ResponseEntity<List<PostDto>> getRecentPost() {
         SearchRequest sr = new SearchRequest(null,null,null,null,null);
         return new ResponseEntity<>(postService.findAllByCriteria(sr), HttpStatus.OK);
     }
+
     @GetMapping("/getAllByUsername")
-    public ResponseEntity<List<PostDto>> showAllPostsByUsername(@RequestParam String username) {
-        return ResponseEntity.ok(postService.getAllByUsername(username));
+    public ResponseEntity<List<PostDto>> showAllPostsByUsername(@RequestParam String username,
+                                                                @RequestParam Integer pageNum,
+                                                                @RequestParam Integer pageSize) {
+        --pageNum;
+        return ResponseEntity.ok(postService.getAllByUsername(username, pageNum, pageSize));
     }
+
     @GetMapping("/get")
     public ResponseEntity<PostDto> getPost(@RequestParam(required = false) String id) {
         try {
