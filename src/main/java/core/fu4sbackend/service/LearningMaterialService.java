@@ -71,12 +71,16 @@ public class LearningMaterialService {
         return learningMaterialDtos;
     }
 
-    public List<LearningMaterialDto> getLearningMaterialsByUsername(String username, Integer pageNum) {
-        Pageable paging = PageRequest.of(pageNum, 10, Sort.by("postTime").descending());
+    public List<LearningMaterialDto> getLearningMaterialsByUsername(String username, Integer pageNum, Integer pageSize) {
+        Pageable paging = PageRequest.of(pageNum, pageSize, Sort.by("postTime").descending());
 
         ModelMapper modelMapper = new ModelMapper();
         return learningMaterialRepository.getAllByUsername(username, paging)
                 .stream().map(learningMaterial -> modelMapper.map(learningMaterial, LearningMaterialDto.class))
                 .toList();
+    }
+
+    public Integer getNumberOfLearningMaterials(String username) {
+        return learningMaterialRepository.getAllByUsername(username, null).size();
     }
 }

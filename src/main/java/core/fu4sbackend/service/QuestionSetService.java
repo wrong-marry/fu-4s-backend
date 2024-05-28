@@ -48,8 +48,8 @@ public class QuestionSetService {
 
         return questionSetDtos;
     }
-    public List<QuestionSetDto> getQuestionSetsByUsername(String username, Integer pageNum) {
-        Pageable paging = PageRequest.of(pageNum, 10, Sort.by("postTime").descending());
+    public List<QuestionSetDto> getQuestionSetsByUsername(String username, Integer pageNum, Integer pageSize) {
+        Pageable paging = PageRequest.of(pageNum, pageSize, Sort.by("postTime").descending());
 
         ModelMapper modelMapper = new ModelMapper();
         return questionSetRepository.getAllByUsername(username, paging)
@@ -82,5 +82,9 @@ public class QuestionSetService {
         }
 
         questionSetRepository.delete(questionSet);
+    }
+
+    public Integer getNumberOfQuestionSets(String username) {
+        return questionSetRepository.getAllByUsername(username, null).size();
     }
 }

@@ -75,8 +75,8 @@ public class PostService {
         return postDto;
     }
 
-    public List<PostDto> getAllByUsername(String username, Integer pageNum) {
-        Pageable paging = PageRequest.of(pageNum, 10, Sort.by("postTime").descending());
+    public List<PostDto> getAllByUsername(String username, Integer pageNum, Integer pageSize) {
+        Pageable paging = PageRequest.of(pageNum, pageSize, Sort.by("postTime").descending());
         List<Post> list = postRepository.getAllByUsername(username, paging);
 
         ModelMapper modelMapper = new ModelMapper();
@@ -90,5 +90,9 @@ public class PostService {
         Post post = postRepository.findById(id).orElse(null);
         if (post==null) return null;
         return mapPostDto(post);
+    }
+
+    public Integer getNumberOfPosts(String username) {
+        return postRepository.getAllByUsername(username, null).size();
     }
 }

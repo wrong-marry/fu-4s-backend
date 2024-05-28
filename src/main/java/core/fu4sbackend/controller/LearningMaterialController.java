@@ -30,10 +30,16 @@ public class LearningMaterialController {
     @GetMapping("/getAllByUsername")
     public ResponseEntity<List<LearningMaterialDto>> getAllLearningMaterialsByUsername(
             @RequestParam String username,
-            @RequestParam Integer pageNum
+            @RequestParam Integer pageNum,
+            @RequestParam Integer pageSize
     ){
         --pageNum;
-        return ResponseEntity.ok(learningMaterialService.getLearningMaterialsByUsername(username, pageNum));
+        return ResponseEntity.ok(learningMaterialService.getLearningMaterialsByUsername(username, pageNum, pageSize));
+    }
+
+    @GetMapping("/getNum")
+    public ResponseEntity<Integer> getNumLearningMaterials(@RequestParam String username){
+        return ResponseEntity.ok(learningMaterialService.getNumberOfLearningMaterials(username));
     }
 
     @GetMapping("/")
