@@ -26,6 +26,7 @@ public class PostService {
         this.em = em;
     }
 
+    //NOT IMPLEMENTED: SEARCH FILTER WITH USERNAME
     public List<PostDto> findAllByCriteria(SearchRequest searchRequest) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Post> cq = cb.createQuery(Post.class);

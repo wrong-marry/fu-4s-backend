@@ -3,7 +3,6 @@ package core.fu4sbackend.controller;
 import core.fu4sbackend.constant.PaginationConstant;
 import core.fu4sbackend.dto.PostDto;
 import core.fu4sbackend.dto.SearchRequest;
-import core.fu4sbackend.entity.Post;
 import core.fu4sbackend.service.PostService;
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
@@ -59,7 +58,7 @@ public class PostController {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             return ResponseEntity.ok(res);
         } catch (Exception e) {
-            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 }

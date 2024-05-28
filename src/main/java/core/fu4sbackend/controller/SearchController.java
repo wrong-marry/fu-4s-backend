@@ -20,14 +20,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/search")
 public class SearchController {
-    private final LearningMaterialService learningMaterialService;
-    private final QuestionSetService questionSetService;
     private final PostService postService;
 
     @Autowired
-    public SearchController(LearningMaterialService learningMaterialService, QuestionSetService questionSetService, PostService postService) {
-        this.learningMaterialService = learningMaterialService;
-        this.questionSetService = questionSetService;
+    public SearchController(PostService postService) {
         this.postService = postService;
     }
 
