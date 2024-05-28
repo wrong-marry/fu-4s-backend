@@ -1,9 +1,11 @@
 package core.fu4sbackend.service;
 
 import core.fu4sbackend.dto.AnswerDto;
+import core.fu4sbackend.dto.LearningMaterialDto;
 import core.fu4sbackend.dto.QuestionDto;
 import core.fu4sbackend.dto.QuestionSetDto;
 import core.fu4sbackend.entity.Answer;
+import core.fu4sbackend.entity.LearningMaterial;
 import core.fu4sbackend.entity.Question;
 import core.fu4sbackend.entity.QuestionSet;
 import core.fu4sbackend.repository.QuestionSetRepository;
@@ -13,6 +15,7 @@ import org.modelmapper.ModelMapper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -47,6 +50,19 @@ public class QuestionSetService {
 
 
         return questionSetDtos;
+    }
+    public QuestionSetDto getQuestionSetById(Integer id) throws Exception {
+        ModelMapper modelMapper = new ModelMapper();
+        Optional<QuestionSet> optionalQuestionSet = questionSetRepository.findById(id);
+
+        if (optionalQuestionSet.isPresent()) {
+            QuestionSet questionSet = optionalQuestionSet.get();
+            QuestionSetDto questionSetDto = modelMapper.map(questionSet, QuestionSetDto.class);
+            questionSetDto.setUsername(questionSet.getUser().getFirstName() + " " + questionSet.getUser().getLastName());
+            return questionSetDto;
+        } else {
+            throw new Exception("Question Set not found with id: " + id);
+        }
     }
     public List<QuestionSetDto> getQuestionSetsByUsername(String username) {
         ModelMapper modelMapper = new ModelMapper();
