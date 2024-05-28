@@ -25,10 +25,32 @@ public class PostController {
 
     @GetMapping("/getAllPost")
     public ResponseEntity<List<PostDto>> showAllPosts(@RequestParam(required = false) String title,
-                                                      @RequestParam(required = false) String subject_code,
-                                                      @RequestParam(required = false) Date post_time,
-                                                      @RequestParam(required = false) boolean is_test) {
-        SearchRequest sr = new SearchRequest(title, subject_code, post_time, is_test);
+                                                      @RequestParam(required = false) String subjectCode,
+                                                      @RequestParam(required = false) Date postTime,
+                                                      @RequestParam(required = false) Boolean isTest,
+                                                      @RequestParam(required = false) String username) {
+        SearchRequest sr = new SearchRequest(username, title, subjectCode, postTime, isTest);
         return new ResponseEntity<>(postService.findAllByCriteria(sr), HttpStatus.OK);
+    }
+    @GetMapping("/recent")
+    public ResponseEntity<List<PostDto>> getRecentPost() {
+        SearchRequest sr = new SearchRequest(null,null,null,null,null);
+        return new ResponseEntity<>(postService.findAllByCriteria(sr), HttpStatus.OK);
+    }
+    @GetMapping("/getAllByUsername")
+    public ResponseEntity<List<PostDto>> showAllPostsByUsername(@RequestParam String username) {
+        return ResponseEntity.ok(postService.getAllByUsername(username));
+    }
+    @GetMapping("/get")
+    public ResponseEntity<PostDto> getPost(@RequestParam(required = false) String id) {
+        try {
+            if (id==null) throw new Exception();
+            PostDto res = postService.getById(Integer.parseInt(id));
+            if (res == null)
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            return ResponseEntity.ok(res);
+        } catch (Exception e) {
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
     }
 }

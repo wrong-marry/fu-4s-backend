@@ -22,10 +22,10 @@ public class UserController {
         return new ResponseEntity<>(
         userService.getByUsername(username), HttpStatus.OK);
     }
-    @GetMapping("/get-password")
+    @GetMapping("/compare-password")
     public boolean compareOldAndNewPassWord(@RequestParam String username,
-                                            @RequestParam String newPassword){
-        return userService.compareOldAndNewPassword(username,newPassword);
+                                            @RequestParam String confirmPassword){
+        return userService.compareOldAndNewPassword(username,confirmPassword);
     }
     @PutMapping("/edit-profile")
     public UserDto editEmailFirstNameLastName(@RequestBody UserDto userDto,@RequestParam String username){
@@ -36,4 +36,10 @@ public class UserController {
         List<UserDto> userDtoList = userService.getAllUsers();
         return userDtoList;
     }
+    @PutMapping("/change-password")
+    public UserDto changePassword(@RequestParam String username,@RequestParam String newPassword)
+    {
+        return userService.changePassword(newPassword,username);
+    }
 }
+
