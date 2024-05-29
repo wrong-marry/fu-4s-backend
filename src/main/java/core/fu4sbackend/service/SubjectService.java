@@ -17,7 +17,7 @@ public class SubjectService {
     }
 
     public List<SubjectDto> getAll() {
-        List<Subject> subjects = subjectRepository.findAll();
+        List<Subject> subjects = subjectRepository.findAllByOrderBySemesterAsc();
 
         ModelMapper modelMapper = new ModelMapper();
         return subjects.stream()
