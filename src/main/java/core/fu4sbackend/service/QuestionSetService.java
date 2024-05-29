@@ -53,7 +53,11 @@ public class QuestionSetService {
 
         ModelMapper modelMapper = new ModelMapper();
         return questionSetRepository.getAllByUsername(username, paging)
-                .stream().map(learningMaterial -> modelMapper.map(learningMaterial, QuestionSetDto.class))
+                .stream().map(questionSet -> {
+                    QuestionSetDto questionSetDto = modelMapper.map(questionSet, QuestionSetDto.class);
+                    questionSetDto.setUsername(questionSet.getUser().getUsername());
+                    return questionSetDto;
+                })
                 .toList();
     }
 
