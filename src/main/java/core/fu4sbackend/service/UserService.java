@@ -35,10 +35,12 @@ public class UserService {
     public UserDto editEmailFirstNameLastName(UserDto newUser,String userName){
         ModelMapper modelMapper = new ModelMapper();
         return modelMapper.map(userRepository.findByUsername(userName)
-                .map(user -> {user.setEmail(newUser.getEmail());
+                .map(user -> {
+                    user.setEmail(newUser.getEmail());
                     user.setFirstName(newUser.getFirstName());
                     user.setLastName(newUser.getLastName());
-                    return userRepository.save(user);})
+                    return userRepository.save(user);
+                })
                 .orElseThrow(()->new UsernameNotFoundException(userName)),UserDto.class);
     }
     public boolean compareOldAndNewPassword(String username,String confirmPassword){
