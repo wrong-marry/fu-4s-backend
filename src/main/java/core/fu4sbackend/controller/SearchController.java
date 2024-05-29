@@ -37,25 +37,37 @@ public class SearchController {
                                              @RequestParam Integer pageSize,
                                              @RequestParam(required = false) Integer page) {
         Boolean test = null;
-        try {test = Boolean.parseBoolean(isTest);} catch (Exception _){}
-        Date time = null;
-        try {time = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss SS:SS'Z'").parse(postTime);}
-        catch (Exception _) {
-            System.out.println("Couldn't parse post time: " + postTime);
+        try {
+            switch (isTest.trim().toLowerCase()) {
+                case "true":
+                    test = true;
+                    break;
+                case "false":
+                    test = false;
+                    break;
+                default:
+                    break;
+            }
+        } catch (Exception _) {
         }
+        Date time = null;
+        try {
+            time = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss SS:SS'Z'").parse(postTime);
+        } catch (Exception _) {
+        }
+
         List<PostDto> questionList;
         List<PostDto> materialList;
         SearchRequest sr;
         JSONObject jsonObject = new JSONObject();
-        Integer totalTest=0, totalMaterial=0;
+        Integer totalTest = 0, totalMaterial = 0;
 
         if (Boolean.FALSE.equals(test)) {
             questionList = List.of();
-        }
-        else {
-            sr = new SearchRequest(username,keyword,subjectCode,time,true,
-            SearchRequest.SearchOrder.DATE_DESC, pageSize, (page==null)?0:page-1 );
-            if (order!=null) sr.setOrder(order);
+        } else {
+            sr = new SearchRequest(username, keyword, subjectCode, time, true,
+                    SearchRequest.SearchOrder.DATE_DESC, pageSize, (page == null) ? 0 : page - 1);
+            if (order != null) sr.setOrder(order);
             totalTest = postService.countAllByCriteria(sr);
             questionList = postService.findAllByCriteria(sr);
             jsonObject.put("tests", questionList);
@@ -63,11 +75,10 @@ public class SearchController {
 
         if (Boolean.TRUE.equals(test)) {
             materialList = List.of();
-        }
-        else {
-            sr = new SearchRequest(username,keyword,subjectCode,time,false,
-                    SearchRequest.SearchOrder.DATE_DESC, pageSize, (page==null)?0:page-1 );
-            if (order!=null) sr.setOrder(order);
+        } else {
+            sr = new SearchRequest(username, keyword, subjectCode, time, false,
+                    SearchRequest.SearchOrder.DATE_DESC, pageSize, (page == null) ? 0 : page - 1);
+            if (order != null) sr.setOrder(order);
             materialList = postService.findAllByCriteria(sr);
             totalMaterial = postService.countAllByCriteria(sr);
             jsonObject.put("learningMaterials", materialList);

@@ -63,11 +63,11 @@ public class PostService {
             case null, default -> cq.orderBy(cb.desc(root.get("postTime")));
         }
 
-        if (searchRequest.getCurrentPage()==null) searchRequest.setCurrentPage(0);
-        if (searchRequest.getPageSize()==null) searchRequest.setPageSize(1);
+        if (searchRequest.getCurrentPage() == null) searchRequest.setCurrentPage(0);
+        if (searchRequest.getPageSize() == null) searchRequest.setPageSize(1);
 
         TypedQuery<Post> query = em.createQuery(cq).setMaxResults(searchRequest.getPageSize())
-                .setFirstResult(searchRequest.getCurrentPage()*searchRequest.getPageSize());
+                .setFirstResult(searchRequest.getCurrentPage() * searchRequest.getPageSize());
         List<PostDto> result = new ArrayList<>();
         for (Post post : query.getResultList()) {
             result.add(mapPostDto(post));
@@ -127,7 +127,7 @@ public class PostService {
 
     public PostDto getById(int id) {
         Post post = postRepository.findById(id).orElse(null);
-        if (post==null) return null;
+        if (post == null) return null;
         return mapPostDto(post);
     }
 }
