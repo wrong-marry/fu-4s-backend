@@ -1,11 +1,8 @@
 package core.fu4sbackend.service;
 
 import core.fu4sbackend.dto.NotificationDto;
-import core.fu4sbackend.dto.QuestionSetDto;
 import core.fu4sbackend.entity.Notification;
-import core.fu4sbackend.entity.QuestionSet;
 import core.fu4sbackend.repository.NotificationRepository;
-import core.fu4sbackend.repository.QuestionSetRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,7 +17,7 @@ public class NotificationService {
     private NotificationRepository notificationRepository;
 
     @Autowired
-    public NotificationService(NotificationRepository notificationRepository) {
+        public NotificationService(NotificationRepository notificationRepository) {
         this.notificationRepository = notificationRepository;
     }
 
@@ -38,4 +35,23 @@ public class NotificationService {
 
         return notificationDtos;
     }
+
+    public List<NotificationDto> getAllByUsername(String username) {
+        List<Notification> list = notificationRepository.getAllByUsername(username);
+        ModelMapper modelMapper = new ModelMapper();
+        return list
+                .stream()
+                .map(notification -> modelMapper.map(notification, NotificationDto.class))
+                .toList();
+    }
+
+    public NotificationDto getById(int id) {
+        Notification notification = notificationRepository.findById(id).orElse(null);
+        if (notification == null) return null;
+
+        ModelMapper modelMapper = new ModelMapper();
+        return modelMapper.map(notification, NotificationDto.class);
+    }
+
+
 }
