@@ -42,9 +42,11 @@ public class QuestionSetService {
     public QuestionSet getById(int id) {
         return questionSetRepository.getById(id);
     }
+
     public void save(QuestionSet questionSet) {
         questionSetRepository.save(questionSet);
     }
+
     public List<QuestionSetDto> getAllQuestionSets() {
         List<QuestionSet> questionSets = questionSetRepository.findAll();
         List<QuestionSetDto> questionSetDtos = new ArrayList<>();
@@ -53,16 +55,17 @@ public class QuestionSetService {
         questionSetDtos = questionSets
                 .stream()
                 .map(questionSet -> {
-                    QuestionSetDto questionSetDto =  modelMapper.map(questionSet, QuestionSetDto.class);
-                    questionSetDto.setUsername(questionSet.getUser().getFirstName()+" "+questionSet.getUser().getLastName());
+                    QuestionSetDto questionSetDto = modelMapper.map(questionSet, QuestionSetDto.class);
+                    questionSetDto.setUsername(questionSet.getUser().getFirstName() + " " + questionSet.getUser().getLastName());
 
-                    return questionSetDto ;
+                    return questionSetDto;
                 })
 
                 .collect(Collectors.toList());
 
         return questionSetDtos;
     }
+
     public List<QuestionSetDto> getQuestionSetsByUsername(String username, Integer pageNum, Integer pageSize) {
         Pageable paging = PageRequest.of(pageNum, pageSize, Sort.by("postTime").descending());
 
@@ -80,9 +83,9 @@ public class QuestionSetService {
         QuestionSet questionSet = questionSetRepository.findById(questionSetDto.getId())
                 .orElse(null);
 
-        if(questionSet == null) throw new Exception("Question Set not found!");
+        if (questionSet == null) throw new Exception("Question Set not found!");
 
-        if(!questionSet.getUser().getUsername().equals(username)) {
+        if (!questionSet.getUser().getUsername().equals(username)) {
             throw new Exception("Username mismatch!");
         }
 
@@ -95,8 +98,8 @@ public class QuestionSetService {
         QuestionSet questionSet = questionSetRepository.findById(id)
                 .orElse(null);
 
-        if(questionSet == null) throw new Exception("Question Set not found!");
-        if(!questionSet.getUser().getUsername().equals(username)) {
+        if (questionSet == null) throw new Exception("Question Set not found!");
+        if (!questionSet.getUser().getUsername().equals(username)) {
             throw new Exception("Username mismatch!");
         }
 
@@ -141,17 +144,17 @@ public class QuestionSetService {
         List<Answer> answers = new ArrayList<>();
         questionDtoList = questions.stream().map(question -> modelMapper.map(question, QuestionDto.class)).toList();
 
-       for(QuestionDto questionDto : questionDtoList) {
+        for (QuestionDto questionDto : questionDtoList) {
             List<AnswerDto> answerDtos = questionDto.getAnswers();
-            for(AnswerDto answerDto : answerDtos) {
+            for (AnswerDto answerDto : answerDtos) {
                 Answer answer = modelMapper.map(answerDto, Answer.class);
                 answer.setQuestion(questionRepository.findById(questionDto.getId()).orElseThrow());
 
                 answers.add(answer);
             }
         }
-       answerRepository.saveAll(answers);
+        answerRepository.saveAll(answers);
 
-       return modelMapper.map(questionSet, QuestionSetDto.class);
+        return modelMapper.map(questionSet, QuestionSetDto.class);
     }
 }
