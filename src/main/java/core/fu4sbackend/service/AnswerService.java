@@ -22,6 +22,8 @@ public class AnswerService {
         List<AnswerDto> answerDtoList = answerRepository.getByQuestionId(questionId)
                 .stream().map(answer -> {
                     AnswerDto answerDto = modelMapper.map(answer,AnswerDto.class);
+                    answerDto.setId(answerDto.getId()%4);
+                    if(answerDto.getId()==0) answerDto.setId(4);
                     return answerDto;
                 })
                 .collect(Collectors.toList());

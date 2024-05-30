@@ -12,6 +12,7 @@ import java.util.List;
 public class QuestionDto {
     private Integer id;
     private String content;
+    private AnswerDto correctAnswer;
 //    private QuestionSet questionSet;
     private List<AnswerDto> answers;
 }

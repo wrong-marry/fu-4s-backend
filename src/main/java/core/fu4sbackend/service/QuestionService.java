@@ -1,5 +1,6 @@
 package core.fu4sbackend.service;
 
+import core.fu4sbackend.dto.AnswerDto;
 import core.fu4sbackend.dto.QuestionDto;
 import core.fu4sbackend.repository.QuestionRepository;
 import org.modelmapper.ModelMapper;
@@ -25,7 +26,15 @@ public class QuestionService {
         return questionRepository.getByQuestionSetId(questionSetId).stream()
                 .map(question -> {
                     QuestionDto questionDto = modelMapper.map(question,QuestionDto.class);
-                    questionDto.setAnswers(answerService.getByQuestionId(question.getId()));
+                    List<AnswerDto> answerDtoList = answerService.getByQuestionId(question.getId());
+                    questionDto.setAnswers(answerDtoList);
+                    for (AnswerDto answerDto:
+                         answerDtoList) {
+                        if(answerDto.isCorrect()){
+                            questionDto.setCorrectAnswer(answerDto);
+                            break;
+                        }
+                    }
                     return questionDto;
                 })
                 .collect(Collectors.toList());
