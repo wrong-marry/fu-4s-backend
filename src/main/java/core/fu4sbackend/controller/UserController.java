@@ -31,11 +31,11 @@ public class UserController {
     public UserDto editEmailFirstNameLastName(@RequestBody UserDto userDto,@RequestParam String username){
         return userService.editEmailFirstNameLastName(userDto,username);
     }
-    @GetMapping("/getAll")
-    public List<UserDto> getAllUsers(){
-        List<UserDto> userDtoList = userService.getAllUsers();
-        return userDtoList;
-    }
+//    @GetMapping("/getAll")
+//    public List<UserDto> getAllUsers(){
+//        List<UserDto> userDtoList = userService.getAllUsers();
+//        return userDtoList;
+//    }
     @PutMapping("/change-password")
     public UserDto changePassword(@RequestParam String username,@RequestParam String newPassword)
     {

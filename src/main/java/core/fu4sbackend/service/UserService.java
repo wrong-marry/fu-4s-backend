@@ -7,6 +7,9 @@ import core.fu4sbackend.entity.User;
 import core.fu4sbackend.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -34,8 +37,9 @@ public class UserService {
         return userDto;
     }
 
-    public List<UserDto> getAllUsers() {
-        List<User> userList = userRepository.findAll();
+    public List<UserDto> getAllUsers(Integer pageNum, Integer pageSize) {
+        Pageable paging = PageRequest.of(pageNum, pageSize, Sort.by("postTime").descending());
+        List<User> userList = userRepository.findAll(paging).toList();
         List<UserDto> userDtos = new ArrayList<>();
 
         ModelMapper modelMapper = new ModelMapper();
@@ -48,6 +52,10 @@ public class UserService {
                 .collect(Collectors.toList());
         return userDtos;
     }
+    public Integer getNumberOfUsers() {
+        return userRepository.findAll().size();
+    }
+
 
     public UserDto editEmailFirstNameLastName(UserDto newUser,String userName){
         ModelMapper modelMapper = new ModelMapper();

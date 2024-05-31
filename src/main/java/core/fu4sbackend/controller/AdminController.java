@@ -21,8 +21,10 @@ public class AdminController {
     }
 
     @GetMapping("/getAllUser")
-    public List<UserDto> getAllUsers(){
-        List<UserDto> userDtoList = userSer.getAllUsers();
+    public List<UserDto> getAllUsers(@RequestParam Integer pageNum,
+                                     @RequestParam Integer pageSize){
+        --pageNum;
+        List<UserDto> userDtoList = userSer.getAllUsers(pageNum, pageSize);
         return userDtoList;
     }
 
