@@ -5,6 +5,9 @@ import core.fu4sbackend.entity.LearningMaterial;
 import core.fu4sbackend.repository.LearningMaterialRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -68,10 +71,16 @@ public class LearningMaterialService {
         return learningMaterialDtos;
     }
 
-    public List<LearningMaterialDto> getLearningMaterialsByUsername(String username) {
+    public List<LearningMaterialDto> getLearningMaterialsByUsername(String username, Integer pageNum, Integer pageSize) {
+        Pageable paging = PageRequest.of(pageNum, pageSize, Sort.by("postTime").descending());
+
         ModelMapper modelMapper = new ModelMapper();
-        return learningMaterialRepository.getAllByUsername(username)
+        return learningMaterialRepository.getAllByUsername(username, paging)
                 .stream().map(learningMaterial -> modelMapper.map(learningMaterial, LearningMaterialDto.class))
                 .toList();
+    }
+
+    public Integer getNumberOfLearningMaterials(String username) {
+        return learningMaterialRepository.getAllByUsername(username, null).size();
     }
 }
