@@ -28,8 +28,13 @@ public class QuestionSetController {
     }
 
     @GetMapping("/getAllByUsername")
-    public ResponseEntity<List<QuestionSetDto>> getAllQuestionSetsByUsername(String username){
-        return ResponseEntity.ok(questionSetService.getQuestionSetsByUsername(username));
+    public ResponseEntity<List<QuestionSetDto>> getAllQuestionSetsByUsername(
+            @RequestParam String username,
+            @RequestParam Integer pageNum,
+            @RequestParam Integer pageSize
+    ) {
+        --pageNum;
+        return ResponseEntity.ok(questionSetService.getQuestionSetsByUsername(username, pageNum, pageSize));
     }
 
     @PutMapping("/editQuestionSet")
@@ -55,4 +60,10 @@ public class QuestionSetController {
         }
         return ResponseEntity.ok(questionSetDto);
     }
+
+    @GetMapping("/getNum")
+    public ResponseEntity<Integer> getNumQuestionSets(@RequestParam String username){
+        return ResponseEntity.ok(questionSetService.getNumberOfQuestionSets(username));
+    }
+
 }
