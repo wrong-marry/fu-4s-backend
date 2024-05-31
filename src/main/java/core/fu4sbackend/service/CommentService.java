@@ -13,14 +13,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class CommentService {
-    private UserRepository userRepository;
-    private PostRepository postRepository;
-    private CommentRepository commentRepository;
+    private final UserRepository userRepository;
+    private final PostRepository postRepository;
+    private final CommentRepository commentRepository;
 
     @Autowired
     public CommentService(UserRepository userRepository, PostRepository postRepository, CommentRepository commentRepository) {
@@ -29,25 +28,27 @@ public class CommentService {
         this.commentRepository = commentRepository;
     }
 
-    public CommentDto findById(long id) {
+    public CommentDto findById(Integer id) {
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.createTypeMap(CommentDto.class, Comment.class);
         Comment comment = commentRepository.findById(id).orElse(null);
         if (comment == null) return null;
         CommentDto commentDto = modelMapper.map(comment, CommentDto.class);
         commentDto.setUsername(comment.getUser().getFirstName() + comment.getUser().getLastName());
+        commentDto.setAccount(comment.getUser().getUsername());
         return commentDto;
     }
 
-    public List<CommentDto> findByPostId(long postId) {
+    public List<CommentDto> findByPostId(Integer postId) {
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.createTypeMap(CommentDto.class, Comment.class);
         List<Comment> comments = commentRepository.findByPostId(postId);
         return comments.stream().map(comment -> {
             CommentDto commentDto = modelMapper.map(comment, CommentDto.class);
             commentDto.setUsername(comment.getUser().getFirstName() + comment.getUser().getLastName());
+            commentDto.setAccount(comment.getUser().getUsername());
             return commentDto;
-        }).toList();
+        }).filter(comment -> comment.getStatus() == CommentStatus.ACTIVE).toList();
     }
 
     @Transactional
@@ -62,6 +63,26 @@ public class CommentService {
         c.setContent(commentDto.getContent());
         c.setDate(commentDto.getDate());
         c.setStatus(CommentStatus.ACTIVE);
+        commentRepository.save(c);
+        return 0;
+    }
+
+    public List<CommentDto> staffFindByPostId(Integer postId) {
+        ModelMapper modelMapper = new ModelMapper();
+        modelMapper.createTypeMap(CommentDto.class, Comment.class);
+        List<Comment> comments = commentRepository.findByPostId(postId);
+        return comments.stream().map(comment -> {
+            CommentDto commentDto = modelMapper.map(comment, CommentDto.class);
+            commentDto.setUsername(comment.getUser().getFirstName() + comment.getUser().getLastName());
+            commentDto.setAccount(comment.getUser().getUsername());
+            return commentDto;
+        }).toList();
+    }
+
+    public int update(Integer id, String commentContent) {
+        Comment c = commentRepository.findById(id).orElse(null);
+        if (c == null) return -1;
+        c.setContent(commentContent);
         commentRepository.save(c);
         return 0;
     }
