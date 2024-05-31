@@ -12,7 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/admin")
-@Secured("ADMIN")
+//@Secured("ADMIN")
 public class AdminController {
     private final UserService userSer;
     @Autowired
@@ -20,7 +20,7 @@ public class AdminController {
         this.userSer = userSer;
     }
 
-    @GetMapping("/getAll")
+    @GetMapping("/getAllUser")
     public List<UserDto> getAllUsers(){
         List<UserDto> userDtoList = userSer.getAllUsers();
         return userDtoList;
