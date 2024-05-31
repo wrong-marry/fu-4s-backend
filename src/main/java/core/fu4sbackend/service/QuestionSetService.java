@@ -8,6 +8,9 @@ import core.fu4sbackend.entity.Question;
 import core.fu4sbackend.entity.QuestionSet;
 import core.fu4sbackend.repository.QuestionSetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.modelmapper.ModelMapper;
 
@@ -49,32 +52,13 @@ public class QuestionSetService {
 
         return questionSetDtos;
     }
-    public List<QuestionSetDto> getQuestionSetsByUsername(String username) {
+    public List<QuestionSetDto> getQuestionSetsByUsername(String username, Integer pageNum, Integer pageSize) {
+        Pageable paging = PageRequest.of(pageNum, pageSize, Sort.by("postTime").descending());
+
         ModelMapper modelMapper = new ModelMapper();
-        List<QuestionSet> questionSetList = questionSetRepository.getAllByUsername(username);
-        List<QuestionSetDto> questionSetDtos = new ArrayList<>();
-        for(QuestionSet questionSet : questionSetList) {
-            QuestionSetDto questionSetDto =  modelMapper.map(questionSet, QuestionSetDto.class);
-            questionSetDto.setUsername(questionSet.getUser().getUsername());
-
-            List<QuestionDto> questionDtos = new ArrayList<>();
-            for(Question question : questionSet.getQuestions()) {
-                QuestionDto questionDto = modelMapper.map(question, QuestionDto.class);
-
-                List<AnswerDto> answerDtos = new ArrayList<>();
-                for(Answer answer : question.getAnswers()) {
-                    answerDtos.add(modelMapper.map(answer, AnswerDto.class));
-                }
-
-                questionDto.setAnswers(answerDtos);
-                questionDtos.add(questionDto);
-            }
-
-            questionSetDto.setQuestions(questionDtos);
-            questionSetDtos.add(questionSetDto);
-        }
-
-        return questionSetDtos;
+        return questionSetRepository.getAllByUsername(username, paging)
+                .stream().map(learningMaterial -> modelMapper.map(learningMaterial, QuestionSetDto.class))
+                .toList();
     }
 
     public void editQuestionSet(QuestionSetDto questionSetDto, String username) throws Exception {

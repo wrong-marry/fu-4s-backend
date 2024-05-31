@@ -28,13 +28,6 @@ public class QuestionService {
                     QuestionDto questionDto = modelMapper.map(question,QuestionDto.class);
                     List<AnswerDto> answerDtoList = answerService.getByQuestionId(question.getId());
                     questionDto.setAnswers(answerDtoList);
-                    for (AnswerDto answerDto:
-                         answerDtoList) {
-                        if(answerDto.isCorrect()){
-                            questionDto.setCorrectAnswer(answerDto);
-                            break;
-                        }
-                    }
                     return questionDto;
                 })
                 .collect(Collectors.toList());
