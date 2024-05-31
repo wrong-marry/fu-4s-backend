@@ -86,4 +86,13 @@ public class CommentService {
         commentRepository.save(c);
         return 0;
     }
+
+    public int delete(Integer id) {
+        try {
+            commentRepository.deleteById(id);
+            return 0;
+        } catch (Exception e) {
+            return 1;
+        }
+    }
 }
