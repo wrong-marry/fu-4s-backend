@@ -66,7 +66,7 @@ public class PostService {
         postDto.setId(post.getId());
         postDto.setTitle(post.getTitle());
         postDto.setPostTime(post.getPostTime());
-        postDto.setUsername(post.getUser().getUsername());
+        postDto.setUsername(post.getUser().getFirstName()+" "+post.getUser().getLastName());
         postDto.setSubjectCode(post.getSubject().getCode());
         postDto.setTest(post.isTest());
         return postDto;
