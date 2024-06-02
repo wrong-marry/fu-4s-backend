@@ -1,5 +1,7 @@
 
 package core.fu4sbackend.controller;
+import core.fu4sbackend.constant.UserRole;
+import core.fu4sbackend.dto.PostDto;
 import core.fu4sbackend.dto.UserDto;
 import core.fu4sbackend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +28,24 @@ public class AdminController {
         --pageNum;
         List<UserDto> userDtoList = userSer.getAllUsers(pageNum, pageSize);
         return userDtoList;
+    }
+
+    @GetMapping("/getNumUser")
+    public ResponseEntity<Integer> getNumberOfUsers(){
+        return ResponseEntity.ok(userSer.getNumberOfUsers());
+    }
+
+    @GetMapping("/getAllByUserRole")
+    public List<UserDto> getAllByUserRole(@RequestParam UserRole userrole,
+                                          @RequestParam Integer pageNum,
+                                         @RequestParam Integer pageSize){
+        --pageNum;
+        List<UserDto> userDtoList = userSer.getAllByUserRole(userrole,pageNum, pageSize);
+        return userDtoList;
+    }
+    @GetMapping("/getNumEachRole")
+    public ResponseEntity<Integer> getNumUsesEachRole(@RequestParam UserRole userrole){
+        return ResponseEntity.ok(userSer.getNumberOfUserByRole(userrole));
     }
 
 }
