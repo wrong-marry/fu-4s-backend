@@ -21,14 +21,18 @@ public class NotificationController {
         this.notificationService = notificationService;
     }
 
-    @GetMapping("/getAll")
-    public List<NotificationDto> getAllNotifications() {
-        List<NotificationDto> notifications = notificationService.getAllNotificationDtos();
-        return notifications;
-    }
 
     @GetMapping("/getAllByUsername")
-    public ResponseEntity<List<NotificationDto>> showAllNotificationsByUsername(@RequestParam String username) {
-        return ResponseEntity.ok(notificationService.getAllByUsername(username));
+    public ResponseEntity<List<NotificationDto>> showAllNotificationsByUsername(@RequestParam String username,
+                                                                                 @RequestParam Integer pageNum,
+                                                                                @RequestParam Integer pageSize
+    ) {
+        --pageNum;
+        return ResponseEntity.ok(notificationService.getAllByUsername(username, pageNum, pageSize));
+    }
+
+    @GetMapping("/getNum")
+    public ResponseEntity<Integer> getNumNotifications(@RequestParam String username){
+        return ResponseEntity.ok(notificationService.getNumberOfNotifications(username));
     }
 }

@@ -5,6 +5,9 @@ import core.fu4sbackend.entity.Notification;
 import core.fu4sbackend.repository.NotificationRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -21,23 +24,14 @@ public class NotificationService {
         this.notificationRepository = notificationRepository;
     }
 
-    public List<NotificationDto> getAllNotificationDtos() {
-        List<Notification> notifications = notificationRepository.findAll();
-        List<NotificationDto> notificationDtos = new ArrayList<>();
-
-        ModelMapper modelMapper = new ModelMapper();
-        notificationDtos = notifications
-                .stream()
-                .map(notification -> {
-                    return modelMapper.map(notification, NotificationDto.class);
-                })
-                .collect(Collectors.toList());
-
-        return notificationDtos;
+    public Integer getNumberOfNotifications(String username) {
+        return notificationRepository.getAllByUsername(username, null).size();
     }
 
-    public List<NotificationDto> getAllByUsername(String username) {
-        List<Notification> list = notificationRepository.getAllByUsername(username);
+
+    public List<NotificationDto> getAllByUsername(String username, Integer pageNum, Integer pageSize) {
+        Pageable paging = PageRequest.of(pageNum, pageSize);
+        List<Notification> list = notificationRepository.getAllByUsername(username,paging);
         ModelMapper modelMapper = new ModelMapper();
         return list
                 .stream()
@@ -52,6 +46,8 @@ public class NotificationService {
         ModelMapper modelMapper = new ModelMapper();
         return modelMapper.map(notification, NotificationDto.class);
     }
+
+
 
 
 }
