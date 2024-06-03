@@ -6,6 +6,7 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,8 +22,17 @@ public class CommentController {
     }
 
     @GetMapping("/post/{id}")
-    public ResponseEntity<List<CommentDto>> getCommentsInAPost(@PathVariable int id) {
-        return new ResponseEntity<>(commentService.findByPostId(id), HttpStatus.OK);
+    public ResponseEntity<List<CommentDto>> getCommentsInAPost(@PathVariable int id,
+                                                               @RequestParam(required = false) String offset,
+                                                               @RequestParam(required = false) String isStaff,
+                                                               @RequestParam(required = false) String sorted) {
+        return new ResponseEntity<>(
+                commentService.findByPostId(
+                        id,
+                        offset == null || offset.trim().matches("[1-9]+") ? 0 : Integer.parseInt(offset),
+                        Boolean.valueOf(isStaff),
+                        sorted != null),
+                HttpStatus.OK);
     }
 
     @PostMapping("/upload/post-{id}")
@@ -45,6 +55,7 @@ public class CommentController {
         }
     }
 
+    //OWNER ONLY
     @PutMapping("/update/{id}")
     public ResponseEntity<String> updateComment(@PathVariable int id, @RequestBody CommentDto commentDto) {
         JSONObject jsonObject = new JSONObject();
@@ -60,6 +71,7 @@ public class CommentController {
         return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
     }
 
+    //OWNER ONLY
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteComment(@PathVariable int id) {
         JSONObject jsonObject = new JSONObject();
@@ -71,5 +83,27 @@ public class CommentController {
             jsonObject.put("message", "Something went wrong");
             return new ResponseEntity<>(jsonObject.toString(), HttpStatus.CONFLICT);
         }
+    }
+
+    //STAFF OR ADMIN ONLY
+    @PutMapping("/status/{id}")
+    public ResponseEntity<String> updateCommentStatus(@PathVariable int id) {
+        JSONObject jsonObject = new JSONObject();
+        return switch (commentService.updateStatus(id)) {
+            case -1 -> {
+                jsonObject.put("message", "Invalid comment id");
+                //DEBUG
+                System.out.println("Comment id: " + id);
+                yield new ResponseEntity<>(jsonObject.toString(), HttpStatus.CONFLICT);
+            }
+            case 0 -> {
+                jsonObject.put("message", "Successfully updated status");
+                yield new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
+            }
+            default -> {
+                jsonObject.put("message", "Something went wrong");
+                yield new ResponseEntity<>(jsonObject.toString(), HttpStatus.CONFLICT);
+            }
+        };
     }
 }

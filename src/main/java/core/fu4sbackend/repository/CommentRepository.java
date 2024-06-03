@@ -9,6 +9,10 @@ import java.util.List;
 
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Integer> {
+    @Query(value = "select comment from Comment comment where comment.post.id = ?1 order by comment.id desc")
+    public List<Comment> findByPostIdOrderByTime(Integer id);
+
     @Query(value = "select comment from Comment comment where comment.post.id = ?1")
     public List<Comment> findByPostId(Integer id);
+
 }

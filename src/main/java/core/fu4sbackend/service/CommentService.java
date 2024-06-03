@@ -1,6 +1,7 @@
 package core.fu4sbackend.service;
 
 import core.fu4sbackend.constant.CommentStatus;
+import core.fu4sbackend.constant.PaginationConstant;
 import core.fu4sbackend.dto.CommentDto;
 import core.fu4sbackend.entity.Comment;
 import core.fu4sbackend.entity.Post;
@@ -39,16 +40,17 @@ public class CommentService {
         return commentDto;
     }
 
-    public List<CommentDto> findByPostId(Integer postId) {
+    public List<CommentDto> findByPostId(Integer postId, Integer offset, Boolean isStaff, Boolean sorted) {
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.createTypeMap(CommentDto.class, Comment.class);
-        List<Comment> comments = commentRepository.findByPostId(postId);
+        List<Comment> comments = sorted ? commentRepository.findByPostIdOrderByTime(postId) : commentRepository.findByPostId(postId);
         return comments.stream().map(comment -> {
-            CommentDto commentDto = modelMapper.map(comment, CommentDto.class);
-            commentDto.setUsername(comment.getUser().getFirstName() + comment.getUser().getLastName());
-            commentDto.setAccount(comment.getUser().getUsername());
-            return commentDto;
-        }).filter(comment -> comment.getStatus() == CommentStatus.ACTIVE).toList();
+                    CommentDto commentDto = modelMapper.map(comment, CommentDto.class);
+                    commentDto.setUsername(comment.getUser().getFirstName() + comment.getUser().getLastName());
+                    commentDto.setAccount(comment.getUser().getUsername());
+                    return commentDto;
+                }).filter(comment -> isStaff || comment.getStatus() == CommentStatus.ACTIVE)
+                .skip(offset).limit(PaginationConstant.COMMENT_LOAD_SIZE).toList();
     }
 
     @Transactional
@@ -67,18 +69,6 @@ public class CommentService {
         return 0;
     }
 
-    public List<CommentDto> staffFindByPostId(Integer postId) {
-        ModelMapper modelMapper = new ModelMapper();
-        modelMapper.createTypeMap(CommentDto.class, Comment.class);
-        List<Comment> comments = commentRepository.findByPostId(postId);
-        return comments.stream().map(comment -> {
-            CommentDto commentDto = modelMapper.map(comment, CommentDto.class);
-            commentDto.setUsername(comment.getUser().getFirstName() + comment.getUser().getLastName());
-            commentDto.setAccount(comment.getUser().getUsername());
-            return commentDto;
-        }).toList();
-    }
-
     public int update(Integer id, String commentContent) {
         Comment c = commentRepository.findById(id).orElse(null);
         if (c == null) return -1;
@@ -92,6 +82,21 @@ public class CommentService {
             commentRepository.deleteById(id);
             return 0;
         } catch (Exception e) {
+            return 1;
+        }
+    }
+
+    public int updateStatus(Integer id) {
+        try {
+            Comment c = commentRepository.findById(id).orElse(null);
+            if (c == null) return -1;
+            if (c.getStatus() == CommentStatus.ACTIVE)
+                c.setStatus(CommentStatus.HIDDEN);
+            else c.setStatus(CommentStatus.ACTIVE);
+            commentRepository.save(c);
+            return 0;
+        } catch (Exception e) {
+            e.printStackTrace();
             return 1;
         }
     }
