@@ -1,15 +1,26 @@
 package core.fu4sbackend.service;
 
+import core.fu4sbackend.constant.UserRole;
+import core.fu4sbackend.dto.PostDto;
+import core.fu4sbackend.dto.QuestionSetDto;
 import core.fu4sbackend.dto.UserDto;
+import core.fu4sbackend.entity.Post;
+import core.fu4sbackend.entity.QuestionSet;
 import core.fu4sbackend.entity.User;
 import core.fu4sbackend.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -29,9 +40,42 @@ public class UserService {
         return userDto;
     }
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public List<UserDto> getAllUsers(Integer pageNum, Integer pageSize) {
+        Pageable paging = PageRequest.of(pageNum, pageSize, Sort.by("username").descending());
+        List<User> userList = userRepository.findAll(paging).toList();
+        List<UserDto> userDtos = new ArrayList<>();
+
+        ModelMapper modelMapper = new ModelMapper();
+        userDtos = userList
+                .stream()
+                .map(user  -> {
+                    UserDto userDto =  modelMapper.map(user, UserDto.class);
+                    return userDto ;
+                })
+                .collect(Collectors.toList());
+        return userDtos;
     }
+
+    public List<UserDto> getAllByUserRole (UserRole userrole, Integer pageNum, Integer pageSize) {
+        Pageable paging = PageRequest.of(pageNum, pageSize, Sort.by("username").descending());
+        List<User> list = userRepository.getAllByUserRole(userrole, paging);
+
+        ModelMapper modelMapper = new ModelMapper();
+        return list
+                .stream()
+                .map(user -> modelMapper.map(user, UserDto.class))
+                .toList();
+    }
+
+    public Integer getNumberOfUserByRole(UserRole userrole) {
+        return userRepository.getAllByUserRole(userrole, null).size();
+    }
+
+    public Integer getNumberOfUsers() {
+        return userRepository.findAll().size();
+    }
+
+
     public UserDto editEmailFirstNameLastName(UserDto newUser,String userName){
         ModelMapper modelMapper = new ModelMapper();
         return modelMapper.map(userRepository.findByUsername(userName)

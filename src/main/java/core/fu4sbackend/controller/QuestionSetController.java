@@ -1,5 +1,6 @@
 package core.fu4sbackend.controller;
 
+import core.fu4sbackend.dto.LearningMaterialDto;
 import core.fu4sbackend.dto.QuestionSetDto;
 import core.fu4sbackend.service.QuestionSetService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +28,13 @@ public class QuestionSetController {
     }
 
     @GetMapping("/getAllByUsername")
-    public ResponseEntity<List<QuestionSetDto>> getAllQuestionSetsByUsername(String username){
-        return ResponseEntity.ok(questionSetService.getQuestionSetsByUsername(username));
+    public ResponseEntity<List<QuestionSetDto>> getAllQuestionSetsByUsername(
+            @RequestParam String username,
+            @RequestParam Integer pageNum,
+            @RequestParam Integer pageSize
+    ) {
+        --pageNum;
+        return ResponseEntity.ok(questionSetService.getQuestionSetsByUsername(username, pageNum, pageSize));
     }
 
     @PutMapping("/editQuestionSet")
@@ -44,4 +50,20 @@ public class QuestionSetController {
         questionSetService.removeQuestionSet(id, username);
         return ResponseEntity.ok("ok");
     }
+    @GetMapping("/")
+    public ResponseEntity<QuestionSetDto> getQuestionSetById(@RequestParam(value = "id") String id) {
+        QuestionSetDto questionSetDto = null;
+        try {
+            questionSetDto = questionSetService.getQuestionSetById(Integer.valueOf(id));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return ResponseEntity.ok(questionSetDto);
+    }
+
+    @GetMapping("/getNum")
+    public ResponseEntity<Integer> getNumQuestionSets(@RequestParam String username){
+        return ResponseEntity.ok(questionSetService.getNumberOfQuestionSets(username));
+    }
+
 }

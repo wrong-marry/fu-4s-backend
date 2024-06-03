@@ -11,6 +11,9 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -72,8 +75,10 @@ public class PostService {
         return postDto;
     }
 
-    public List<PostDto> getAllByUsername(String username) {
-        List<Post> list = postRepository.getAllByUsername(username);
+    public List<PostDto> getAllByUsername(String username, Integer pageNum, Integer pageSize) {
+        Pageable paging = PageRequest.of(pageNum, pageSize, Sort.by("postTime").descending());
+        List<Post> list = postRepository.getAllByUsername(username, paging);
+
         ModelMapper modelMapper = new ModelMapper();
         return list
                 .stream()
@@ -85,5 +90,9 @@ public class PostService {
         Post post = postRepository.findById(id).orElse(null);
         if (post==null) return null;
         return mapPostDto(post);
+    }
+
+    public Integer getNumberOfPosts(String username) {
+        return postRepository.getAllByUsername(username, null).size();
     }
 }
