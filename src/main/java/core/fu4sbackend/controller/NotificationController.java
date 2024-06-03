@@ -35,4 +35,11 @@ public class NotificationController {
     public ResponseEntity<Integer> getNumNotifications(@RequestParam String username){
         return ResponseEntity.ok(notificationService.getNumberOfNotifications(username));
     }
+
+    @PatchMapping("/api/v1/notification/{id}/markAsUnread")
+    public ResponseEntity<?> markNotificationAsUnread(@PathVariable(value = "id") String id) {
+        notificationService.markNotificationAsUnread(id);
+        return ResponseEntity.ok().build();
+    }
+
 }
