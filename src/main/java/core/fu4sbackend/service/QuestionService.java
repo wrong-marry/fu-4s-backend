@@ -6,8 +6,11 @@ import core.fu4sbackend.repository.QuestionRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,5 +34,19 @@ public class QuestionService {
                     return questionDto;
                 })
                 .collect(Collectors.toList());
+    }
+    public List<QuestionDto> getByQuestionSetIdRandomly(@RequestParam int questionSetId, @RequestParam int numberOfQuestions) {
+        Random rand = new Random();
+        List<QuestionDto> allQuestions = getByQuestionSetId(questionSetId);
+        List<QuestionDto> randomQuestions = new ArrayList<>();
+
+        for (int i = 0; i < numberOfQuestions; i++) {
+            int randomIndex = rand.nextInt(allQuestions.size());
+            QuestionDto questionDto = allQuestions.get(randomIndex);
+            questionDto.randomlyOrderAnswers();
+            randomQuestions.add(questionDto);
+            allQuestions.remove(randomIndex);
+        }
+        return randomQuestions;
     }
 }
