@@ -69,4 +69,9 @@ public class QuestionSetController {
     public ResponseEntity<Boolean> isValidUser(@RequestParam String username, @RequestParam Integer id) {
         return ResponseEntity.ok(questionSetService.isValidUser(username, id));
     }
+
+    @GetMapping("/getById")
+    public ResponseEntity<QuestionSetDto> getById(@RequestParam Integer id) {
+        return ResponseEntity.ok(questionSetService.getById(id));
+    }
 }
