@@ -1,5 +1,6 @@
 package core.fu4sbackend.service;
 
+import core.fu4sbackend.constant.PostStatus;
 import core.fu4sbackend.dto.PostDto;
 import core.fu4sbackend.dto.SearchRequest;
 import core.fu4sbackend.entity.Post;
@@ -86,6 +87,17 @@ public class PostService {
                 .toList();
     }
 
+    public List<PostDto> getAllByPostStatus(PostStatus status, Integer pageNum, Integer pageSize) {
+        Pageable paging = PageRequest.of(pageNum, pageSize, Sort.by("postTime").descending());
+        List<Post> list = postRepository.getAllPostByStatus(status,paging);
+
+        ModelMapper modelMapper = new ModelMapper();
+        return list
+                .stream()
+                .map(post -> modelMapper.map(post, PostDto.class))
+                .toList();
+    }
+
     public PostDto getById(int id) {
         Post post = postRepository.findById(id).orElse(null);
         if (post==null) return null;
@@ -94,5 +106,8 @@ public class PostService {
 
     public Integer getNumberOfPosts(String username) {
         return postRepository.getAllByUsername(username, null).size();
+    }
+    public Integer getNumberOfPostsEachStatus(PostStatus status) {
+        return postRepository.getAllPostByStatus(status, null).size();
     }
 }
