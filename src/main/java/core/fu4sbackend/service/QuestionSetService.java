@@ -125,7 +125,7 @@ public class QuestionSetService {
         questionSet.setSubject(subjectRepository.findById(subjectCode).orElseThrow());
         questionSet.setUser(userRepository.findByUsername(username).orElseThrow());
         questionSet.setPostTime(new Date(System.currentTimeMillis()));
-        questionSet.setStatus(PostStatus.ACTIVE);
+        questionSet.setStatus(PostStatus.PENDING_APPROVE);
         questionSet.setAttempts(0);
         questionSet.setTest(true);
         questionSet = questionSetRepository.save(questionSet);
