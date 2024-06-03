@@ -117,6 +117,7 @@ public class PostService {
         postDto.setUsername(post.getUser().getUsername());
         postDto.setSubjectCode(post.getSubject().getCode());
         postDto.setTest(post.isTest());
+        postDto.setStatus(post.getStatus());
         return postDto;
     }
 

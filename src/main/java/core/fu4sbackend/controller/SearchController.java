@@ -48,12 +48,12 @@ public class SearchController {
                 default:
                     break;
             }
-        } catch (Exception _) {
+        } catch (Exception t) {
         }
         Date time = null;
         try {
             time = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss SS:SS'Z'").parse(postTime);
-        } catch (Exception _) {
+        } catch (Exception t) {
         }
 
         List<PostDto> questionList;
