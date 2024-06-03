@@ -64,4 +64,9 @@ public class QuestionSetController {
     ) {
         return ResponseEntity.ok(questionSetService.addNewQuestionSet(title, subjectCode, questionDtoList, username));
     }
+
+    @GetMapping("/isValidUser")
+    public ResponseEntity<Boolean> isValidUser(@RequestParam String username, @RequestParam Integer id) {
+        return ResponseEntity.ok(questionSetService.isValidUser(username, id));
+    }
 }

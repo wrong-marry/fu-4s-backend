@@ -157,4 +157,8 @@ public class QuestionSetService {
 
         return modelMapper.map(questionSet, QuestionSetDto.class);
     }
+
+    public boolean isValidUser(String username, Integer id) {
+        return questionSetRepository.findById(id).orElseThrow().getUser().getUsername().equals(username);
+    }
 }
