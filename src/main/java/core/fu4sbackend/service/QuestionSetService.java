@@ -55,6 +55,7 @@ public class QuestionSetService {
 
         return questionSetDtos;
     }
+
     public QuestionSetDto getQuestionSetById(Integer id) throws Exception {
         ModelMapper modelMapper = new ModelMapper();
         Optional<QuestionSet> optionalQuestionSet = questionSetRepository.findById(id);
@@ -68,6 +69,7 @@ public class QuestionSetService {
             throw new Exception("Question Set not found with id: " + id);
         }
     }
+  
     public List<QuestionSetDto> getQuestionSetsByUsername(String username, Integer pageNum, Integer pageSize) {
         Pageable paging = PageRequest.of(pageNum, pageSize, Sort.by("postTime").descending());
 
