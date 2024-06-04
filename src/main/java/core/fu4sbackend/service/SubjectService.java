@@ -21,26 +21,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
 @Service
 public class SubjectService {
     private final SubjectRepository subjectRepository;
 
     public SubjectService(SubjectRepository subjectRepository) {
         this.subjectRepository = subjectRepository;
-    }
-    public List<SubjectDto> getAllSubjectDtos() {
-        List<Subject> subjects = subjectRepository.findAll();
-        List<SubjectDto> subjectDtos = new ArrayList<>();
-
-        ModelMapper modelMapper = new ModelMapper();
-        subjectDtos = subjects
-                .stream()
-                .map(Subject -> {
-                    return modelMapper.map(Subject, SubjectDto.class);
-                })
-                .collect(Collectors.toList());
-
-        return subjectDtos;
     }
 
     public List<SubjectDto> getAllSubjectDtos(Integer pageNum, Integer pageSize) {
@@ -60,5 +47,15 @@ public class SubjectService {
         Subject subject = (Subject) subjectRepository.findByCode(subjectCode)
                 .orElseThrow(() -> new IllegalArgumentException("Subject not found with code: " + subjectCode));
         subjectRepository.delete(subject);
+    }
+}
+
+    public List<SubjectDto> getAll() {
+        List<Subject> subjects = subjectRepository.findAllByOrderBySemesterAsc();
+
+        ModelMapper modelMapper = new ModelMapper();
+        return subjects.stream()
+                .map((subject -> modelMapper.map(subject, SubjectDto.class)))
+                .toList();
     }
 }

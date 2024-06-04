@@ -1,5 +1,6 @@
 package core.fu4sbackend.controller;
 
+import core.fu4sbackend.dto.QuestionDto;
 import core.fu4sbackend.dto.LearningMaterialDto;
 import core.fu4sbackend.dto.QuestionSetDto;
 import core.fu4sbackend.service.QuestionSetService;
@@ -11,7 +12,6 @@ import java.util.List;
 
 @RestController  // ----
 @RequestMapping("/api/v1/questionSet") //---
-@CrossOrigin
 public class QuestionSetController {
 
     private final QuestionSetService questionSetService;
@@ -50,6 +50,7 @@ public class QuestionSetController {
         questionSetService.removeQuestionSet(id, username);
         return ResponseEntity.ok("ok");
     }
+
     @GetMapping("/")
     public ResponseEntity<QuestionSetDto> getQuestionSetById(@RequestParam(value = "id") String id) {
         QuestionSetDto questionSetDto = null;
@@ -64,6 +65,26 @@ public class QuestionSetController {
     @GetMapping("/getNum")
     public ResponseEntity<Integer> getNumQuestionSets(@RequestParam String username){
         return ResponseEntity.ok(questionSetService.getNumberOfQuestionSets(username));
+    }
+
+    @PostMapping("/addNew")
+    public ResponseEntity<QuestionSetDto> addNewQuestionSet(
+            @RequestParam String title,
+            @RequestParam String subjectCode,
+            @RequestBody List<QuestionDto> questionDtoList,
+            @RequestParam String username
+    ) {
+        return ResponseEntity.ok(questionSetService.addNewQuestionSet(title, subjectCode, questionDtoList, username));
+    }
+
+    @GetMapping("/isValidUser")
+    public ResponseEntity<Boolean> isValidUser(@RequestParam String username, @RequestParam Integer id) {
+        return ResponseEntity.ok(questionSetService.isValidUser(username, id));
+    }
+
+    @GetMapping("/getById")
+    public ResponseEntity<QuestionSetDto> getById(@RequestParam Integer id) {
+        return ResponseEntity.ok(questionSetService.getById(id));
     }
 
 }

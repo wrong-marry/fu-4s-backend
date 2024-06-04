@@ -7,25 +7,15 @@ import core.fu4sbackend.service.SubjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/subject")
-@CrossOrigin
 public class SubjectController {
-
     private final SubjectService subjectService;
 
     public SubjectController(SubjectService subjectService) {
         this.subjectService = subjectService;
-    }
-
-
-    @GetMapping("/getAll")
-    public List<SubjectDto> getAllSubjectDtos() {
-        List<SubjectDto> subjectDtoList = subjectService.getAllSubjectDtos();
-        return subjectDtoList;
     }
 
     @GetMapping("/getAllSubject")
@@ -41,4 +31,9 @@ public class SubjectController {
         return ResponseEntity.ok(subjectService.getNumberOfSubjects());
     }
 
+
+    @GetMapping("/getAll")
+    public ResponseEntity<List<SubjectDto>> getAll() {
+        return ResponseEntity.ok(subjectService.getAll());
+    }
 }

@@ -18,6 +18,7 @@ public class SearchRequest {
     private SearchOrder order;
     private Integer pageSize;
     private Integer currentPage;
+    private Integer semester;
 
     public enum SearchOrder {
         USERNAME_ASC, USERNAME_DESC, TITLE_ASC, TITLE_DESC, DATE_ASC, DATE_DESC
