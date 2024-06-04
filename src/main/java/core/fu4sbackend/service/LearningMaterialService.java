@@ -1,8 +1,12 @@
 package core.fu4sbackend.service;
 
 import core.fu4sbackend.dto.LearningMaterialDto;
+import core.fu4sbackend.dto.QuestionSetDto;
+
 import core.fu4sbackend.entity.LearningMaterial;
 import core.fu4sbackend.repository.LearningMaterialRepository;
+import core.fu4sbackend.repository.QuestionSetRepository;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -12,6 +16,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
+
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -19,6 +26,7 @@ import java.util.stream.Collectors;
 public class LearningMaterialService {
     @Autowired
     private LearningMaterialRepository learningMaterialRepository;
+
 
     public List<LearningMaterialDto> getAllLearningMaterials() {
         List<LearningMaterial> learningMaterials = learningMaterialRepository.findAll();

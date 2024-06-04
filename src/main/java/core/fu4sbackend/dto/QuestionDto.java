@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Collections;
 import java.util.List;
 
 @Data
@@ -14,4 +15,7 @@ public class QuestionDto {
     private String content;
 //    private QuestionSet questionSet;
     private List<AnswerDto> answers;
+    public void randomlyOrderAnswers(){
+        Collections.shuffle(answers);
+    }
 }

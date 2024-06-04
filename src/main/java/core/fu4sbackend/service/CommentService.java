@@ -96,7 +96,7 @@ public class CommentService {
             commentRepository.save(c);
             return 0;
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
             return 1;
         }
     }
