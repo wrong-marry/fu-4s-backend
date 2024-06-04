@@ -42,7 +42,6 @@ public class LearningMaterialService {
                     return learningMaterialDto;
                 })
                 .collect(Collectors.toList());
-
         return learningMaterialDtos;
     }
 
