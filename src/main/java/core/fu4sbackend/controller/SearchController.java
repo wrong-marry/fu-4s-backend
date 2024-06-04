@@ -50,6 +50,7 @@ public class SearchController {
         } catch (Exception t) {
             //EMPTY CATCH PHRASE
             System.out.print("");
+
         }
         Date time = null;
         try {
@@ -57,6 +58,7 @@ public class SearchController {
         } catch (Exception t) {
             //EMPTY CATCH PHRASE
             System.out.print("");
+
         }
 
 
