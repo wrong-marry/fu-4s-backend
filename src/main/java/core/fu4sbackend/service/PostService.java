@@ -140,6 +140,7 @@ public class PostService {
     public Integer getNumberOfPosts(String username) {
         return postRepository.getAllByUsername(username, null).size();
     }
+
     public Integer getNumberOfPostsEachStatus(PostStatus status) {
         return postRepository.getAllPostByStatus(status, null).size();
     }

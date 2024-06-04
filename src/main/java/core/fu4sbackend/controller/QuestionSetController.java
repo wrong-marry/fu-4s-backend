@@ -50,6 +50,7 @@ public class QuestionSetController {
         questionSetService.removeQuestionSet(id, username);
         return ResponseEntity.ok("ok");
     }
+
     @GetMapping("/")
     public ResponseEntity<QuestionSetDto> getQuestionSetById(@RequestParam(value = "id") String id) {
         QuestionSetDto questionSetDto = null;

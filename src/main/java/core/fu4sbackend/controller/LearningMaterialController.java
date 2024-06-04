@@ -4,7 +4,6 @@ package core.fu4sbackend.controller;
 import core.fu4sbackend.dto.LearningMaterialDto;
 import core.fu4sbackend.service.LearningMaterialService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
