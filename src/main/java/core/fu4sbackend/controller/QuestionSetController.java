@@ -1,6 +1,7 @@
 package core.fu4sbackend.controller;
 
 import core.fu4sbackend.dto.QuestionDto;
+import core.fu4sbackend.dto.LearningMaterialDto;
 import core.fu4sbackend.dto.QuestionSetDto;
 import core.fu4sbackend.service.QuestionSetService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +50,16 @@ public class QuestionSetController {
         questionSetService.removeQuestionSet(id, username);
         return ResponseEntity.ok("ok");
     }
+    @GetMapping("/")
+    public ResponseEntity<QuestionSetDto> getQuestionSetById(@RequestParam(value = "id") String id) {
+        QuestionSetDto questionSetDto = null;
+        try {
+            questionSetDto = questionSetService.getQuestionSetById(Integer.valueOf(id));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return ResponseEntity.ok(questionSetDto);
+    }
 
     @GetMapping("/getNum")
     public ResponseEntity<Integer> getNumQuestionSets(@RequestParam String username){
@@ -64,4 +75,5 @@ public class QuestionSetController {
     ) {
         return ResponseEntity.ok(questionSetService.addNewQuestionSet(title, subjectCode, questionDtoList, username));
     }
+
 }
