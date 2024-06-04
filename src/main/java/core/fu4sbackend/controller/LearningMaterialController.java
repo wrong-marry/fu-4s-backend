@@ -3,9 +3,7 @@ package core.fu4sbackend.controller;
 
 import core.fu4sbackend.dto.LearningMaterialDto;
 import core.fu4sbackend.service.LearningMaterialService;
-import org.apache.velocity.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,9 +31,17 @@ public class LearningMaterialController {
 
     @GetMapping("/getAllByUsername")
     public ResponseEntity<List<LearningMaterialDto>> getAllLearningMaterialsByUsername(
-            @RequestParam String username
+            @RequestParam String username,
+            @RequestParam Integer pageNum,
+            @RequestParam Integer pageSize
     ){
-        return ResponseEntity.ok(learningMaterialService.getLearningMaterialsByUsername(username));
+        --pageNum;
+        return ResponseEntity.ok(learningMaterialService.getLearningMaterialsByUsername(username, pageNum, pageSize));
+    }
+
+    @GetMapping("/getNum")
+    public ResponseEntity<Integer> getNumLearningMaterials(@RequestParam String username){
+        return ResponseEntity.ok(learningMaterialService.getNumberOfLearningMaterials(username));
     }
 
     @GetMapping("/")
