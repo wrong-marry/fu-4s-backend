@@ -1,18 +1,25 @@
 package core.fu4sbackend.service;
 
 import core.fu4sbackend.dto.AnswerDto;
+import core.fu4sbackend.dto.LearningMaterialDto;
 import core.fu4sbackend.dto.QuestionDto;
 import core.fu4sbackend.dto.QuestionSetDto;
 import core.fu4sbackend.entity.Answer;
+import core.fu4sbackend.entity.LearningMaterial;
 import core.fu4sbackend.entity.Question;
+import core.fu4sbackend.dto.QuestionSetDto;
 import core.fu4sbackend.entity.QuestionSet;
 import core.fu4sbackend.repository.QuestionSetRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,40 +48,33 @@ public class QuestionSetService {
                 .map(questionSet -> {
                     QuestionSetDto questionSetDto =  modelMapper.map(questionSet, QuestionSetDto.class);
                     questionSetDto.setUsername(questionSet.getUser().getFirstName()+" "+questionSet.getUser().getLastName());
-
                     return questionSetDto ;
                 })
-
                 .collect(Collectors.toList());
+
 
         return questionSetDtos;
     }
-    public List<QuestionSetDto> getQuestionSetsByUsername(String username) {
+    public QuestionSetDto getQuestionSetById(Integer id) throws Exception {
         ModelMapper modelMapper = new ModelMapper();
-        List<QuestionSet> questionSetList = questionSetRepository.getAllByUsername(username);
-        List<QuestionSetDto> questionSetDtos = new ArrayList<>();
-        for(QuestionSet questionSet : questionSetList) {
-            QuestionSetDto questionSetDto =  modelMapper.map(questionSet, QuestionSetDto.class);
-            questionSetDto.setUsername(questionSet.getUser().getUsername());
+        Optional<QuestionSet> optionalQuestionSet = questionSetRepository.findById(id);
 
-            List<QuestionDto> questionDtos = new ArrayList<>();
-            for(Question question : questionSet.getQuestions()) {
-                QuestionDto questionDto = modelMapper.map(question, QuestionDto.class);
-
-                List<AnswerDto> answerDtos = new ArrayList<>();
-                for(Answer answer : question.getAnswers()) {
-                    answerDtos.add(modelMapper.map(answer, AnswerDto.class));
-                }
-
-                questionDto.setAnswers(answerDtos);
-                questionDtos.add(questionDto);
-            }
-
-            questionSetDto.setQuestions(questionDtos);
-            questionSetDtos.add(questionSetDto);
+        if (optionalQuestionSet.isPresent()) {
+            QuestionSet questionSet = optionalQuestionSet.get();
+            QuestionSetDto questionSetDto = modelMapper.map(questionSet, QuestionSetDto.class);
+            questionSetDto.setUsername(questionSet.getUser().getFirstName() + " " + questionSet.getUser().getLastName());
+            return questionSetDto;
+        } else {
+            throw new Exception("Question Set not found with id: " + id);
         }
+    }
+    public List<QuestionSetDto> getQuestionSetsByUsername(String username, Integer pageNum, Integer pageSize) {
+        Pageable paging = PageRequest.of(pageNum, pageSize, Sort.by("postTime").descending());
 
-        return questionSetDtos;
+        ModelMapper modelMapper = new ModelMapper();
+        return questionSetRepository.getAllByUsername(username, paging)
+                .stream().map(learningMaterial -> modelMapper.map(learningMaterial, QuestionSetDto.class))
+                .toList();
     }
 
     public void editQuestionSet(QuestionSetDto questionSetDto, String username) throws Exception {
@@ -102,5 +102,9 @@ public class QuestionSetService {
         }
 
         questionSetRepository.delete(questionSet);
+    }
+
+    public Integer getNumberOfQuestionSets(String username) {
+        return questionSetRepository.getAllByUsername(username, null).size();
     }
 }
