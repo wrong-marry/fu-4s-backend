@@ -1,7 +1,7 @@
 
 package core.fu4sbackend.controller;
+
 import core.fu4sbackend.constant.UserRole;
-import core.fu4sbackend.dto.PostDto;
 import core.fu4sbackend.dto.UserDto;
 import core.fu4sbackend.service.SubjectService;
 import core.fu4sbackend.service.UserService;
@@ -15,7 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/admin")
-//@Secured("ADMIN")
+@Secured("ADMIN")
 public class AdminController {
     private final UserService userSer;
     private final SubjectService subjectService;

@@ -1,23 +1,13 @@
 package core.fu4sbackend.service;
 
-import core.fu4sbackend.dto.NotificationDto;
 import core.fu4sbackend.dto.SubjectDto;
-import core.fu4sbackend.dto.UserDto;
-import core.fu4sbackend.entity.Notification;
 import core.fu4sbackend.entity.Subject;
-import core.fu4sbackend.entity.User;
 import core.fu4sbackend.repository.SubjectRepository;
-import core.fu4sbackend.repository.UserRepository;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,14 +31,15 @@ public class SubjectService {
     }
 
     public Integer getNumberOfSubjects() {
-        return subjectRepository.findAll().size(); }
+        return subjectRepository.findAll().size();
+    }
 
     public void deleteSubject(String subjectCode) {
         Subject subject = (Subject) subjectRepository.findByCode(subjectCode)
                 .orElseThrow(() -> new IllegalArgumentException("Subject not found with code: " + subjectCode));
         subjectRepository.delete(subject);
     }
-}
+
 
     public List<SubjectDto> getAll() {
         List<Subject> subjects = subjectRepository.findAllByOrderBySemesterAsc();
@@ -59,3 +50,4 @@ public class SubjectService {
                 .toList();
     }
 }
+
