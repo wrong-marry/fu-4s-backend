@@ -2,8 +2,11 @@ package core.fu4sbackend.controller;
 
 import core.fu4sbackend.dto.NotificationDto;
 import core.fu4sbackend.dto.PostDto;
+import core.fu4sbackend.entity.Subject;
 import core.fu4sbackend.service.NotificationService;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,10 +39,33 @@ public class NotificationController {
         return ResponseEntity.ok(notificationService.getNumberOfNotifications(username));
     }
 
-    @PatchMapping("/api/v1/notification/{id}/markAsUnread")
-    public ResponseEntity<?> markNotificationAsUnread(@PathVariable(value = "id") String id) {
-        notificationService.markNotificationAsUnread(id);
-        return ResponseEntity.ok().build();
+    @PutMapping("/{id}/unseen")
+    public ResponseEntity<String> markAsUnSeen(@PathVariable("id") String notificationId) {
+        try {
+            notificationService.markAsUnSeen(Integer.parseInt(notificationId));
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("message", "Notification marked as unseen successfully");
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
+        }catch (Exception e) {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("message", "Something went wrong while marking notification as unseen");
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
+
+    @PutMapping("/markAllAsRead")
+    public ResponseEntity<String> markAllAsRead() {
+        try {
+            notificationService.markAllAsRead();
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("message", "All notifications marked as read successfully");
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
+        } catch (Exception e) {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("message", "Something went wrong while marking all notifications as read");
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
 }
