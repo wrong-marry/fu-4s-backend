@@ -45,8 +45,9 @@ public class QuestionSetService {
         this.answerRepository = answerRepository;
     }
 
-    public QuestionSet getById(int id) {
-        return questionSetRepository.getById(id);
+    public QuestionSetDto getById(int id) {
+        ModelMapper modelMapper = new ModelMapper();
+        return modelMapper.map(questionSetRepository.findById(id), QuestionSetDto.class);
     }
 
     public void save(QuestionSet questionSet) {
@@ -178,5 +179,9 @@ public class QuestionSetService {
         answerRepository.saveAll(answers);
 
         return modelMapper.map(questionSet, QuestionSetDto.class);
+    }
+
+    public boolean isValidUser(String username, Integer id) {
+        return questionSetRepository.findById(id).orElseThrow().getUser().getUsername().equals(username);
     }
 }
