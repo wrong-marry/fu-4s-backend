@@ -33,6 +33,10 @@ public class PostService {
         List<Predicate> predicates = new ArrayList<Predicate>();
 
         Root<Post> root = cq.from(Post.class);
+        if (searchRequest.getSemester() != null) {
+            Predicate semesterPredicate = cb.equal(root.get("subject").get("semester"), searchRequest.getSemester());
+            predicates.add(semesterPredicate);
+        }
         if (searchRequest.getTitle() != null) {
             Predicate titlePredicate = cb.like(root.get("title"), "%" + searchRequest.getTitle() + "%");
             predicates.add(titlePredicate);
@@ -81,6 +85,10 @@ public class PostService {
         List<Predicate> predicates = new ArrayList<Predicate>();
 
         Root<Post> root = cq.from(Post.class);
+        if (searchRequest.getSemester() != null) {
+            Predicate semesterPredicate = cb.equal(root.get("subject").get("semester"), searchRequest.getSemester());
+            predicates.add(semesterPredicate);
+        }
         if (searchRequest.getTitle() != null) {
             Predicate titlePredicate = cb.like(root.get("title"), "%" + searchRequest.getTitle() + "%");
             predicates.add(titlePredicate);

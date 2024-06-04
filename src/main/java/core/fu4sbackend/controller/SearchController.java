@@ -30,6 +30,7 @@ public class SearchController {
     @GetMapping("")
     public ResponseEntity<String> searchPost(@RequestParam(required = false) String keyword,
                                              @RequestParam(required = false) String subjectCode,
+                                             @RequestParam(required = false) Integer semester,
                                              @RequestParam(required = false) String postTime,
                                              @RequestParam(required = false) String isTest,
                                              @RequestParam(required = false) String username,
@@ -48,13 +49,16 @@ public class SearchController {
                 default:
                     break;
             }
-        } catch (Exception _) {
+        } catch (Exception t) {
+            System.out.println(t.getMessage());
         }
         Date time = null;
         try {
             time = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss SS:SS'Z'").parse(postTime);
-        } catch (Exception _) {
+        } catch (Exception t) {
+            System.out.println(t.getMessage());
         }
+
 
         List<PostDto> questionList;
         List<PostDto> materialList;
@@ -66,7 +70,7 @@ public class SearchController {
             questionList = List.of();
         } else {
             sr = new SearchRequest(username, keyword, subjectCode, time, true,
-                    SearchRequest.SearchOrder.DATE_DESC, pageSize, (page == null) ? 0 : page - 1);
+                    SearchRequest.SearchOrder.DATE_DESC, pageSize, (page == null) ? 0 : page - 1, semester);
             if (order != null) sr.setOrder(order);
             totalTest = postService.countAllByCriteria(sr);
             questionList = postService.findAllByCriteria(sr);
@@ -77,7 +81,7 @@ public class SearchController {
             materialList = List.of();
         } else {
             sr = new SearchRequest(username, keyword, subjectCode, time, false,
-                    SearchRequest.SearchOrder.DATE_DESC, pageSize, (page == null) ? 0 : page - 1);
+                    SearchRequest.SearchOrder.DATE_DESC, pageSize, (page == null) ? 0 : page - 1, semester);
             if (order != null) sr.setOrder(order);
             materialList = postService.findAllByCriteria(sr);
             totalMaterial = postService.countAllByCriteria(sr);
