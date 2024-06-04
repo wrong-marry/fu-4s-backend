@@ -29,6 +29,7 @@ public class PostService {
         this.em = em;
     }
 
+    //NOT IMPLEMENTED: SEARCH FILTER WITH USERNAME
     public List<PostDto> findAllByCriteria(SearchRequest searchRequest) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Post> cq = cb.createQuery(Post.class);
@@ -48,7 +49,6 @@ public class PostService {
             predicates.add(timePredicate);
         }
         if (searchRequest.getIsTest() != null) {
-            System.out.println(searchRequest.getIsTest());
             Predicate testPredicate;
             if (searchRequest.getIsTest())
                 testPredicate = cb.isTrue(root.get("isTest"));
@@ -56,12 +56,56 @@ public class PostService {
             predicates.add(testPredicate);
         }
         cq.where(predicates.toArray(new Predicate[predicates.size()]));
-        TypedQuery<Post> query = em.createQuery(cq);
+
+        switch (searchRequest.getOrder()) {
+            case DATE_ASC -> cq.orderBy(cb.asc(root.get("postTime")));
+            case TITLE_ASC -> cq.orderBy(cb.asc(root.get("title")));
+            case TITLE_DESC -> cq.orderBy(cb.desc(root.get("title")));
+            case USERNAME_DESC -> cq.orderBy(cb.desc(root.get("username")));
+            case USERNAME_ASC -> cq.orderBy(cb.asc(root.get("username")));
+            case null, default -> cq.orderBy(cb.desc(root.get("postTime")));
+        }
+
+        if (searchRequest.getCurrentPage() == null) searchRequest.setCurrentPage(0);
+        if (searchRequest.getPageSize() == null) searchRequest.setPageSize(1);
+
+        TypedQuery<Post> query = em.createQuery(cq).setMaxResults(searchRequest.getPageSize())
+                .setFirstResult(searchRequest.getCurrentPage() * searchRequest.getPageSize());
         List<PostDto> result = new ArrayList<>();
         for (Post post : query.getResultList()) {
             result.add(mapPostDto(post));
         }
         return result;
+    }
+
+    public Integer countAllByCriteria(SearchRequest searchRequest) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Post> cq = cb.createQuery(Post.class);
+        List<Predicate> predicates = new ArrayList<Predicate>();
+
+        Root<Post> root = cq.from(Post.class);
+        if (searchRequest.getTitle() != null) {
+            Predicate titlePredicate = cb.like(root.get("title"), "%" + searchRequest.getTitle() + "%");
+            predicates.add(titlePredicate);
+        }
+        if (searchRequest.getSubjectCode() != null) {
+            Predicate subjectCodePredicate = cb.like(root.get("subject").get("code"), "%" + searchRequest.getSubjectCode() + "%");
+            predicates.add(subjectCodePredicate);
+        }
+        if (searchRequest.getPostTime() != null) {
+            Predicate timePredicate = cb.greaterThan(root.get("postTime"), searchRequest.getPostTime());
+            predicates.add(timePredicate);
+        }
+        if (searchRequest.getIsTest() != null) {
+            Predicate testPredicate;
+            if (searchRequest.getIsTest())
+                testPredicate = cb.isTrue(root.get("isTest"));
+            else testPredicate = cb.isFalse(root.get("isTest"));
+            predicates.add(testPredicate);
+        }
+        cq.where(predicates.toArray(new Predicate[predicates.size()]));
+
+        return em.createQuery(cq).getResultList().size();
     }
 
     private PostDto mapPostDto(Post post) {
@@ -88,7 +132,7 @@ public class PostService {
 
     public PostDto getById(int id) {
         Post post = postRepository.findById(id).orElse(null);
-        if (post==null) return null;
+        if (post == null) return null;
         return mapPostDto(post);
     }
 
