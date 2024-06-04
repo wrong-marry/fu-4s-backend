@@ -2,9 +2,7 @@ package core.fu4sbackend.controller;
 
 import core.fu4sbackend.dto.PostDto;
 import core.fu4sbackend.dto.SearchRequest;
-import core.fu4sbackend.service.LearningMaterialService;
 import core.fu4sbackend.service.PostService;
-import core.fu4sbackend.service.QuestionSetService;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -50,13 +48,15 @@ public class SearchController {
                     break;
             }
         } catch (Exception t) {
-            System.out.println(t.getMessage());
+            //EMPTY CATCH PHRASE
+            System.out.print("");
         }
         Date time = null;
         try {
             time = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss SS:SS'Z'").parse(postTime);
         } catch (Exception t) {
-            System.out.println(t.getMessage());
+            //EMPTY CATCH PHRASE
+            System.out.print("");
         }
 
 
