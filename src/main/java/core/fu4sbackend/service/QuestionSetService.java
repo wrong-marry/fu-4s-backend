@@ -1,21 +1,25 @@
 package core.fu4sbackend.service;
 
 import core.fu4sbackend.dto.AnswerDto;
+import core.fu4sbackend.dto.LearningMaterialDto;
 import core.fu4sbackend.dto.QuestionDto;
 import core.fu4sbackend.dto.QuestionSetDto;
 import core.fu4sbackend.entity.Answer;
+import core.fu4sbackend.entity.LearningMaterial;
 import core.fu4sbackend.entity.Question;
+import core.fu4sbackend.dto.QuestionSetDto;
 import core.fu4sbackend.entity.QuestionSet;
 import core.fu4sbackend.repository.QuestionSetRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.modelmapper.ModelMapper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,14 +48,28 @@ public class QuestionSetService {
                 .map(questionSet -> {
                     QuestionSetDto questionSetDto =  modelMapper.map(questionSet, QuestionSetDto.class);
                     questionSetDto.setUsername(questionSet.getUser().getFirstName()+" "+questionSet.getUser().getLastName());
-
                     return questionSetDto ;
                 })
-
                 .collect(Collectors.toList());
+
 
         return questionSetDtos;
     }
+
+    public QuestionSetDto getQuestionSetById(Integer id) throws Exception {
+        ModelMapper modelMapper = new ModelMapper();
+        Optional<QuestionSet> optionalQuestionSet = questionSetRepository.findById(id);
+
+        if (optionalQuestionSet.isPresent()) {
+            QuestionSet questionSet = optionalQuestionSet.get();
+            QuestionSetDto questionSetDto = modelMapper.map(questionSet, QuestionSetDto.class);
+            questionSetDto.setUsername(questionSet.getUser().getFirstName() + " " + questionSet.getUser().getLastName());
+            return questionSetDto;
+        } else {
+            throw new Exception("Question Set not found with id: " + id);
+        }
+    }
+  
     public List<QuestionSetDto> getQuestionSetsByUsername(String username, Integer pageNum, Integer pageSize) {
         Pageable paging = PageRequest.of(pageNum, pageSize, Sort.by("postTime").descending());
 
@@ -86,5 +104,9 @@ public class QuestionSetService {
         }
 
         questionSetRepository.delete(questionSet);
+    }
+
+    public Integer getNumberOfQuestionSets(String username) {
+        return questionSetRepository.getAllByUsername(username, null).size();
     }
 }
