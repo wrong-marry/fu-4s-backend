@@ -1,5 +1,6 @@
 package core.fu4sbackend.controller;
 
+import core.fu4sbackend.dto.QuestionDto;
 import core.fu4sbackend.dto.LearningMaterialDto;
 import core.fu4sbackend.dto.QuestionSetDto;
 import core.fu4sbackend.service.QuestionSetService;
@@ -11,7 +12,6 @@ import java.util.List;
 
 @RestController  // ----
 @RequestMapping("/api/v1/questionSet") //---
-@CrossOrigin
 public class QuestionSetController {
 
     private final QuestionSetService questionSetService;
@@ -64,6 +64,16 @@ public class QuestionSetController {
     @GetMapping("/getNum")
     public ResponseEntity<Integer> getNumQuestionSets(@RequestParam String username){
         return ResponseEntity.ok(questionSetService.getNumberOfQuestionSets(username));
+    }
+
+    @PostMapping("/addNew")
+    public ResponseEntity<QuestionSetDto> addNewQuestionSet(
+            @RequestParam String title,
+            @RequestParam String subjectCode,
+            @RequestBody List<QuestionDto> questionDtoList,
+            @RequestParam String username
+    ) {
+        return ResponseEntity.ok(questionSetService.addNewQuestionSet(title, subjectCode, questionDtoList, username));
     }
 
 }
