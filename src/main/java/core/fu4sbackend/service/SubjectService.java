@@ -10,6 +10,9 @@ import core.fu4sbackend.repository.SubjectRepository;
 import core.fu4sbackend.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,7 +28,6 @@ public class SubjectService {
     public SubjectService(SubjectRepository subjectRepository) {
         this.subjectRepository = subjectRepository;
     }
-
     public List<SubjectDto> getAllSubjectDtos() {
         List<Subject> subjects = subjectRepository.findAll();
         List<SubjectDto> subjectDtos = new ArrayList<>();
@@ -41,4 +43,23 @@ public class SubjectService {
         return subjectDtos;
     }
 
+    public List<SubjectDto> getAllSubjectDtos(Integer pageNum, Integer pageSize) {
+        Pageable paging = PageRequest.of(pageNum, pageSize);
+        List<Subject> subjects = subjectRepository.findAll(paging).toList();
+        ModelMapper modelMapper = new ModelMapper();
+
+        return subjects.stream()
+                .map(subject -> modelMapper.map(subject, SubjectDto.class))
+                .collect(Collectors.toList());
+    }
+
+    public Integer getNumberOfSubjects() {
+        return subjectRepository.findAll().size(); }
+
+    public void deleteSubject(String subjectCode) {
+        Subject subject = (Subject) subjectRepository.findByCode(subjectCode)
+                .orElseThrow(() -> new IllegalArgumentException("Subject not found with code: " + subjectCode));
+        subjectRepository.delete(subject);
+    }
+}
 }

@@ -3,6 +3,7 @@ package core.fu4sbackend.controller;
 import core.fu4sbackend.constant.UserRole;
 import core.fu4sbackend.dto.PostDto;
 import core.fu4sbackend.dto.UserDto;
+import core.fu4sbackend.service.SubjectService;
 import core.fu4sbackend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,9 +18,12 @@ import java.util.List;
 //@Secured("ADMIN")
 public class AdminController {
     private final UserService userSer;
+    private final SubjectService subjectService;
+
     @Autowired
-    public AdminController(UserService userSer) {
+    public AdminController(UserService userSer, SubjectService subjectService) {
         this.userSer = userSer;
+        this.subjectService = subjectService;
     }
 
     @GetMapping("/getAllUser")
@@ -46,6 +50,16 @@ public class AdminController {
     @GetMapping("/getNumEachRole")
     public ResponseEntity<Integer> getNumUsesEachRole(@RequestParam UserRole userrole){
         return ResponseEntity.ok(userSer.getNumberOfUserByRole(userrole));
+    }
+
+    @DeleteMapping("/api/v1/admin/deleteSubject")
+    public ResponseEntity<Void> deleteSubject(@RequestParam("subjectCode") String subjectCode) {
+        try {
+            subjectService.deleteSubject(subjectCode);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
 }
