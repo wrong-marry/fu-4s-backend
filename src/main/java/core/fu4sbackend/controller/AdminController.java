@@ -52,10 +52,10 @@ public class AdminController {
         return ResponseEntity.ok(userSer.getNumberOfUserByRole(userrole));
     }
 
-    @DeleteMapping("/api/v1/admin/deleteSubject")
-    public ResponseEntity<Void> deleteSubject(@RequestParam("subjectCode") String subjectCode) {
+    @PutMapping("deactiveSubject")
+    public ResponseEntity<Void> deactiveSubject(@RequestParam("subjectCode") String subjectCode) {
         try {
-            subjectService.deleteSubject(subjectCode);
+            subjectService.deactiveSubject(subjectCode);
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
