@@ -49,5 +49,8 @@ public class SubjectService {
                 .map((subject -> modelMapper.map(subject, SubjectDto.class)))
                 .toList();
     }
+
+    public void deactiveSubject(String subjectCode) {
+    }
 }
 

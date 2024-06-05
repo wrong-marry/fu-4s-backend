@@ -20,10 +20,11 @@ import java.util.Collection;
 public class Subject {
     @Id
     private String code;
-
     private String name;
     private int semester;
-
+    private boolean isActive;
     @OneToMany(mappedBy = "subject", cascade = CascadeType.ALL)
     private Collection<Post> posts;
 }
+
+
