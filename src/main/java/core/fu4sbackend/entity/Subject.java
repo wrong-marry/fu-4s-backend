@@ -23,7 +23,7 @@ public class Subject {
 
     private String name;
     private int semester;
-
+    private boolean isActive;
     @OneToMany(mappedBy = "subject", cascade = CascadeType.ALL)
     private Collection<Post> posts;
 }

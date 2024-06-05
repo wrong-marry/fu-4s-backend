@@ -35,8 +35,7 @@ public class SubjectService {
     }
 
     public void deleteSubject(String subjectCode) {
-        Subject subject = (Subject) subjectRepository.findByCode(subjectCode)
-                .orElseThrow(() -> new IllegalArgumentException("Subject not found with code: " + subjectCode));
+        Subject subject = (Subject) subjectRepository.findByCode(subjectCode);
         subjectRepository.delete(subject);
     }
 
@@ -48,6 +47,12 @@ public class SubjectService {
         return subjects.stream()
                 .map((subject -> modelMapper.map(subject, SubjectDto.class)))
                 .toList();
+    }
+
+    public void disableSubject(String subjectCode) {
+        Subject subject = subjectRepository.findByCode(subjectCode);
+        subject.setActive(false);
+        subjectRepository.save(subject);
     }
 }
 
