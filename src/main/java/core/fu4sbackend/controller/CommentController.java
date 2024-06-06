@@ -28,7 +28,7 @@ public class CommentController {
         return new ResponseEntity<>(
                 commentService.findByPostId(
                         id,
-                        offset == null || offset.trim().matches("[1-9]+") ? 0 : Integer.parseInt(offset),
+                        offset == null || !offset.trim().matches("[0-9]+") ? 0 : Integer.parseInt(offset),
                         Boolean.valueOf(isStaff),
                         sorted != null),
                 HttpStatus.OK);

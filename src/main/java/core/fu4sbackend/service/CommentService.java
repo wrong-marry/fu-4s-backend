@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -63,7 +64,7 @@ public class CommentService {
         c.setUser(u);
         c.setPost(p);
         c.setContent(commentDto.getContent());
-        c.setDate(commentDto.getDate());
+        c.setDate(new Date());
         c.setStatus(CommentStatus.ACTIVE);
         commentRepository.save(c);
         return 0;
