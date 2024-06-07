@@ -1,31 +1,44 @@
 package core.fu4sbackend.service;
 
+import core.fu4sbackend.constant.PostStatus;
 import core.fu4sbackend.dto.LearningMaterialDto;
-import core.fu4sbackend.dto.QuestionSetDto;
-
 import core.fu4sbackend.entity.LearningMaterial;
+import core.fu4sbackend.entity.MaterialFile;
 import core.fu4sbackend.repository.LearningMaterialRepository;
-import core.fu4sbackend.repository.QuestionSetRepository;
-
+import core.fu4sbackend.repository.MaterialFileRepository;
+import core.fu4sbackend.repository.SubjectRepository;
+import core.fu4sbackend.repository.UserRepository;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
-
-
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class LearningMaterialService {
-    @Autowired
-    private LearningMaterialRepository learningMaterialRepository;
+    private final LearningMaterialRepository learningMaterialRepository;
+    private final UserRepository userRepository;
+    private final SubjectRepository subjectRepository;
+    private final MaterialFileRepository materialFileRepository;
+
+    public LearningMaterialService(LearningMaterialRepository learningMaterialRepository, UserRepository userRepository, SubjectRepository subjectRepository, MaterialFileRepository materialFileRepository) {
+        this.learningMaterialRepository = learningMaterialRepository;
+        this.userRepository = userRepository;
+        this.subjectRepository = subjectRepository;
+        this.materialFileRepository = materialFileRepository;
+    }
 
 
     public List<LearningMaterialDto> getAllLearningMaterials() {
@@ -89,5 +102,54 @@ public class LearningMaterialService {
 
     public Integer getNumberOfLearningMaterials(String username) {
         return learningMaterialRepository.getAllByUsername(username, null).size();
+    }
+
+    @Transactional
+    public LearningMaterialDto add(String title, String subjectCode, String content, List<MultipartFile> files, String username) throws Exception {
+        ModelMapper modelMapper = new ModelMapper();
+
+        LearningMaterial learningMaterial = new LearningMaterial();
+        learningMaterial.setUser(userRepository.findByUsername(username).orElseThrow());
+        learningMaterial.setTitle(title);
+        learningMaterial.setContent(content);
+        learningMaterial.setPostTime(new Date(System.currentTimeMillis()));
+        learningMaterial.setStatus(PostStatus.PENDING_APPROVE);
+        learningMaterial.setSubject(subjectRepository.findById(subjectCode).orElseThrow());
+        learningMaterial.setTest(false);
+
+        learningMaterial = learningMaterialRepository.save(learningMaterial);
+
+//        File txtFile = new File(new ClassPathResource(".").getFile().getPath()+System.getProperty("user.dir")+"\\src\\main\\resources\\"+username);
+//        if (!txtFile.exists()) {
+//            txtFile.mkdirs();
+//        }
+
+        for(MultipartFile file : files) {
+            if(file.isEmpty()) throw new Exception("invalid file jaha");
+
+            String filePath = System.getProperty("user.dir")+"\\src\\main\\resources\\"+ username;
+            String fileName = file.getOriginalFilename();
+            try {
+                if (fileName.contains("..")) {
+                    throw new RuntimeException("Sorry! Filename contains invalid path sequence " + fileName);
+                }
+
+                Path fileStorageLocation = Paths.get(filePath).toAbsolutePath().normalize();
+                if(!Files.exists(fileStorageLocation)) {
+                    Files.createDirectories(fileStorageLocation);
+                }
+                Path targetLocation = fileStorageLocation.resolve(fileName);
+
+                Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+            }
+            catch (Exception e){}
+
+            MaterialFile materialFile = new MaterialFile();
+            materialFile.setLearningMaterial(learningMaterial);
+            materialFile.setFilename(file.getOriginalFilename());
+            materialFileRepository.save(materialFile);
+        }
+
+        return modelMapper.map(learningMaterial, LearningMaterialDto.class);
     }
 }

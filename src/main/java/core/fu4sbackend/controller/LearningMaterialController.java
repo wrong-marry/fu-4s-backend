@@ -5,10 +5,8 @@ import core.fu4sbackend.dto.LearningMaterialDto;
 import core.fu4sbackend.service.LearningMaterialService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -52,6 +50,18 @@ public class LearningMaterialController {
             throw new RuntimeException(e);
         }
         return ResponseEntity.ok(learningMaterialDto);
+    }
+
+    @PostMapping("/addNew")
+    public ResponseEntity<LearningMaterialDto> addNewLearningMaterial(
+            @RequestParam String title,
+            @RequestParam String content,
+            @RequestParam String subjectCode,
+            @RequestBody List<MultipartFile> files,
+            @RequestParam String username
+    ) throws Exception {
+        System.out.println(files.size());
+        return ResponseEntity.ok(learningMaterialService.add(title, subjectCode, content, files, username));
     }
 }
 
