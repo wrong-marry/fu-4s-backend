@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -63,6 +64,19 @@ public class SubjectService {
     }
     public Integer getNumberOfSubjectsByType(boolean isActive) {
         return subjectRepository.countByIsActive(isActive);
+    }
+
+
+    public int update(SubjectDto subjectDto) {
+        Optional<Subject> optionalSubject = Optional.ofNullable(subjectRepository.findByCode(subjectDto.getCode()));
+        if (optionalSubject.isEmpty()) {
+            return -1; // Invalid subject id
+        }
+        Subject subject = optionalSubject.get();
+        subject.setName(subjectDto.getName());
+        subject.setCode(subjectDto.getCode());
+        subjectRepository.save(subject);
+        return 0; // Successfully updated subject
     }
 }
 

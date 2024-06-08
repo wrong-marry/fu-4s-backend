@@ -2,6 +2,7 @@
 package core.fu4sbackend.controller;
 
 import core.fu4sbackend.constant.UserRole;
+import core.fu4sbackend.dto.SubjectDto;
 import core.fu4sbackend.dto.UserDto;
 import core.fu4sbackend.service.SubjectService;
 import core.fu4sbackend.service.UserService;
@@ -90,5 +91,19 @@ public class AdminController {
         return ResponseEntity.ok(subjectService.getNumberOfSubjectsByType(isActive));
     }
 
+    @PutMapping("/updateSubject")
+    public ResponseEntity<String> updateSubject(@RequestBody SubjectDto subjectDto) {
+        JSONObject jsonObject = new JSONObject();
+        String message = switch (subjectService.update(subjectDto)) {
+            case -1:
+                yield "Invalid subject code";
+            case 0:
+                yield "Successfully updated subject";
+            default:
+                yield "Something went wrong";
+        };
+        jsonObject.put("message", message);
+        return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
+    }
 }  
 
