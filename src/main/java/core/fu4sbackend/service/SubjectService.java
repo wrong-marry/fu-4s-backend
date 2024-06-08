@@ -61,5 +61,8 @@ public class SubjectService {
         subject.setActive(true);
         subjectRepository.save(subject);
     }
+    public Integer getNumberOfSubjectsByType(boolean isActive) {
+        return subjectRepository.countByIsActive(isActive);
+    }
 }
 

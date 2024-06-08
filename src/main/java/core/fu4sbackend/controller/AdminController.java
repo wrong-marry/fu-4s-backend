@@ -5,6 +5,7 @@ import core.fu4sbackend.constant.UserRole;
 import core.fu4sbackend.dto.UserDto;
 import core.fu4sbackend.service.SubjectService;
 import core.fu4sbackend.service.UserService;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -52,26 +53,42 @@ public class AdminController {
         return ResponseEntity.ok(userSer.getNumberOfUserByRole(userrole));
     }
 
-    @PutMapping("deactiveSubject")
-    public ResponseEntity<Void> deactiveSubject(@RequestParam("subjectCode") String subjectCode) {
+    @PutMapping("disableSubject")
+    public ResponseEntity<String> deactiveSubject(@RequestParam("subjectCode") String subjectCode) {
+        JSONObject jsonObject = new JSONObject();
         try {
             subjectService.deactiveSubject(subjectCode);
-            return ResponseEntity.noContent().build();
+            jsonObject.put("message", "Subject deactivated successfully");
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            jsonObject.put("message", "Internal server error");
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PutMapping("/activeSubject")
-    public ResponseEntity<Void> activeSubject(@RequestParam("subjectCode") String subjectCode) {
+    public ResponseEntity<String> activeSubject(@RequestParam("subjectCode") String subjectCode) {
+        JSONObject jsonObject = new JSONObject();
         try {
             subjectService.activeSubject(subjectCode);
-            return ResponseEntity.noContent().build();
+            jsonObject.put("message", "Active successfully");
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            jsonObject.put("message", "Internal server error");
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
 
-}
+    @GetMapping("/getNumSubject")
+    public ResponseEntity<Integer> getNumberOfSubjects(){
+        return ResponseEntity.ok(subjectService.getNumberOfSubjects());
+    }
+
+    @GetMapping("/getNumSubjectsByType")
+    public ResponseEntity<Integer> getNumberOfSubjectsByType(@RequestParam boolean isActive) {
+        return ResponseEntity.ok(subjectService.getNumberOfSubjectsByType(isActive));
+    }
+
+}  
 
