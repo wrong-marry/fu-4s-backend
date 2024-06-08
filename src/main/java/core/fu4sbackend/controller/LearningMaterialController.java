@@ -63,6 +63,16 @@ public class LearningMaterialController {
         System.out.println(files.size());
         return ResponseEntity.ok(learningMaterialService.add(title, subjectCode, content, files, username));
     }
+
+    @GetMapping("/getById")
+    public ResponseEntity<LearningMaterialDto> getLearningMaterialById(@RequestParam Integer id) {
+        return ResponseEntity.ok(learningMaterialService.getById(id));
+    }
+
+    @GetMapping("/getFilesById")
+    public ResponseEntity<List<String>> getFilesByLearningMaterialId(@RequestParam Integer id) {
+        return ResponseEntity.ok(learningMaterialService.getFilesOfMaterial(id));
+    }
 }
 
 

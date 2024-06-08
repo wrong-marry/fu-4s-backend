@@ -152,4 +152,15 @@ public class LearningMaterialService {
 
         return modelMapper.map(learningMaterial, LearningMaterialDto.class);
     }
+
+    public LearningMaterialDto getById(Integer id) {
+        ModelMapper modelMapper = new ModelMapper();
+        LearningMaterial learningMaterial = learningMaterialRepository.findById(id).orElseThrow();
+        return modelMapper.map(learningMaterial, LearningMaterialDto.class);
+    }
+
+    public List<String> getFilesOfMaterial(Integer id) {
+        return materialFileRepository.findAllByLearningMaterial(learningMaterialRepository.findById(id).orElseThrow())
+                .stream().map(MaterialFile::getFilename).toList();
+    }
 }
