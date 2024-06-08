@@ -41,31 +41,23 @@ public class NotificationController {
 
     @PutMapping("/{id}/unseen")
     public ResponseEntity<String> markAsUnSeen(@PathVariable("id") String notificationId) {
-        try {
             notificationService.markAsUnSeen(Integer.parseInt(notificationId));
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("message", "Notification marked as unseen successfully");
             return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
-        }catch (Exception e) {
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("message", "Something went wrong while marking notification as unseen");
-            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
     }
 
     @PutMapping("/markAllAsRead")
     public ResponseEntity<String> markAllAsRead() {
-        try {
             notificationService.markAllAsRead();
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("message", "All notifications marked as read successfully");
             return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
-        } catch (Exception e) {
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("message", "Something went wrong while marking all notifications as read");
-            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
     }
 
+    @DeleteMapping("/{id}")
+    public void deleteNotification(@PathVariable int id) {
+        notificationService.deleteNotification(id);
+    }
 
 }

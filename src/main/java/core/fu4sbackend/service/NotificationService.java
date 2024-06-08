@@ -68,4 +68,13 @@ public class NotificationService {
         });
         notificationRepository.saveAll(notifications);
     }
+
+
+    public void deleteNotification(int id) {
+        if (notificationRepository.existsById(id)) {
+            notificationRepository.deleteById(id);
+        } else {
+            throw new RuntimeException("Notification not found");
+        }
+    }
 }
