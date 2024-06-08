@@ -13,7 +13,8 @@ import java.util.Date;
 public class TestResultDto {
     private Integer id;
     private float result;
-    private Date date;
-    private User user;
-//    private QuestionSet questionSet;
+    private String date;
+    private String username;
+    private boolean isPersonalized;
+    private int questionSetId;
 }
