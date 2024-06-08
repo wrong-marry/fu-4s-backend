@@ -9,13 +9,20 @@ import core.fu4sbackend.repository.MaterialFileRepository;
 import core.fu4sbackend.repository.SubjectRepository;
 import core.fu4sbackend.repository.UserRepository;
 import org.modelmapper.ModelMapper;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -119,15 +126,11 @@ public class LearningMaterialService {
 
         learningMaterial = learningMaterialRepository.save(learningMaterial);
 
-//        File txtFile = new File(new ClassPathResource(".").getFile().getPath()+System.getProperty("user.dir")+"\\src\\main\\resources\\"+username);
-//        if (!txtFile.exists()) {
-//            txtFile.mkdirs();
-//        }
 
         for(MultipartFile file : files) {
             if(file.isEmpty()) throw new Exception("invalid file jaha");
 
-            String filePath = System.getProperty("user.dir")+"\\src\\main\\resources\\"+ username;
+            String filePath = System.getProperty("user.dir")+"\\src\\main\\resources\\" + learningMaterial.getId();
             String fileName = file.getOriginalFilename();
             try {
                 if (fileName.contains("..")) {
@@ -156,11 +159,29 @@ public class LearningMaterialService {
     public LearningMaterialDto getById(Integer id) {
         ModelMapper modelMapper = new ModelMapper();
         LearningMaterial learningMaterial = learningMaterialRepository.findById(id).orElseThrow();
-        return modelMapper.map(learningMaterial, LearningMaterialDto.class);
+
+        List<String> list = new ArrayList<>();
+        for(MaterialFile materialFile : learningMaterial.getFiles()) {
+            list.add(materialFile.getFilename());
+        }
+        LearningMaterialDto learningMaterialDto = modelMapper.map(learningMaterial, LearningMaterialDto.class);
+        learningMaterialDto.setFilenames(list);
+
+        return learningMaterialDto;
     }
 
-    public List<String> getFilesOfMaterial(Integer id) {
-        return materialFileRepository.findAllByLearningMaterial(learningMaterialRepository.findById(id).orElseThrow())
-                .stream().map(MaterialFile::getFilename).toList();
+    public ResponseEntity<Resource> getFileOfMaterial(Integer id, String filename) throws IOException {
+        LearningMaterial learningMaterial = learningMaterialRepository.findById(id).orElseThrow();
+        MaterialFile materialFile = materialFileRepository.findByLearningMaterialAndFilename(learningMaterial, filename);
+
+        String filePath = System.getProperty("user.dir")+"\\src\\main\\resources\\"+ learningMaterial.getId() + "\\" + materialFile.getFilename();
+        Path path = Paths.get(filePath);
+
+        File file = new File(filePath);
+        String mimeType = URLConnection.guessContentTypeFromName(file.getName());
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.valueOf(mimeType))
+                .body(new UrlResource(path.toUri()));
     }
 }

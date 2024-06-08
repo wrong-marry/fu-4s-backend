@@ -4,10 +4,12 @@ package core.fu4sbackend.controller;
 import core.fu4sbackend.dto.LearningMaterialDto;
 import core.fu4sbackend.service.LearningMaterialService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -69,9 +71,12 @@ public class LearningMaterialController {
         return ResponseEntity.ok(learningMaterialService.getById(id));
     }
 
-    @GetMapping("/getFilesById")
-    public ResponseEntity<List<String>> getFilesByLearningMaterialId(@RequestParam Integer id) {
-        return ResponseEntity.ok(learningMaterialService.getFilesOfMaterial(id));
+    @GetMapping("/getFile")
+    public ResponseEntity<Resource> getFilesByLearningMaterialId(
+            @RequestParam Integer id,
+            @RequestParam String filename
+    ) throws IOException {
+        return learningMaterialService.getFileOfMaterial(id, filename);
     }
 }
 

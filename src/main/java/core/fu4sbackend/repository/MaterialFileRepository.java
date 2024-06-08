@@ -10,4 +10,6 @@ import java.util.List;
 @Repository
 public interface MaterialFileRepository extends JpaRepository<MaterialFile, Integer> {
     public List<MaterialFile> findAllByLearningMaterial(LearningMaterial learningMaterial);
+
+    public MaterialFile findByLearningMaterialAndFilename(LearningMaterial learningMaterial, String filename);
 }

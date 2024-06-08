@@ -18,5 +18,5 @@ public class LearningMaterial extends Post {
     private String content;
 
     @OneToMany(mappedBy = "learningMaterial", cascade = CascadeType.ALL)
-    private Collection<MaterialFile> images;
+    private Collection<MaterialFile> files;
 }
