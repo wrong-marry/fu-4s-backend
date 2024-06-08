@@ -54,6 +54,26 @@ public class CommentController {
         }
     }
 
+    @PostMapping("/upload/comment-{comment_id}")
+    public ResponseEntity<String> uploadChildComment(@PathVariable int comment_id, @RequestBody CommentDto commentDto) {
+        JSONObject jsonObject = new JSONObject();
+        switch (commentService.saveChild(commentDto, comment_id)) {
+            case -1:
+                jsonObject.put("message", "Invalid username");
+                //DEBUG
+                System.out.println("Invalid username " + commentDto.getUsername());
+                return new ResponseEntity<>(jsonObject.toString(), HttpStatus.CONFLICT);
+            case -2:
+                jsonObject.put("message", "Invalid post id");
+                //DEBUG
+                System.out.println("Invalid post id " + commentDto.getId());
+                return new ResponseEntity<>(jsonObject.toString(), HttpStatus.CONFLICT);
+            default:
+                jsonObject.put("message", "Successfully uploaded comment");
+                return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
+        }
+    }
+
     //OWNER ONLY
     @PutMapping("/update/{id}")
     public ResponseEntity<String> updateComment(@PathVariable int id, @RequestBody CommentDto commentDto) {
@@ -104,5 +124,10 @@ public class CommentController {
                 yield new ResponseEntity<>(jsonObject.toString(), HttpStatus.CONFLICT);
             }
         };
+    }
+
+    @GetMapping("/children/comment-{id}")
+    public ResponseEntity<List<CommentDto>> getChildrenComment(@PathVariable int id, @RequestParam(required = false) String offset) {
+        return ResponseEntity.ok(commentService.getAllChildren(id, offset));
     }
 }

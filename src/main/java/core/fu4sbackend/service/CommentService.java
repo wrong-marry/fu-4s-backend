@@ -13,7 +13,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -49,6 +51,7 @@ public class CommentService {
                     CommentDto commentDto = modelMapper.map(comment, CommentDto.class);
                     commentDto.setUsername(comment.getUser().getFirstName() + comment.getUser().getLastName());
                     commentDto.setAccount(comment.getUser().getUsername());
+                    commentDto.setChildrenNumber(countChildren(comment.getId()));
                     return commentDto;
                 }).filter(comment -> isStaff || comment.getStatus() == CommentStatus.ACTIVE)
                 .skip(offset).limit(PaginationConstant.COMMENT_LOAD_SIZE).toList();
@@ -100,5 +103,39 @@ public class CommentService {
             System.out.println(e.getMessage());
             return 1;
         }
+    }
+
+    public int saveChild(CommentDto commentDto, int commentId) {
+        Comment c = new Comment();
+        User u = userRepository.findByUsername(commentDto.getUsername()).orElse(null);
+        Comment parent = commentRepository.findById(commentId).orElse(null);
+        if (u == null) return -1;
+        if (parent == null) return -2;
+        c.setUser(u);
+        c.setParent(parent);
+        c.setContent(commentDto.getContent());
+        c.setDate(new Date());
+        c.setPost(parent.getPost());
+        c.setStatus(CommentStatus.ACTIVE);
+        commentRepository.save(c);
+        return 0;
+    }
+
+    public List<CommentDto> getAllChildren(int commentId, String offset) {
+        int offs = 0;
+        if (StringUtils.hasText(offset) && offset.trim().matches("\\d+")) offs = Integer.parseInt(offset);
+        ModelMapper modelMapper = new ModelMapper();
+        modelMapper.createTypeMap(CommentDto.class, Comment.class);
+        return commentRepository.findAllByParentId(commentId).stream().map(comment -> {
+            CommentDto commentDto = modelMapper.map(comment, CommentDto.class);
+            commentDto.setUsername(comment.getUser().getFirstName() + comment.getUser().getLastName());
+            commentDto.setAccount(comment.getUser().getUsername());
+            commentDto.setChildrenNumber(countChildren(comment.getId()));
+            return commentDto;
+        }).skip(offs).limit(PaginationConstant.COMMENT_CHILDREN_LOAD_SIZE).toList();
+    }
+
+    public Integer countChildren(int commentId) {
+        return commentRepository.countByParentId(commentId);
     }
 }
