@@ -184,4 +184,14 @@ public class LearningMaterialService {
                 .contentType(MediaType.valueOf(mimeType))
                 .body(new UrlResource(path.toUri()));
     }
+
+    public void deleteLearningMaterial(Integer id, String username) throws Exception {
+        LearningMaterial learningMaterial = learningMaterialRepository.findById(id).orElseThrow();
+
+        if(!learningMaterial.getUser().getUsername().equals(username)) {
+            throw new Exception("Username mismatched!");
+        }
+
+        learningMaterialRepository.delete(learningMaterial);
+    }
 }

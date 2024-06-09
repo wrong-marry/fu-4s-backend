@@ -78,6 +78,15 @@ public class LearningMaterialController {
     ) throws IOException {
         return learningMaterialService.getFileOfMaterial(id, filename);
     }
+
+    @DeleteMapping("/remove")
+    public ResponseEntity<String> removeLearningMaterialById(
+            @RequestParam Integer id,
+            @RequestParam String username
+    ) throws Exception {
+        learningMaterialService.deleteLearningMaterial(id, username);
+        return ResponseEntity.ok("ok");
+    }
 }
 
 
