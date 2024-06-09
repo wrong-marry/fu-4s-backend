@@ -81,8 +81,12 @@ public class CommentService {
         return 0;
     }
 
+    @Transactional
     public int delete(Integer id) {
         try {
+            for (Comment c : commentRepository.findAllByParentId(id)) {
+                delete(c.getId());
+            }
             commentRepository.deleteById(id);
             return 0;
         } catch (Exception e) {
@@ -115,7 +119,6 @@ public class CommentService {
         c.setParent(parent);
         c.setContent(commentDto.getContent());
         c.setDate(new Date());
-        c.setPost(parent.getPost());
         c.setStatus(CommentStatus.ACTIVE);
         commentRepository.save(c);
         return 0;
