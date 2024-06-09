@@ -37,7 +37,8 @@ public class CommentController {
     @PostMapping("/upload/post-{id}")
     public ResponseEntity<String> uploadComment(@PathVariable int id, @RequestBody CommentDto commentDto) {
         JSONObject jsonObject = new JSONObject();
-        switch (commentService.save(commentDto, id)) {
+        int newId;
+        switch (newId = commentService.save(commentDto, id)) {
             case -1:
                 jsonObject.put("message", "Invalid username");
                 //DEBUG
@@ -50,6 +51,7 @@ public class CommentController {
                 return new ResponseEntity<>(jsonObject.toString(), HttpStatus.CONFLICT);
             default:
                 jsonObject.put("message", "Successfully uploaded comment");
+                jsonObject.put("id", newId);
                 return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
         }
     }
@@ -57,7 +59,8 @@ public class CommentController {
     @PostMapping("/upload/comment-{comment_id}")
     public ResponseEntity<String> uploadChildComment(@PathVariable int comment_id, @RequestBody CommentDto commentDto) {
         JSONObject jsonObject = new JSONObject();
-        switch (commentService.saveChild(commentDto, comment_id)) {
+        int newId;
+        switch (newId = commentService.saveChild(commentDto, comment_id)) {
             case -1:
                 jsonObject.put("message", "Invalid username");
                 //DEBUG
@@ -70,6 +73,7 @@ public class CommentController {
                 return new ResponseEntity<>(jsonObject.toString(), HttpStatus.CONFLICT);
             default:
                 jsonObject.put("message", "Successfully uploaded comment");
+                jsonObject.put("id", newId);
                 return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
         }
     }

@@ -69,8 +69,7 @@ public class CommentService {
         c.setContent(commentDto.getContent());
         c.setDate(new Date());
         c.setStatus(CommentStatus.ACTIVE);
-        commentRepository.save(c);
-        return 0;
+        return commentRepository.save(c).getId();
     }
 
     public int update(Integer id, String commentContent) {
@@ -120,8 +119,7 @@ public class CommentService {
         c.setContent(commentDto.getContent());
         c.setDate(new Date());
         c.setStatus(CommentStatus.ACTIVE);
-        commentRepository.save(c);
-        return 0;
+        return commentRepository.save(c).getId();
     }
 
     public List<CommentDto> getAllChildren(int commentId, String offset) {
