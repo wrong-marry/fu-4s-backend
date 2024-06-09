@@ -7,6 +7,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -78,5 +79,17 @@ public class SubjectService {
         subjectRepository.save(subject);
         return 0; // Successfully updated subject
     }
+
+
+    @Transactional
+    public void createSubject(SubjectDto subjectDto) {
+        Subject subject = new Subject();
+        subject.setCode(subjectDto.getCode());
+        subject.setName(subjectDto.getName());
+        subject.setSemester(subjectDto.getSemester());
+        subject.setActive(true); // assuming new subjects are active by default
+        subjectRepository.save(subject);
+    }
+
 }
 

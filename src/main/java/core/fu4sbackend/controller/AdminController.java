@@ -105,5 +105,19 @@ public class AdminController {
         jsonObject.put("message", message);
         return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
     }
+
+
+    @PostMapping("/createSubject")
+    public ResponseEntity<String> createSubject(@RequestBody SubjectDto subjectDto) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            subjectService.createSubject(subjectDto);
+            jsonObject.put("message", "Subject created successfully");
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.CREATED);
+        } catch (Exception e) {
+            jsonObject.put("message", "Internal server error");
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }  
 
