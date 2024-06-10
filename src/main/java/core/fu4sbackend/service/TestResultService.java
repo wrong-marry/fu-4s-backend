@@ -36,7 +36,13 @@ public class TestResultService {
             testResultDto.setDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(testResult.getDate()));
             testResultDto.setUsername(testResult.getUser().getUsername());
             return testResultDto;
-        }).toList();
+        }).toList().reversed();
+    }
+
+    public List<TestResultDto> getTestResultsByUsernameAndPersonalized(boolean personalized, String username) {
+        return getTestResultsByUser(username).stream().filter(
+                test -> test.isPersonalized()==personalized
+        ).toList();
     }
 
     public TestResultDto getFirstTestResultByUserAndQuestionSet(String username, int questionSetId) {

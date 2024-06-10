@@ -16,5 +16,5 @@ public class TestResultDto {
     private String date;
     private String username;
     private boolean isPersonalized;
-    private int questionSetId;
+    private QuestionSetDto questionSet;
 }

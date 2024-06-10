@@ -17,8 +17,8 @@ public class TestResultController {
         this.testResultService = testResultService;
     }
     @GetMapping
-    public List<TestResultDto> getTestResultsByUser(@RequestParam String username) {
-        return testResultService.getTestResultsByUser(username);
+    public List<TestResultDto> getTestResultsByUser(@RequestParam String username,@RequestParam boolean isPersonalized) {
+        return testResultService.getTestResultsByUsernameAndPersonalized(isPersonalized, username);
     }
     @GetMapping("get-last-score")
     public float getLastScoreByUser(@RequestParam String username,@RequestParam int questionSetId) {

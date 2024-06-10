@@ -130,6 +130,13 @@ public class QuestionSetService {
         questionSetRepository.delete(questionSet);
     }
 
+    public String increaseAttempts(int id){
+        QuestionSet questionSet = questionSetRepository.findById(id);
+        questionSet.setAttempts(questionSet.getAttempts() + 1);
+        save(questionSet);
+        return "Increased successfully";
+    }
+
     public Integer getNumberOfQuestionSets(String username) {
         return questionSetRepository.getAllByUsername(username, null).size();
     }
