@@ -5,6 +5,7 @@ import core.fu4sbackend.constant.UserRole;
 import core.fu4sbackend.dto.UserDto;
 import core.fu4sbackend.service.SubjectService;
 import core.fu4sbackend.service.UserService;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -59,6 +60,32 @@ public class AdminController {
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PutMapping("/banUser")
+    public ResponseEntity<String> banUser(@RequestParam("username") String username ) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            userSer.banUser(username);
+            jsonObject.put("message", "Banned user successfully!");
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
+        } catch (Exception e) {
+            jsonObject.put("message", "Internal server error");
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PutMapping("/activateUser")
+    public ResponseEntity<String> activeUser(@RequestParam("username") String username) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            userSer.activateUser(username);
+            jsonObject.put("message", "Active successfully!");
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
+        } catch (Exception e) {
+            jsonObject.put("message", "Internal server error");
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
