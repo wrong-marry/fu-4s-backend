@@ -167,17 +167,7 @@ public class QuestionSetService {
 
     @Transactional
     public QuestionSetDto editQuestionSet(Integer id, String title, String subjectCode, List<QuestionDto> questionDtoList, String username) throws Exception {
-        QuestionSet questionSet = questionSetRepository.findById(id)
-                .orElse(null);
-
-        if (questionSet == null) throw new Exception("Question Set not found!");
-        if (!questionSet.getUser().getUsername().equals(username)) {
-            throw new Exception("Username mismatch!");
-        }
-
-        ModelMapper modelMapper = new ModelMapper();
-        questionSetRepository.delete(questionSet);
-
+        removeQuestionSet(id, username);
         return addNewQuestionSet(title, subjectCode, questionDtoList, username);
     }
 }
