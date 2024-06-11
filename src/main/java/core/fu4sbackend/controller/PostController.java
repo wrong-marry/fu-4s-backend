@@ -40,8 +40,8 @@ public class PostController {
     }
 
     @GetMapping("/recent")
-    public ResponseEntity<List<PostDto>> getRecentPost(@RequestParam(required = false) Integer page) {
-        SearchRequest sr = new SearchRequest(null, null, null, null, null, SearchRequest.SearchOrder.DATE_DESC, PaginationConstant.RECENT_POST_LOAD_SIZE, page, null);
+    public ResponseEntity<List<PostDto>> getRecentPost(@RequestParam(required = false) Integer offset) {
+        SearchRequest sr = new SearchRequest(null, null, null, null, null, SearchRequest.SearchOrder.DATE_DESC, PaginationConstant.RECENT_POST_LOAD_SIZE, offset == null ? 1 : (PaginationConstant.RECENT_POST_LOAD_SIZE / offset), null);
         return new ResponseEntity<>(postService.findAllByCriteria(sr), HttpStatus.OK);
     }
 
@@ -68,7 +68,7 @@ public class PostController {
     }
 
     @GetMapping("/getNum")
-    public ResponseEntity<Integer> getNumPosts(@RequestParam String username){
+    public ResponseEntity<Integer> getNumPosts(@RequestParam String username) {
         return ResponseEntity.ok(postService.getNumberOfPosts(username));
     }
 }
