@@ -16,6 +16,8 @@ import java.util.List;
 
 @Service
 public class QuestionPriorityService {
+    private final int MAX_QUESTION_PRIORITY = 4;
+    private final int MIN_QUESTION_PRIORITY = 0;
     private final QuestionPriorityRepository questionPriorityRepository;
     private final UserRepository userRepository;
     private final QuestionRepository questionRepository;
@@ -32,7 +34,7 @@ public class QuestionPriorityService {
 
     public List<QuestionPriorityDTO> getAllQuestionPriorityByUsernameAndQuestionSetId(String username, int questionSetId) {
         ModelMapper modelMapper = new ModelMapper();
-        return questionPriorityRepository.findByQuestionSetIdAndUsername(questionSetId,username).stream().map(
+        return questionPriorityRepository.findByQuestionSetIdAndUsername(questionSetId, username).stream().map(
                 questionPriority -> {
                     QuestionPriorityDTO questionPriorityDTO = modelMapper.map(questionPriority, QuestionPriorityDTO.class);
                     questionPriorityDTO.setUsername(questionPriority.getUser().getUsername());
@@ -42,7 +44,7 @@ public class QuestionPriorityService {
     }
 
     public String initiateQuestionPrioritiesByUsernameAndQuestionSetId(String username, int questionSetId) {
-        if(!questionPriorityRepository.findByQuestionSetIdAndUsername(questionSetId,username).isEmpty())
+        if (!questionPriorityRepository.findByQuestionSetIdAndUsername(questionSetId, username).isEmpty())
             return "Already initiated";
         List<Question> questions = questionRepository.getByQuestionSetId(questionSetId);
         List<QuestionPriority> questionPriorities = new ArrayList<>();
@@ -59,8 +61,42 @@ public class QuestionPriorityService {
         return "Initiated Question Priorities";
     }
 
-    public String updateQuestionPrioritiesByUsernameAndCorrect(String username, List<Integer> correctQuestionsId, List<Integer> wrongQuestionId) {
+    public String updateQuestionPrioritiesByUsernameAndCorrect(String username, List<Integer> correctQuestionsIdList, List<Integer> wrongQuestionIdList) {
+        List<QuestionPriority> questionPriorities = new ArrayList<>();
+        for (Integer correctQuestionId : correctQuestionsIdList) {
+            int currentPriority = questionPriorityRepository.findByUsernameAndQuestionId(username, correctQuestionId).orElseThrow(
+                    () -> new IllegalArgumentException("Question priority not found")
+            ).getPriority();
+            questionPriorities.add(
+                    new QuestionPriority(
+                            userRepository.findByUsername(username).orElseThrow(
+                                    () -> new IllegalArgumentException("User not found")
+                            ),
+                            questionRepository.findById(correctQuestionId).orElseThrow(
+                                    () -> new IllegalArgumentException("Question not found")
+                            ),
+                            currentPriority==MAX_QUESTION_PRIORITY?MAX_QUESTION_PRIORITY:currentPriority+1
+                    )
+            );
+        }
 
+        for (Integer wrongQuestionId : wrongQuestionIdList) {
+            int currentPriority = questionPriorityRepository.findByUsernameAndQuestionId(username, wrongQuestionId).orElseThrow(
+                    () -> new IllegalArgumentException("Question priority not found")
+            ).getPriority();
+            questionPriorities.add(
+                    new QuestionPriority(
+                            userRepository.findByUsername(username).orElseThrow(
+                                    () -> new IllegalArgumentException("User not found")
+                            ),
+                            questionRepository.findById(wrongQuestionId).orElseThrow(
+                                    () -> new IllegalArgumentException("Question not found")
+                            ),
+                            currentPriority==MIN_QUESTION_PRIORITY?MIN_QUESTION_PRIORITY:currentPriority-1
+                    )
+            );
+        }
+        questionPriorityRepository.saveAll(questionPriorities);
         return "Updated Question Priorities";
     }
 

@@ -1,5 +1,6 @@
 package core.fu4sbackend.controller;
 
+import core.fu4sbackend.dto.CheckedQuestionResult;
 import core.fu4sbackend.dto.QuestionPriorityDTO;
 import core.fu4sbackend.service.QuestionPriorityService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,5 +26,14 @@ public class QuestionPriorityController {
     @GetMapping
     public List<QuestionPriorityDTO> findAllByUsernameAndQuestionSetId(@RequestParam String username, @RequestParam int questionSetId){
         return questionPriorityService.getAllQuestionPriorityByUsernameAndQuestionSetId(username,questionSetId);
+    }
+
+    @PutMapping("/update")
+    public String update(@RequestParam String username, @RequestBody CheckedQuestionResult checkedQuestionResult) {
+        return questionPriorityService.updateQuestionPrioritiesByUsernameAndCorrect(
+                username,
+                checkedQuestionResult.getCorrectAnswersId(),
+                checkedQuestionResult.getWrongAnswersId()
+        );
     }
 }
