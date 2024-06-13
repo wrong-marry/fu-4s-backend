@@ -6,15 +6,13 @@ import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
 
-
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
 class QuestionPriorityId implements Serializable {
     private User user;
     private Question question;
-
-    public QuestionPriorityId(Question question, User user) {
-        this.question = question;
-        this.user = user;
-    }
 }
 @AllArgsConstructor
 @NoArgsConstructor

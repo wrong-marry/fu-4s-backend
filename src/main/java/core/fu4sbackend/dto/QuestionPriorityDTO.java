@@ -13,6 +13,6 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class QuestionPriorityDTO {
     private int priority;
-    private QuestionDto questionDto;
-    private UserDto userDto;
+    private int questionId;
+    private String username;
 }

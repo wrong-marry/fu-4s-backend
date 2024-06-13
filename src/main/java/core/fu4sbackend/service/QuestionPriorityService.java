@@ -1,9 +1,11 @@
 package core.fu4sbackend.service;
 
 import core.fu4sbackend.dto.QuestionPriorityDTO;
+import core.fu4sbackend.entity.Question;
 import core.fu4sbackend.entity.QuestionPriority;
 import core.fu4sbackend.repository.QuestionPriorityRepository;
 import core.fu4sbackend.repository.QuestionRepository;
+import core.fu4sbackend.repository.QuestionSetRepository;
 import core.fu4sbackend.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,40 +20,48 @@ public class QuestionPriorityService {
     private final UserRepository userRepository;
     private final QuestionRepository questionRepository;
 
-    private final QuestionSetService questionSetService;
+    private final QuestionSetRepository questionSetRepository;
+
     @Autowired
-    public QuestionPriorityService(QuestionPriorityRepository questionPriorityRepository, UserRepository userRepository, QuestionRepository questionRepository, QuestionSetService questionSetService) {
+    public QuestionPriorityService(QuestionPriorityRepository questionPriorityRepository, UserRepository userRepository, QuestionRepository questionRepository, QuestionSetRepository questionSetRepository) {
         this.questionPriorityRepository = questionPriorityRepository;
         this.userRepository = userRepository;
         this.questionRepository = questionRepository;
-        this.questionSetService = questionSetService;
+        this.questionSetRepository = questionSetRepository;
     }
 
-    public List<QuestionPriorityDTO> getAllQuestionPriorityByUsername(String username) {
+    public List<QuestionPriorityDTO> getAllQuestionPriorityByUsernameAndQuestionSetId(String username, int questionSetId) {
         ModelMapper modelMapper = new ModelMapper();
-        return questionPriorityRepository.findByUsername(username).stream().map(
+        return questionPriorityRepository.findByQuestionSetIdAndUsername(questionSetId,username).stream().map(
                 questionPriority -> {
-                    return modelMapper.map(questionPriority, QuestionPriorityDTO.class);
+                    QuestionPriorityDTO questionPriorityDTO = modelMapper.map(questionPriority, QuestionPriorityDTO.class);
+                    questionPriorityDTO.setUsername(questionPriority.getUser().getUsername());
+                    return questionPriorityDTO;
                 }
         ).toList();
     }
 
-    public void saveAll(List<QuestionPriorityDTO> questionPriorityDTOList) {
-        List<QuestionPriority> questionPriorityList = new ArrayList<>();
-        for (QuestionPriorityDTO questionPriorityDTO : questionPriorityDTOList) {
-            questionPriorityList.add(new QuestionPriority(
-                    userRepository.findByUsername(questionPriorityDTO.getUserDto().getUsername()).orElseThrow(
+    public String initiateQuestionPrioritiesByUsernameAndQuestionSetId(String username, int questionSetId) {
+        if(!questionPriorityRepository.findByQuestionSetIdAndUsername(questionSetId,username).isEmpty())
+            return "Already initiated";
+        List<Question> questions = questionRepository.getByQuestionSetId(questionSetId);
+        List<QuestionPriority> questionPriorities = new ArrayList<>();
+        for (Question question : questions) {
+            questionPriorities.add(
+                    new QuestionPriority(userRepository.findByUsername(username).orElseThrow(
                             () -> new IllegalArgumentException("User not found")
                     ),
-                    questionRepository.findById(questionPriorityDTO.getQuestionDto().getId()).orElseThrow(
-                            () -> new IllegalArgumentException("Question not found")
-                    ),
-                    0));
+                            question,
+                            0)
+            );
         }
-        questionPriorityRepository.saveAll(questionPriorityList);
+        questionPriorityRepository.saveAll(questionPriorities);
+        return "Initiated Question Priorities";
     }
 
-    public void createQuestionPrioritiesByUsernameAndQuestionSetId(String username, int questionSetId) {
+    public String updateQuestionPrioritiesByUsernameAndCorrect(String username, List<Integer> correctQuestionsId, List<Integer> wrongQuestionId) {
 
+        return "Updated Question Priorities";
     }
+
 }
