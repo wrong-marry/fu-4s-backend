@@ -19,7 +19,7 @@ import static java.util.stream.Collectors.toList;
 
 @Service
 public class QuestionPriorityService {
-    private final int MAX_QUESTION_PRIORITY = 3;
+    public static final int MAX_QUESTION_PRIORITY = 3;
     private final int MIN_QUESTION_PRIORITY = 0;
     private final QuestionPriorityRepository questionPriorityRepository;
     private final UserRepository userRepository;

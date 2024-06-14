@@ -18,11 +18,13 @@ public class QuestionService {
     private final int PROBABILITY_GENERATOR_RANGE = 1000;
     private final QuestionRepository questionRepository;
     private final AnswerService answerService;
+    private final QuestionPriorityService questionPriorityService;
 
     @Autowired
-    public QuestionService(QuestionRepository questionRepository, AnswerService answerService) {
+    public QuestionService(QuestionRepository questionRepository, AnswerService answerService, QuestionPriorityService questionPriorityService) {
         this.questionRepository = questionRepository;
         this.answerService = answerService;
+        this.questionPriorityService = questionPriorityService;
     }
 
     public List<QuestionDto> getByQuestionSetId(int questionSetId){
@@ -35,7 +37,7 @@ public class QuestionService {
                 .collect(Collectors.toList());
     }
 
-    public List<QuestionDto> getByQuestionSetIdRandomly(int questionSetId, int numberOfQuestions, boolean isPersonalized) {
+    public List<QuestionDto> getByQuestionSetIdRandomly(int questionSetId, int numberOfQuestions, boolean isPersonalized, String username) {
         Random rand = new Random();
         List<QuestionDto> allQuestions = getByQuestionSetId(questionSetId);
         List<QuestionDto> randomQuestions = new ArrayList<>();
@@ -45,7 +47,18 @@ public class QuestionService {
 
         else{
             int generatedRandomNumber = rand.nextInt(PROBABILITY_GENERATOR_RANGE);
+            List<QuestionDto>[] randomQuestionsByPriority = new ArrayList[QuestionPriorityService.MAX_QUESTION_PRIORITY];
 
+            //Initialize question lists by priority
+            for(int i = 0; i < QuestionPriorityService.MAX_QUESTION_PRIORITY; i++){
+                randomQuestionsByPriority[i] = questionPriorityService.getAllQuestionIdByUsernameAndQuestionSetIdAndPriority(
+                        username,
+                        questionSetId,
+                        i
+                );
+            }
+
+             
         }
         return randomQuestions;
     }
