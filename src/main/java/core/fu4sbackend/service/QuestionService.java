@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class QuestionService {
+    private final int PROBABLITY_GENERATOR_RANGE = 1000;
     private final QuestionRepository questionRepository;
     private final AnswerService answerService;
 
@@ -29,16 +30,27 @@ public class QuestionService {
         return questionRepository.getByQuestionSetId(questionSetId).stream()
                 .map(question -> {
                     QuestionDto questionDto = modelMapper.map(question,QuestionDto.class);
-                    List<AnswerDto> answerDtoList = answerService.getByQuestionId(question.getId());
-                    questionDto.setAnswers(answerDtoList);
                     return questionDto;
                 })
                 .collect(Collectors.toList());
     }
-    public List<QuestionDto> getByQuestionSetIdRandomly(@RequestParam int questionSetId, @RequestParam int numberOfQuestions) {
+
+    public List<QuestionDto> getByQuestionSetIdRandomly(int questionSetId, int numberOfQuestions, boolean isPersonalized) {
         Random rand = new Random();
         List<QuestionDto> allQuestions = getByQuestionSetId(questionSetId);
         List<QuestionDto> randomQuestions = new ArrayList<>();
+
+        if(!isPersonalized)
+            addToRandomQuestions(rand,allQuestions,randomQuestions,numberOfQuestions);
+
+        else{
+            int generatedRandomNumber = rand.nextInt(PROBABLITY_GENERATOR_RANGE);
+            
+        }
+        return randomQuestions;
+    }
+
+    public void addToRandomQuestions(Random rand, List<QuestionDto> allQuestions, List<QuestionDto> randomQuestions, int numberOfQuestions) {
 
         for (int i = 0; i < numberOfQuestions; i++) {
             int randomIndex = rand.nextInt(allQuestions.size());
@@ -47,6 +59,12 @@ public class QuestionService {
             randomQuestions.add(questionDto);
             allQuestions.remove(randomIndex);
         }
-        return randomQuestions;
     }
+
+    public QuestionDto getById(int questionId) {
+        ModelMapper modelMapper = new ModelMapper();
+        QuestionDto questionDto = modelMapper.map(questionRepository.findById(questionId),QuestionDto.class);
+        return questionDto;
+    }
+
 }

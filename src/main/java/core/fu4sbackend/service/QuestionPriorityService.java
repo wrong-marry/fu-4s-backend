@@ -1,5 +1,6 @@
 package core.fu4sbackend.service;
 
+import core.fu4sbackend.dto.QuestionDto;
 import core.fu4sbackend.dto.QuestionPriorityDTO;
 import core.fu4sbackend.entity.Question;
 import core.fu4sbackend.entity.QuestionPriority;
@@ -14,22 +15,26 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.util.stream.Collectors.toList;
+
 @Service
 public class QuestionPriorityService {
-    private final int MAX_QUESTION_PRIORITY = 4;
+    private final int MAX_QUESTION_PRIORITY = 3;
     private final int MIN_QUESTION_PRIORITY = 0;
     private final QuestionPriorityRepository questionPriorityRepository;
     private final UserRepository userRepository;
     private final QuestionRepository questionRepository;
 
     private final QuestionSetRepository questionSetRepository;
+    private final QuestionService questionService;
 
     @Autowired
-    public QuestionPriorityService(QuestionPriorityRepository questionPriorityRepository, UserRepository userRepository, QuestionRepository questionRepository, QuestionSetRepository questionSetRepository) {
+    public QuestionPriorityService(QuestionPriorityRepository questionPriorityRepository, UserRepository userRepository, QuestionRepository questionRepository, QuestionSetRepository questionSetRepository, QuestionService questionService) {
         this.questionPriorityRepository = questionPriorityRepository;
         this.userRepository = userRepository;
         this.questionRepository = questionRepository;
         this.questionSetRepository = questionSetRepository;
+        this.questionService = questionService;
     }
 
     public List<QuestionPriorityDTO> getAllQuestionPriorityByUsernameAndQuestionSetId(String username, int questionSetId) {
@@ -40,6 +45,13 @@ public class QuestionPriorityService {
                     questionPriorityDTO.setUsername(questionPriority.getUser().getUsername());
                     return questionPriorityDTO;
                 }
+        ).toList();
+    }
+
+    public List<QuestionDto> getAllQuestionIdByUsernameAndQuestionSetIdAndPriority(String username, int questionSetId, int priority) {
+        ModelMapper modelMapper = new ModelMapper();
+        return questionPriorityRepository.findByQuestionSetIdAndUsernameAndPriority(questionSetId, username, priority).stream().map(
+                questionPriority -> questionService.getById(questionPriority.getQuestion().getId())
         ).toList();
     }
 
