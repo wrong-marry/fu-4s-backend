@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class QuestionService {
-    private final int PROBABLITY_GENERATOR_RANGE = 1000;
+    private final int PROBABILITY_GENERATOR_RANGE = 1000;
     private final QuestionRepository questionRepository;
     private final AnswerService answerService;
 
@@ -44,8 +44,8 @@ public class QuestionService {
             addToRandomQuestions(rand,allQuestions,randomQuestions,numberOfQuestions);
 
         else{
-            int generatedRandomNumber = rand.nextInt(PROBABLITY_GENERATOR_RANGE);
-            
+            int generatedRandomNumber = rand.nextInt(PROBABILITY_GENERATOR_RANGE);
+
         }
         return randomQuestions;
     }
