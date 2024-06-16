@@ -10,7 +10,6 @@ import lombok.experimental.SuperBuilder;
 
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 
 @Data
 @AllArgsConstructor

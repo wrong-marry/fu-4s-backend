@@ -9,6 +9,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -37,10 +39,7 @@ public class CommentTests {
     void testSaveInvalidComment() {
         Date date = new Date();
         CommentDto cd = new CommentDto(-1,date,"test: "+content, CommentStatus.ACTIVE, "Some name", "user03", 0);
-        commentController.uploadComment(1,cd);
-        List<CommentDto> list = commentService.findByPostId(1,0,false, true);
-        if (!list.isEmpty()) cd = list.getFirst();
-        assert ( cd.getDate()==date&&cd.getContent().equals("test: "+content));
+        assert(commentController.uploadComment(1,cd).getStatusCode()== HttpStatus.CONFLICT);
     }
 
     @Test
