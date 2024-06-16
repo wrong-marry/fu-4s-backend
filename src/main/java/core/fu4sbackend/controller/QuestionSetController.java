@@ -20,13 +20,6 @@ public class QuestionSetController {
         this.questionSetService = questionSetService ;
     }
 
-
-    @GetMapping("/getAll")
-    public List<QuestionSetDto> getAllQuestionSets(){
-        List<QuestionSetDto> questionSets = questionSetService.getAllQuestionSets();
-        return questionSets;
-    }
-
     @GetMapping("/getAllByUsername")
     public ResponseEntity<List<QuestionSetDto>> getAllQuestionSetsByUsername(
             @RequestParam String username,

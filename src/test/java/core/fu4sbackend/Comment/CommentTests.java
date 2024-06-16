@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -27,19 +26,28 @@ public class CommentTests {
 
 
     @Test
-    void testCommentPaging() {
+    void testCommentPagingAndVisibility() throws Exception {
+        CommentDto commentDto = new CommentDto(-1,new Date(),"test",CommentStatus.ACTIVE,"user03","user03",0);
+        for (int i=0; i<10; i++){
+            commentController.uploadComment(15,commentDto);
+        }
         List<CommentDto> comments = new ArrayList<>();
         final List<CommentDto> sample = commentController.getCommentsInAPost(15,"0", null, null).getBody();
         comments.addAll( sample);
-        comments.addAll( commentService.findByPostId(15, PaginationConstant.COMMENT_LOAD_SIZE-1, false, false));
-        assert (comments.get(PaginationConstant.COMMENT_LOAD_SIZE).getId()==comments.get(PaginationConstant.COMMENT_LOAD_SIZE-1).getId());
+        comments.addAll( commentController.getCommentsInAPost(15,PaginationConstant.COMMENT_LOAD_SIZE-1+"",null, null).getBody());
+        int lastItemId = comments.getLast().getId();
+        commentController.updateCommentStatus(lastItemId);
+        assert (comments.get(PaginationConstant.COMMENT_LOAD_SIZE).getId()==comments.get(PaginationConstant.COMMENT_LOAD_SIZE-1).getId()
+        && commentController.getCommentsInAPost(15,PaginationConstant.COMMENT_LOAD_SIZE-1+"", null, "true").getBody().getFirst().getId()!=lastItemId);
     }
 
     @Test
-    void testSaveInvalidComment() {
+    void testSaveInvalidComment() throws Exception {
         Date date = new Date();
         CommentDto cd = new CommentDto(-1,date,"test: "+content, CommentStatus.ACTIVE, "Some name", "user03", 0);
         assert(commentController.uploadComment(1,cd).getStatusCode()== HttpStatus.CONFLICT);
+        CommentDto cd2 = new CommentDto(-1,date,"test: "+content, CommentStatus.ACTIVE, "user01", "user03", 0);
+        assert(commentController.uploadComment(-1,cd).getStatusCode()== HttpStatus.CONFLICT);
     }
 
     @Test
@@ -68,7 +76,7 @@ public class CommentTests {
     }
 
     @Test
-    void testUploadDeleteChild() {
+    void testUploadDeleteChild() throws Exception {
         Date date = new Date();
         CommentDto cd = new CommentDto(-1,date,"test: "+content, CommentStatus.ACTIVE, "user03", "user03", 0);
         int newId = commentService.save(cd,1);
@@ -84,5 +92,22 @@ public class CommentTests {
             commentController.deleteComment(newId);
             Assertions.assertThrows(Exception.class,()->commentService.update(childId,"Test"));
         } else assert (false);
+    }
+
+    @Test
+    void testUploadInvalidContent() {
+        CommentDto newComment = new CommentDto(-1, new Date(), null, CommentStatus.ACTIVE, "user04", "user03", 0);
+        Assertions.assertThrows(Exception.class,()->commentController.uploadComment(1,newComment));
+        CommentDto newComment2 = new CommentDto(-1, new Date(), "", CommentStatus.ACTIVE, "user04", "user03", 0);
+        Assertions.assertThrows(Exception.class,()->commentController.uploadComment(1,newComment2));
+    }
+
+    @Test
+    void testGetUpdateChildren() throws Exception {
+        CommentDto newComment = new CommentDto(-1, new Date(), "test", CommentStatus.ACTIVE, "user04", "user03", 0);
+        int newid = commentService.save(newComment,1);
+        int child = commentService.saveChild(newComment,newid);
+        assert (commentController.updateComment(child+1,newComment).getStatusCode()==HttpStatus.CONFLICT);
+        assert (commentController.getChildrenComment(newid,"0").getBody().getFirst().getId()==child);
     }
 }

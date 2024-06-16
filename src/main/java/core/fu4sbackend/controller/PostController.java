@@ -54,19 +54,6 @@ public class PostController {
         return ResponseEntity.ok(postService.getAllByUsername(username, pageNum, pageSize));
     }
 
-    @GetMapping("/get")
-    public ResponseEntity<PostDto> getPost(@RequestParam(required = false) String id) {
-        try {
-            if (id == null) throw new Exception();
-            PostDto res = postService.getById(Integer.parseInt(id));
-            if (res == null)
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-            return ResponseEntity.ok(res);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-    }
-
     @GetMapping("/getNum")
     public ResponseEntity<Integer> getNumPosts(@RequestParam String username) {
         return ResponseEntity.ok(postService.getNumberOfPosts(username));

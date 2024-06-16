@@ -35,7 +35,7 @@ public class CommentController {
     }
 
     @PostMapping("/upload/post-{id}")
-    public ResponseEntity<String> uploadComment(@PathVariable int id, @RequestBody CommentDto commentDto) {
+    public ResponseEntity<String> uploadComment(@PathVariable int id, @RequestBody CommentDto commentDto) throws Exception {
         JSONObject jsonObject = new JSONObject();
         int newId;
         switch (newId = commentService.save(commentDto, id)) {
@@ -82,16 +82,17 @@ public class CommentController {
     @PutMapping("/update/{id}")
     public ResponseEntity<String> updateComment(@PathVariable int id, @RequestBody CommentDto commentDto) {
         JSONObject jsonObject = new JSONObject();
-        String message = switch (commentService.update(id, commentDto.getContent())) {
+        switch (commentService.update(id, commentDto.getContent())) {
             case -1:
-                yield "Invalid comment id";
+                jsonObject.put("message","Invalid comment id");
+                return new ResponseEntity<>(jsonObject.toString(), HttpStatus.CONFLICT);
             case 0:
-                yield "Successfully updated comment";
+                jsonObject.put("message","Successfully updated comment");
+                return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
             default:
-                yield "Something went wrong";
-        };
-        jsonObject.put("message", message);
-        return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
+                jsonObject.put("message","Something went wrong");
+                return new ResponseEntity<>(jsonObject.toString(), HttpStatus.CONFLICT);
+        }
     }
 
     //OWNER ONLY

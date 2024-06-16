@@ -47,7 +47,10 @@ public class CommentService {
     }
 
     @Transactional
-    public int save(CommentDto commentDto, Integer postId) {
+    public int save(CommentDto commentDto, Integer postId) throws Exception {
+        if (StringUtils.isEmpty(commentDto.getContent())) {
+            throw new Exception("Empty content not allowed");
+        }
         Comment c = new Comment();
         User u = userRepository.findByUsername(commentDto.getUsername()).orElse(null);
         Post p = postRepository.findById(postId).orElse(null);
