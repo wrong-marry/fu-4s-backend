@@ -2,6 +2,7 @@ package core.fu4sbackend.Authentication;
 
 import core.fu4sbackend.controller.AuthController;
 import core.fu4sbackend.dto.UserDto;
+import core.fu4sbackend.repository.UserRepository;
 import core.fu4sbackend.security.AuthenticationService;
 import core.fu4sbackend.security.LoginDTO;
 import core.fu4sbackend.security.RegisterDTO;
@@ -17,6 +18,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class AuthTests {
 
     @Autowired
+    UserRepository userRepository;
+    @Autowired
     AuthController authController;
     @Autowired
     AuthenticationService authenticationService;
@@ -25,6 +28,7 @@ public class AuthTests {
 
     @Test
     void testAuthentication() {
+        userRepository.deleteByUsername("user11");
         RegisterDTO registerDTO = new RegisterDTO("user11","pasword123","First","Last","email");
         JSONObject registerResponse = authenticationService.signup(registerDTO);
         UserDto u = userService. getByUsername(registerResponse.getString("username"));
@@ -35,4 +39,5 @@ public class AuthTests {
         loginDTO.setPassword(registerDTO.getPassword()+"False");
         assertThrows(org.springframework.security.authentication.BadCredentialsException.class,()->authController.authenticate(loginDTO));
     }
+
 }

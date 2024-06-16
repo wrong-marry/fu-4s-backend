@@ -32,17 +32,6 @@ public class CommentService {
         this.commentRepository = commentRepository;
     }
 
-    public CommentDto findById(Integer id) {
-        ModelMapper modelMapper = new ModelMapper();
-        modelMapper.createTypeMap(CommentDto.class, Comment.class);
-        Comment comment = commentRepository.findById(id).orElse(null);
-        if (comment == null) return null;
-        CommentDto commentDto = modelMapper.map(comment, CommentDto.class);
-        commentDto.setUsername(comment.getUser().getFirstName() + comment.getUser().getLastName());
-        commentDto.setAccount(comment.getUser().getUsername());
-        return commentDto;
-    }
-
     public List<CommentDto> findByPostId(Integer postId, Integer offset, Boolean isStaff, Boolean sorted) {
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.createTypeMap(CommentDto.class, Comment.class);
@@ -84,7 +73,7 @@ public class CommentService {
     public int delete(Integer id) {
         try {
             for (Comment c : commentRepository.findAllByParentId(id)) {
-                delete(c.getId());
+                if (delete(c.getId())!=0) throw new Exception();
             }
             commentRepository.deleteById(id);
             return 0;
