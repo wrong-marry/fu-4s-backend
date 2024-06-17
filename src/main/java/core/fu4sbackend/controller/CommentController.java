@@ -99,11 +99,15 @@ public class CommentController {
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteComment(@PathVariable int id) {
         JSONObject jsonObject = new JSONObject();
-
-        if (commentService.delete(id) == 0) {
-            jsonObject.put("message", "Deleted comment");
-            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
-        } else {
+        try {
+            if (commentService.delete(id) == 0) {
+                jsonObject.put("message", "Deleted comment");
+                return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
+            } else {
+                jsonObject.put("message", "Something went wrong");
+                return new ResponseEntity<>(jsonObject.toString(), HttpStatus.CONFLICT);
+            }
+        } catch (Exception e) {
             jsonObject.put("message", "Something went wrong");
             return new ResponseEntity<>(jsonObject.toString(), HttpStatus.CONFLICT);
         }

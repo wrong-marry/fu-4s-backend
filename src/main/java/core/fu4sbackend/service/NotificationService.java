@@ -41,13 +41,13 @@ public class NotificationService {
                 .toList();
     }
 
-    public NotificationDto getById(int id) {
-        Notification notification = notificationRepository.findById(id).orElse(null);
-        if (notification == null) return null;
-
-        ModelMapper modelMapper = new ModelMapper();
-        return modelMapper.map(notification, NotificationDto.class);
-    }
+//    public NotificationDto getById(int id) {
+//        Notification notification = notificationRepository.findById(id).orElse(null);
+//        if (notification == null) return null;
+//
+//        ModelMapper modelMapper = new ModelMapper();
+//        return modelMapper.map(notification, NotificationDto.class);
+//    }
 
     public void markNotificationAsUnread(String id) {
         Notification notification = notificationRepository.findById(Integer.valueOf(id))

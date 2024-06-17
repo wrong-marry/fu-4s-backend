@@ -129,12 +129,6 @@ public class PostService {
                 .toList();
     }
 
-    public PostDto getById(int id) {
-        Post post = postRepository.findById(id).orElse(null);
-        if (post == null) return null;
-        return mapPostDto(post);
-    }
-
     public Integer getNumberOfPosts(String username) {
         return postRepository.getAllByUsername(username, null).size();
     }

@@ -40,7 +40,7 @@ public class AuthenticationService {
         if(userRepository.findByUsername(input.getUsername()).isPresent()) {
             throw new UsernameNotFoundException("Username is already in use");
         }
-        else if (!StringUtils.hasText("username")) throw new InvalidParameterException("Username is required");
+        else if (!StringUtils.hasText(input.getUsername())) throw new InvalidParameterException("Username is required");
 
         User user = User.builder()
                 .username(input.getUsername())

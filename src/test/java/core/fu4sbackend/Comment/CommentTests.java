@@ -38,7 +38,7 @@ public class CommentTests {
         int lastItemId = comments.getLast().getId();
         commentController.updateCommentStatus(lastItemId);
         assert (comments.get(PaginationConstant.COMMENT_LOAD_SIZE).getId()==comments.get(PaginationConstant.COMMENT_LOAD_SIZE-1).getId()
-        && commentController.getCommentsInAPost(15,PaginationConstant.COMMENT_LOAD_SIZE-1+"", null, "true").getBody().getFirst().getId()!=lastItemId);
+        && commentController.getCommentsInAPost(15,PaginationConstant.COMMENT_LOAD_SIZE-1+"", null, null).getBody().getLast().getId()!=lastItemId);
     }
 
     @Test
@@ -124,10 +124,58 @@ public class CommentTests {
 
     @Test
     void uploadInvalidChildComment() {
-        CommentDto child1= new CommentDto(-1, new Date(), "test", CommentStatus.ACTIVE, "", "user03", 0);
+        CommentDto child1= new CommentDto(-1, new Date(), "test", CommentStatus.ACTIVE, "", "", 0);
         assert (commentController.uploadChildComment(1,child1).getStatusCode()==HttpStatus.CONFLICT);
 
-        CommentDto child2= new CommentDto(-1, new Date(), "test", CommentStatus.ACTIVE, null, "user03", 0);
+        CommentDto child2= new CommentDto(-1, new Date(), "test", CommentStatus.ACTIVE, null, null, 0);
         assert (commentController.uploadChildComment(1,child1).getStatusCode()==HttpStatus.CONFLICT);
+    }
+
+    @Test
+    void testSortedParam() {
+        List<CommentDto> list = commentController.getCommentsInAPost(15,"0", null, null).getBody();
+        assert (list.stream().allMatch(c->c.getId()>=list.getFirst().getId()));
+        List<CommentDto> list2 = commentController.getCommentsInAPost(15,"0", null, "true").getBody();
+        assert (list2.stream().allMatch(c->c.getId()<=list2.getFirst().getId()));
+        List<CommentDto> list3 = commentController.getCommentsInAPost(15,"0", null, "abc").getBody();
+        assert (list3.stream().allMatch(c->c.getId()<=list3.getFirst().getId()));
+        List<CommentDto> list4 = commentController.getCommentsInAPost(15,"0", null, "").getBody();
+        assert (list4.stream().allMatch(c->c.getId()<=list4.getFirst().getId()));
+    }
+
+    @Test
+    void testIsStaffParam() {
+        List<CommentDto> list = commentController.getCommentsInAPost(15,"0", null, null).getBody();
+        assert (list.stream().allMatch(c->c.getStatus()==CommentStatus.ACTIVE));
+        List<CommentDto> list2 = commentController.getCommentsInAPost(15,"0", "", null).getBody();
+        assert (list2.stream().allMatch(c->c.getStatus()==CommentStatus.ACTIVE));
+        List<CommentDto> list3 = commentController.getCommentsInAPost(15,"0", "true", null).getBody();
+        assert (list3.stream().anyMatch(c->c.getStatus()==CommentStatus.HIDDEN));
+        List<CommentDto> list4 = commentController.getCommentsInAPost(15,"0", "ab", null).getBody();
+        assert (list4.stream().allMatch(c->c.getStatus()==CommentStatus.ACTIVE));
+    }
+
+    @Test
+    void testUploadInvalidComment() throws Exception {
+        CommentDto newComment = new CommentDto(-1, new Date(), "aaa", CommentStatus.ACTIVE, "user", "user", 0);
+        assert (commentController.uploadComment(1,newComment).getStatusCode()==HttpStatus.CONFLICT);
+        CommentDto newComment2 = new CommentDto(-1, new Date(), "aaaa", CommentStatus.ACTIVE, "user04", "user04", 0);
+        assert (commentController.uploadComment(-1,newComment).getStatusCode()==HttpStatus.CONFLICT);
+    }
+
+    @Test
+    void testUploadInvalidChildComment() throws Exception {
+        CommentDto newComment = new CommentDto(-1, new Date(), "aaa", CommentStatus.ACTIVE, "user", "user", 0);
+        assert (commentController.uploadChildComment(1,newComment).getStatusCode()==HttpStatus.CONFLICT);
+        CommentDto newComment2 = new CommentDto(-1, new Date(), "aaaa", CommentStatus.ACTIVE, "user04", "user04", 0);
+        assert (commentController.uploadChildComment(-1,newComment).getStatusCode()==HttpStatus.CONFLICT);
+    }
+
+    @Test
+    void testDeleteComment() throws Exception {
+        assert (commentController.deleteComment(-1).getStatusCode()==HttpStatus.OK);
+        CommentDto newComment = new CommentDto(-1, new Date(), "aaa", CommentStatus.ACTIVE, "user01", "user01", 0);
+        int id = commentService.save(newComment,1);
+        assert (commentController.deleteComment(id).getStatusCode()==HttpStatus.OK);
     }
 }

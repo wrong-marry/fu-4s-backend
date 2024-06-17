@@ -1,5 +1,7 @@
 package core.fu4sbackend.User;
 
+import core.fu4sbackend.constant.PostStatus;
+import core.fu4sbackend.controller.StaffController;
 import core.fu4sbackend.controller.UserController;
 import core.fu4sbackend.dto.UserDto;
 import org.junit.jupiter.api.Test;
@@ -10,7 +12,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 public class UserTests {
     @Autowired
     UserController userController;
-
 
     @Test
     void changeUserInfo() {

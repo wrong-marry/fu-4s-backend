@@ -73,16 +73,12 @@ public class CommentService {
     }
 
     @Transactional
-    public int delete(Integer id) {
-        try {
+    public int delete(Integer id) throws Exception {
             for (Comment c : commentRepository.findAllByParentId(id)) {
                 if (delete(c.getId())!=0) throw new Exception();
             }
             commentRepository.deleteById(id);
             return 0;
-        } catch (Exception e) {
-            return 1;
-        }
     }
 
     public int updateStatus(Integer id) {
