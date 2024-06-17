@@ -48,9 +48,6 @@ public class SearchController {
                     break;
             }
         } catch (Exception t) {
-            //EMPTY CATCH PHRASE
-            System.out.print("");
-
         }
         Date time = null;
         try {

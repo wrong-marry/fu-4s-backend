@@ -110,4 +110,24 @@ public class CommentTests {
         assert (commentController.updateComment(child+1,newComment).getStatusCode()==HttpStatus.CONFLICT);
         assert (commentController.getChildrenComment(newid,"0").getBody().getFirst().getId()==child);
     }
+
+    @Test
+    void updateInvalidCommentStatus() {
+        assert (commentController.updateCommentStatus(-1).getStatusCode()==HttpStatus.CONFLICT);
+    }
+
+    @Test
+    void uploadChildComment() {
+        CommentDto child1= new CommentDto(-1, new Date(), "test", CommentStatus.ACTIVE, "user04", "user03", 0);
+        assert (commentController.uploadChildComment(1,child1).getStatusCode()==HttpStatus.OK);
+    }
+
+    @Test
+    void uploadInvalidChildComment() {
+        CommentDto child1= new CommentDto(-1, new Date(), "test", CommentStatus.ACTIVE, "", "user03", 0);
+        assert (commentController.uploadChildComment(1,child1).getStatusCode()==HttpStatus.CONFLICT);
+
+        CommentDto child2= new CommentDto(-1, new Date(), "test", CommentStatus.ACTIVE, null, "user03", 0);
+        assert (commentController.uploadChildComment(1,child1).getStatusCode()==HttpStatus.CONFLICT);
+    }
 }

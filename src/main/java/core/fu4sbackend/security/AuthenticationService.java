@@ -11,7 +11,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
+import java.security.InvalidParameterException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,6 +40,7 @@ public class AuthenticationService {
         if(userRepository.findByUsername(input.getUsername()).isPresent()) {
             throw new UsernameNotFoundException("Username is already in use");
         }
+        else if (!StringUtils.hasText("username")) throw new InvalidParameterException("Username is required");
 
         User user = User.builder()
                 .username(input.getUsername())
