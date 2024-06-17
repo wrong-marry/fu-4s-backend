@@ -161,10 +161,6 @@ public class QuestionSetService {
         return modelMapper.map(questionSet, QuestionSetDto.class);
     }
 
-    public boolean isValidUser(String username, Integer id) {
-        return questionSetRepository.findById(id).orElseThrow().getUser().getUsername().equals(username);
-    }
-
     @Transactional
     public QuestionSetDto editQuestionSet(Integer id, String title, String subjectCode, List<QuestionDto> questionDtoList, String username) throws Exception {
         removeQuestionSet(id, username);
