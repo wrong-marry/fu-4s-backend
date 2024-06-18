@@ -48,13 +48,6 @@ public class QuestionPriorityService {
         ).toList();
     }
 
-    public List<QuestionDto> getAllQuestionIdByUsernameAndQuestionSetIdAndPriority(String username, int questionSetId, int priority) {
-        ModelMapper modelMapper = new ModelMapper();
-        return questionPriorityRepository.findByQuestionSetIdAndUsernameAndPriority(questionSetId, username, priority).stream().map(
-                questionPriority -> questionService.getById(questionPriority.getQuestion().getId())
-        ).toList();
-    }
-
     public String initiateQuestionPrioritiesByUsernameAndQuestionSetId(String username, int questionSetId) {
         if (!questionPriorityRepository.findByQuestionSetIdAndUsername(questionSetId, username).isEmpty())
             return "Already initiated";
