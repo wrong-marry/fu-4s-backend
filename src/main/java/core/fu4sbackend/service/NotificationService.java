@@ -27,9 +27,16 @@ public class NotificationService {
     }
 
 
-    public List<NotificationDto> getAllByUsername(String username, Integer pageNum, Integer pageSize) {
+    public List<NotificationDto> getAllByUsername(String username, Integer pageNum, Integer pageSize, Boolean seen) {
         Pageable paging = PageRequest.of(pageNum, pageSize);
-        List<Notification> list = notificationRepository.getAllByUsername(username,paging);
+        List<Notification> list;
+
+        if (seen != null) {
+            list = notificationRepository.getAllByUsernameAndSeen(username, seen, paging);
+        } else {
+            list = notificationRepository.getAllByUsername(username, paging);
+        }
+
         ModelMapper modelMapper = new ModelMapper();
         return list
                 .stream()
@@ -59,6 +66,20 @@ public class NotificationService {
         notificationRepository.save(notification);
     }
 
+    public void markAsSeen(int notificationId) {
+        if (notificationId < 1) {
+            throw new IllegalArgumentException("Invalid notification ID");
+        }
+
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new IllegalArgumentException("Notification not found"));
+
+        // Update the notification status here
+        notification.setSeen(true);
+        notificationRepository.save(notification);
+    }
+
+
 
     @Transactional
     public void markAllAsRead() {
@@ -77,4 +98,5 @@ public class NotificationService {
             throw new RuntimeException("Notification not found");
         }
     }
+
 }

@@ -28,10 +28,11 @@ public class NotificationController {
     @GetMapping("/getAllByUsername")
     public ResponseEntity<List<NotificationDto>> showAllNotificationsByUsername(@RequestParam String username,
                                                                                  @RequestParam Integer pageNum,
-                                                                                @RequestParam Integer pageSize
+                                                                                @RequestParam Integer pageSize,
+                                                                                @RequestParam(required = false) Boolean seen
     ) {
         --pageNum;
-        return ResponseEntity.ok(notificationService.getAllByUsername(username, pageNum, pageSize));
+        return ResponseEntity.ok(notificationService.getAllByUsername(username, pageNum, pageSize, seen));
     }
 
     @GetMapping("/getNum")
@@ -46,6 +47,14 @@ public class NotificationController {
             jsonObject.put("message", "Notification marked as unseen successfully");
             return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
     }
+    @PutMapping("/{id}/seen")
+    public ResponseEntity<String> markAsSeen(@PathVariable("id") String notificationId) {
+        notificationService.markAsSeen(Integer.parseInt(notificationId));
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("message", "Notification marked as seen successfully");
+        return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
+    }
+
 
     @PutMapping("/markAllAsRead")
     public ResponseEntity<String> markAllAsRead() {
