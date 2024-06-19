@@ -21,11 +21,13 @@ public class QuestionService {
     private final int PROBABILITY_GENERATOR_RANGE = 1000;
     private final QuestionRepository questionRepository;
     private final QuestionPriorityRepository questionPriorityRepository;
+    private final QuestionPriorityService questionPriorityService;
 
     @Autowired
-    public QuestionService(QuestionPriorityRepository questionPriorityRepository, QuestionRepository questionRepository) {
+    public QuestionService(QuestionPriorityRepository questionPriorityRepository, QuestionRepository questionRepository, QuestionPriorityService questionPriorityService) {
         this.questionPriorityRepository = questionPriorityRepository;
         this.questionRepository = questionRepository;
+        this.questionPriorityService = questionPriorityService;
     }
 
     public List<QuestionDto> getAllQuestionIdByUsernameAndQuestionSetIdAndPriority(String username, int questionSetId, int priority) {
@@ -54,7 +56,7 @@ public class QuestionService {
             addToRandomQuestions(rand,allQuestions,randomQuestions,numberOfQuestions);
 
         else{
-
+            questionPriorityService.initiateQuestionPrioritiesByUsernameAndQuestionSetId(username, questionSetId);
             int generatedRandomNumber;
             int numberOfPartitions, partitionsPerLevel, rangePerPartition, previousBound;
             PriorityRangeList priorityRangeList = new PriorityRangeList();

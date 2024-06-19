@@ -25,16 +25,11 @@ public class QuestionPriorityService {
     private final UserRepository userRepository;
     private final QuestionRepository questionRepository;
 
-    private final QuestionSetRepository questionSetRepository;
-    private final QuestionService questionService;
-
     @Autowired
-    public QuestionPriorityService(QuestionPriorityRepository questionPriorityRepository, UserRepository userRepository, QuestionRepository questionRepository, QuestionSetRepository questionSetRepository, QuestionService questionService) {
+    public QuestionPriorityService(QuestionPriorityRepository questionPriorityRepository, UserRepository userRepository, QuestionRepository questionRepository) {
         this.questionPriorityRepository = questionPriorityRepository;
         this.userRepository = userRepository;
         this.questionRepository = questionRepository;
-        this.questionSetRepository = questionSetRepository;
-        this.questionService = questionService;
     }
 
     public List<QuestionPriorityDTO> getAllQuestionPriorityByUsernameAndQuestionSetId(String username, int questionSetId) {
