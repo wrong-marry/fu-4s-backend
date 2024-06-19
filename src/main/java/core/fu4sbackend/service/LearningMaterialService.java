@@ -156,6 +156,14 @@ public class LearningMaterialService {
         return modelMapper.map(learningMaterial, LearningMaterialDto.class);
     }
 
+    public MaterialFile getFile(Integer fileId) {
+        return materialFileRepository.findById(fileId)
+                .orElseThrow(() -> new RuntimeException("File not found with id " + fileId));
+    }
+    public List<MaterialFile> getFilesByMaterialId(Integer materialId) {
+        return materialFileRepository.findByLearningMaterialId(materialId);
+    }
+
     public LearningMaterialDto getById(Integer id) {
         ModelMapper modelMapper = new ModelMapper();
         LearningMaterial learningMaterial = learningMaterialRepository.findById(id).orElseThrow();

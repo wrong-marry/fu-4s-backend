@@ -12,4 +12,6 @@ public interface MaterialFileRepository extends JpaRepository<MaterialFile, Inte
     public List<MaterialFile> findAllByLearningMaterial(LearningMaterial learningMaterial);
 
     public MaterialFile findByLearningMaterialAndFilename(LearningMaterial learningMaterial, String filename);
+
+    List<MaterialFile> findByLearningMaterialId(Integer materialId);
 }
