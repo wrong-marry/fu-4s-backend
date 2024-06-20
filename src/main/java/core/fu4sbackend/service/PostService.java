@@ -1,9 +1,12 @@
 package core.fu4sbackend.service;
 
 import core.fu4sbackend.constant.PostStatus;
+import core.fu4sbackend.constant.UserStatus;
 import core.fu4sbackend.dto.PostDto;
 import core.fu4sbackend.dto.SearchRequest;
+import core.fu4sbackend.dto.UserDto;
 import core.fu4sbackend.entity.Post;
+import core.fu4sbackend.entity.User;
 import core.fu4sbackend.repository.PostRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
@@ -19,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PostService {
@@ -129,13 +133,72 @@ public class PostService {
                 .toList();
     }
 
+    public PostDto getById(int id) {
+        Post post = postRepository.findById(id).orElse(null);
+        if (post == null) return null;
+        return mapPostDto(post);
+    }
+
+    public List<PostDto> getAllPosts(Integer pageNum, Integer pageSize) {
+        Pageable paging = PageRequest.of(pageNum, pageSize, Sort.by("id").descending());
+        List<Post> postList = postRepository.findAll(paging).toList();
+        List<PostDto> postDtos = new ArrayList<>();
+
+        ModelMapper modelMapper = new ModelMapper();
+        postDtos = postList
+                .stream()
+                .map(post  -> {
+                    PostDto postDto =  modelMapper.map(post, PostDto.class);
+                    return postDto ;
+                })
+                .collect(Collectors.toList());
+        return postDtos;
+    }
+
     public Integer getNumberOfPosts(String username) {
         return postRepository.getAllByUsername(username, null).size();
+    }
+
+    public Integer getNumberOfAllPosts() {
+        return postRepository.findAll().size();
     }
 
     public Integer getNumberOfPostsEachStatus(PostStatus status) {
         return postRepository.getAllPostByStatus(status, null).size();
     }
+  
+    // check if poststatus = pending_approved so setstatus else send a message that "maybe this post haved been pend by another staff"
+    public void approvePost(Integer postId) {
+        Post post = postRepository.findById(postId).orElse(null);
+
+        if (post == null) {
+            // Handle case where post does not exist
+            throw new IllegalArgumentException("Post not found");
+        }
+
+        if (post.getStatus() == PostStatus.PENDING_APPROVE) {
+            post.setStatus(PostStatus.ACTIVE);
+            postRepository.save(post);
+        } else {
+            // Handle case where post is not in PENDING_APPROVED status
+            throw new IllegalStateException("Maybe this post has been pending by another staff");
+        }
+    }
+
+    public void deniedPost(Integer PostId) {
+        Post post = postRepository.findById(PostId).orElse(null);
+
+        if (post == null) {
+            // Handle case where post does not exist
+            throw new IllegalArgumentException("Post not found");
+        }
+        if (post.getStatus() == PostStatus.PENDING_APPROVE) {
+            post.setStatus(PostStatus.HIDDEN);
+            postRepository.save(post);
+        } else {
+            // Handle case where post is not in PENDING_APPROVED status
+            throw new IllegalStateException("Maybe this post has been pending by another staff");
+        }
 
     public boolean isValidUser(String username, Integer id) {
         return postRepository.findById(id).orElseThrow().getUser().getUsername().equals(username);
