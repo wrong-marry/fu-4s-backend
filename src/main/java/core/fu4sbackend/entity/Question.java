@@ -1,19 +1,17 @@
 package core.fu4sbackend.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Builder
+@Getter
+@Setter
 public class Question {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

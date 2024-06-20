@@ -4,19 +4,17 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Builder
+@Getter
+@Setter
 public class Subject {
     @Id
     private String code;

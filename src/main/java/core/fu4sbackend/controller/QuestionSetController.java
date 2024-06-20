@@ -19,7 +19,6 @@ public class QuestionSetController {
         this.questionSetService = questionSetService ;
     }
 
-
     @GetMapping("/getAll")
     public List<QuestionSetDto> getAllQuestionSets(){
         List<QuestionSetDto> questionSets = questionSetService.getAllQuestionSets();
@@ -43,7 +42,7 @@ public class QuestionSetController {
         return ResponseEntity.ok("ok");
     }
 
-    @GetMapping("/")
+    @GetMapping("")
     public ResponseEntity<QuestionSetDto> getQuestionSetById(@RequestParam(value = "id") String id) {
         QuestionSetDto questionSetDto = null;
         try {
@@ -72,6 +71,11 @@ public class QuestionSetController {
     @GetMapping("/getById")
     public ResponseEntity<QuestionSetDto> getById(@RequestParam Integer id) {
         return ResponseEntity.ok(questionSetService.getById(id));
+    }
+
+    @PutMapping("/increase-attempts")
+    public String increaseAttempts(@RequestParam Integer id) {
+        return questionSetService.increaseAttempts(id);
     }
 
     @PutMapping("/edit")
