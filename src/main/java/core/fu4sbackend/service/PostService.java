@@ -42,8 +42,6 @@ public class PostService {
             case DATE_ASC -> cq.orderBy(cb.asc(root.get("postTime")));
             case TITLE_ASC -> cq.orderBy(cb.asc(root.get("title")));
             case TITLE_DESC -> cq.orderBy(cb.desc(root.get("title")));
-            case USERNAME_DESC -> cq.orderBy(cb.desc(root.get("username")));
-            case USERNAME_ASC -> cq.orderBy(cb.asc(root.get("username")));
             case null, default -> cq.orderBy(cb.desc(root.get("postTime")));
         }
 
@@ -129,12 +127,6 @@ public class PostService {
                 .stream()
                 .map(post -> modelMapper.map(post, PostDto.class))
                 .toList();
-    }
-
-    public PostDto getById(int id) {
-        Post post = postRepository.findById(id).orElse(null);
-        if (post == null) return null;
-        return mapPostDto(post);
     }
 
     public Integer getNumberOfPosts(String username) {

@@ -40,8 +40,8 @@ public class PostController {
     }
 
     @GetMapping("/recent")
-    public ResponseEntity<List<PostDto>> getRecentPost(@RequestParam(required = false) Integer page) {
-        SearchRequest sr = new SearchRequest(null, null, null, null, null, SearchRequest.SearchOrder.DATE_DESC, PaginationConstant.RECENT_POST_LOAD_SIZE, page, null);
+    public ResponseEntity<List<PostDto>> getRecentPost(@RequestParam(required = false) Integer offset) {
+        SearchRequest sr = new SearchRequest(null, null, null, null, null, SearchRequest.SearchOrder.DATE_DESC, PaginationConstant.RECENT_POST_LOAD_SIZE, offset == null ? 1 : (PaginationConstant.RECENT_POST_LOAD_SIZE / offset), null);
         return new ResponseEntity<>(postService.findAllByCriteria(sr), HttpStatus.OK);
     }
 
@@ -54,21 +54,8 @@ public class PostController {
         return ResponseEntity.ok(postService.getAllByUsername(username, pageNum, pageSize));
     }
 
-    @GetMapping("/get")
-    public ResponseEntity<PostDto> getPost(@RequestParam(required = false) String id) {
-        try {
-            if (id == null) throw new Exception();
-            PostDto res = postService.getById(Integer.parseInt(id));
-            if (res == null)
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-            return ResponseEntity.ok(res);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-    }
-
     @GetMapping("/getNum")
-    public ResponseEntity<Integer> getNumPosts(@RequestParam String username){
+    public ResponseEntity<Integer> getNumPosts(@RequestParam String username) {
         return ResponseEntity.ok(postService.getNumberOfPosts(username));
     }
 

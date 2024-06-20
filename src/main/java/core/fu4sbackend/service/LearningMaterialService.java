@@ -48,22 +48,22 @@ public class LearningMaterialService {
     }
 
 
-    public List<LearningMaterialDto> getAllLearningMaterials() {
-        List<LearningMaterial> learningMaterials = learningMaterialRepository.findAll();
-        List<LearningMaterialDto> learningMaterialDtos = new ArrayList<>();
-
-        ModelMapper modelMapper = new ModelMapper();
-
-        learningMaterialDtos = learningMaterials
-                .stream()
-                .map(learningMaterial -> {
-                    LearningMaterialDto learningMaterialDto = modelMapper.map(learningMaterial, LearningMaterialDto.class);
-                    learningMaterialDto.setUsername(learningMaterial.getUser().getFirstName() + " " + learningMaterial.getUser().getLastName());
-                    return learningMaterialDto;
-                })
-                .collect(Collectors.toList());
-        return learningMaterialDtos;
-    }
+//    public List<LearningMaterialDto> getAllLearningMaterials() {
+//        List<LearningMaterial> learningMaterials = learningMaterialRepository.findAll();
+//        List<LearningMaterialDto> learningMaterialDtos = new ArrayList<>();
+//
+//        ModelMapper modelMapper = new ModelMapper();
+//
+//        learningMaterialDtos = learningMaterials
+//                .stream()
+//                .map(learningMaterial -> {
+//                    LearningMaterialDto learningMaterialDto = modelMapper.map(learningMaterial, LearningMaterialDto.class);
+//                    learningMaterialDto.setUsername(learningMaterial.getUser().getFirstName() + " " + learningMaterial.getUser().getLastName());
+//                    return learningMaterialDto;
+//                })
+//                .collect(Collectors.toList());
+//        return learningMaterialDtos;
+//    }
 
     public LearningMaterialDto getLearningMaterialById(Integer id) throws Exception {
         ModelMapper modelMapper = new ModelMapper();
@@ -79,24 +79,24 @@ public class LearningMaterialService {
         }
     }
 
-    public List<LearningMaterialDto> findByKeyword(String keyword){
-        List<LearningMaterial> learningMaterials = learningMaterialRepository.findByKeyword(keyword);
-        List<LearningMaterialDto> learningMaterialDtos;
-
-        ModelMapper modelMapper = new ModelMapper();
-        learningMaterialDtos = learningMaterials
-                .stream()
-                .map(learningMaterial -> {
-                    LearningMaterialDto learningMaterialDto =  modelMapper.map(learningMaterial, LearningMaterialDto.class);
-                    learningMaterialDto.setUsername(learningMaterial.getUser().getFirstName()+" "+learningMaterial.getUser().getLastName());
-
-                    return learningMaterialDto ;
-                })
-
-                .collect(Collectors.toList());
-
-        return learningMaterialDtos;
-    }
+//    public List<LearningMaterialDto> findByKeyword(String keyword){
+//        List<LearningMaterial> learningMaterials = learningMaterialRepository.findByKeyword(keyword);
+//        List<LearningMaterialDto> learningMaterialDtos;
+//
+//        ModelMapper modelMapper = new ModelMapper();
+//        learningMaterialDtos = learningMaterials
+//                .stream()
+//                .map(learningMaterial -> {
+//                    LearningMaterialDto learningMaterialDto =  modelMapper.map(learningMaterial, LearningMaterialDto.class);
+//                    learningMaterialDto.setUsername(learningMaterial.getUser().getFirstName()+" "+learningMaterial.getUser().getLastName());
+//
+//                    return learningMaterialDto ;
+//                })
+//
+//                .collect(Collectors.toList());
+//
+//        return learningMaterialDtos;
+//    }
 
     public List<LearningMaterialDto> getLearningMaterialsByUsername(String username, Integer pageNum, Integer pageSize) {
         Pageable paging = PageRequest.of(pageNum, pageSize, Sort.by("postTime").descending());
