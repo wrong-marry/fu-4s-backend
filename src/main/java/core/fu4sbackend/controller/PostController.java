@@ -58,4 +58,9 @@ public class PostController {
     public ResponseEntity<Integer> getNumPosts(@RequestParam String username) {
         return ResponseEntity.ok(postService.getNumberOfPosts(username));
     }
+
+    @GetMapping("/isValidUser")
+    public ResponseEntity<Boolean> isValidUser(@RequestParam String username, @RequestParam Integer id) {
+        return ResponseEntity.ok(postService.isValidUser(username, id));
+    }
 }

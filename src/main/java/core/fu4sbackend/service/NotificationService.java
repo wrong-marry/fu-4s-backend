@@ -3,18 +3,14 @@ package core.fu4sbackend.service;
 import core.fu4sbackend.dto.NotificationDto;
 import core.fu4sbackend.entity.Notification;
 import core.fu4sbackend.repository.NotificationRepository;
-import org.apache.velocity.exception.ResourceNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class NotificationService {
@@ -31,9 +27,16 @@ public class NotificationService {
     }
 
 
-    public List<NotificationDto> getAllByUsername(String username, Integer pageNum, Integer pageSize) {
+    public List<NotificationDto> getAllByUsername(String username, Integer pageNum, Integer pageSize, Boolean seen) {
         Pageable paging = PageRequest.of(pageNum, pageSize);
-        List<Notification> list = notificationRepository.getAllByUsername(username,paging);
+        List<Notification> list;
+
+        if (seen != null) {
+            list = notificationRepository.getAllByUsernameAndSeen(username, seen, paging);
+        } else {
+            list = notificationRepository.getAllByUsername(username, paging);
+        }
+
         ModelMapper modelMapper = new ModelMapper();
         return list
                 .stream()
@@ -49,13 +52,51 @@ public class NotificationService {
 //        return modelMapper.map(notification, NotificationDto.class);
 //    }
 
-    public void markNotificationAsUnread(String id) {
-        Notification notification = notificationRepository.findById(Integer.valueOf(id))
-                .orElseThrow(() -> new ResourceNotFoundException("Notification not found with id " + id));
+
+    public void markAsUnSeen(int notificationId) {
+        if (notificationId < 1) {
+            throw new IllegalArgumentException("Invalid notification ID");
+        }
+
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new IllegalArgumentException("Notification not found"));
+
+        // Update the notification status here
         notification.setSeen(false);
         notificationRepository.save(notification);
     }
 
+    public void markAsSeen(int notificationId) {
+        if (notificationId < 1) {
+            throw new IllegalArgumentException("Invalid notification ID");
+        }
 
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new IllegalArgumentException("Notification not found"));
+
+        // Update the notification status here
+        notification.setSeen(true);
+        notificationRepository.save(notification);
+    }
+
+
+
+    @Transactional
+    public void markAllAsRead() {
+        List<Notification> notifications = notificationRepository.findAll();
+        notifications.forEach(notification -> {
+            notification.setSeen(true);
+        });
+        notificationRepository.saveAll(notifications);
+    }
+
+
+    public void deleteNotification(int id) {
+        if (notificationRepository.existsById(id)) {
+            notificationRepository.deleteById(id);
+        } else {
+            throw new RuntimeException("Notification not found");
+        }
+    }
 
 }

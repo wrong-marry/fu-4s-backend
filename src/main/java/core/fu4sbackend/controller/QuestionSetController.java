@@ -1,7 +1,6 @@
 package core.fu4sbackend.controller;
 
 import core.fu4sbackend.dto.QuestionDto;
-import core.fu4sbackend.dto.LearningMaterialDto;
 import core.fu4sbackend.dto.QuestionSetDto;
 import core.fu4sbackend.service.QuestionSetService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +19,12 @@ public class QuestionSetController {
         this.questionSetService = questionSetService ;
     }
 
+    @GetMapping("/getAll")
+    public List<QuestionSetDto> getAllQuestionSets(){
+        List<QuestionSetDto> questionSets = questionSetService.getAllQuestionSets();
+        return questionSets;
+    }
+
     @GetMapping("/getAllByUsername")
     public ResponseEntity<List<QuestionSetDto>> getAllQuestionSetsByUsername(
             @RequestParam String username,
@@ -30,21 +35,14 @@ public class QuestionSetController {
         return ResponseEntity.ok(questionSetService.getQuestionSetsByUsername(username, pageNum, pageSize));
     }
 
-    @PutMapping("/editQuestionSet")
-    public ResponseEntity<QuestionSetDto> editQuestionSet(@RequestBody QuestionSetDto questionSetDto,
-                                                   @RequestParam String username) throws Exception {
-        questionSetService.editQuestionSet(questionSetDto, username);
-        return ResponseEntity.ok(questionSetDto);
-    }
-
-    @DeleteMapping("/removeQuestionSet")
+    @DeleteMapping("/remove")
     public ResponseEntity<String> removeQuestionSet(@RequestParam Integer id,
                                                         @RequestParam String username) throws Exception {
         questionSetService.removeQuestionSet(id, username);
         return ResponseEntity.ok("ok");
     }
 
-    @GetMapping("/")
+    @GetMapping("")
     public ResponseEntity<QuestionSetDto> getQuestionSetById(@RequestParam(value = "id") String id) {
         QuestionSetDto questionSetDto = null;
         try {
@@ -70,14 +68,24 @@ public class QuestionSetController {
         return ResponseEntity.ok(questionSetService.addNewQuestionSet(title, subjectCode, questionDtoList, username));
     }
 
-    @GetMapping("/isValidUser")
-    public ResponseEntity<Boolean> isValidUser(@RequestParam String username, @RequestParam Integer id) {
-        return ResponseEntity.ok(questionSetService.isValidUser(username, id));
-    }
-
     @GetMapping("/getById")
     public ResponseEntity<QuestionSetDto> getById(@RequestParam Integer id) {
         return ResponseEntity.ok(questionSetService.getById(id));
     }
 
+    @PutMapping("/increase-attempts")
+    public String increaseAttempts(@RequestParam Integer id) {
+        return questionSetService.increaseAttempts(id);
+    }
+
+    @PutMapping("/edit")
+    public ResponseEntity<QuestionSetDto> editQuestionSet(
+            @RequestParam Integer id,
+            @RequestParam String title,
+            @RequestParam String subjectCode,
+            @RequestBody List<QuestionDto> questionDtoList,
+            @RequestParam String username
+    ) throws Exception {
+        return ResponseEntity.ok(questionSetService.editQuestionSet(id, title, subjectCode, questionDtoList, username));
+    }
 }

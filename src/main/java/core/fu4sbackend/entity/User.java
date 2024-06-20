@@ -12,12 +12,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Builder
 @Getter
+@Setter
 public class User implements UserDetails {
     @Id
     private String username;

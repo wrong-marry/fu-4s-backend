@@ -30,7 +30,7 @@ public class QuestionController {
     }
 
     @GetMapping("/get-by-question-set-id/random")
-    public List<QuestionDto> getByQuestionSetIdRandomly(@RequestParam int questionSetId, @RequestParam int numberOfQuestions) {
-        return questionService.getByQuestionSetIdRandomly(questionSetId,numberOfQuestions);
+    public List<QuestionDto> getByQuestionSetIdRandomly(@RequestParam int questionSetId, @RequestParam int numberOfQuestions,@RequestParam boolean isPersonalized,@RequestParam(required = false) String username) {
+        return questionService.getByQuestionSetIdRandomly(questionSetId,numberOfQuestions,isPersonalized,username);
     }
 }
