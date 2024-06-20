@@ -29,4 +29,6 @@ public class Notification {
     @ManyToOne
     @JoinColumn(name = "username")
     private User user;
+
+    private Integer postId;
 }

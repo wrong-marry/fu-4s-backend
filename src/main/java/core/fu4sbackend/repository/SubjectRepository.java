@@ -10,4 +10,6 @@ import java.util.List;
 public interface SubjectRepository extends JpaRepository<Subject, String> {
     Subject findByCode(String subjectCode);
     public List<Subject> findAllByOrderBySemesterAsc();
+
+    Integer countByIsActive(boolean isActive);
 }
