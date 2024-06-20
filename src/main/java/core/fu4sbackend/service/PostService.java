@@ -144,4 +144,8 @@ public class PostService {
     public Integer getNumberOfPostsEachStatus(PostStatus status) {
         return postRepository.getAllPostByStatus(status, null).size();
     }
+
+    public boolean isValidUser(String username, Integer id) {
+        return postRepository.findById(id).orElseThrow().getUser().getUsername().equals(username);
+    }
 }
