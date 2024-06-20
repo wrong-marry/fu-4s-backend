@@ -54,6 +54,7 @@ public class AdminController {
         return ResponseEntity.ok(userSer.getNumberOfUserByRole(userrole));
     }
 
+
     @PutMapping("disableSubject")
     public ResponseEntity<String> deactiveSubject(@RequestParam("subjectCode") String subjectCode) {
         JSONObject jsonObject = new JSONObject();
@@ -67,12 +68,26 @@ public class AdminController {
         }
     }
 
+
     @PutMapping("/activeSubject")
     public ResponseEntity<String> activeSubject(@RequestParam("subjectCode") String subjectCode) {
         JSONObject jsonObject = new JSONObject();
         try {
             subjectService.activeSubject(subjectCode);
             jsonObject.put("message", "Active successfully");
+          return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
+        } catch (Exception e) {
+            jsonObject.put("message", "Internal server error");
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PutMapping("/banUser")
+    public ResponseEntity<String> banUser(@RequestParam("username") String username ) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            userSer.banUser(username);
+            jsonObject.put("message", "Banned user successfully!");
             return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
         } catch (Exception e) {
             jsonObject.put("message", "Internal server error");
@@ -114,10 +129,26 @@ public class AdminController {
             subjectService.createSubject(subjectDto);
             jsonObject.put("message", "Subject created successfully");
             return new ResponseEntity<>(jsonObject.toString(), HttpStatus.CREATED);
+          } catch (Exception e) {
+            jsonObject.put("message", "Internal server error");
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PutMapping("/activateUser")
+    public ResponseEntity<String> activeUser(@RequestParam("username") String username) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            userSer.activateUser(username);
+            jsonObject.put("message", "Active successfully!");
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
+
         } catch (Exception e) {
             jsonObject.put("message", "Internal server error");
             return new ResponseEntity<>(jsonObject.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }  
+
+
 

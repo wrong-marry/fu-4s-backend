@@ -57,7 +57,6 @@ public class SubjectService {
         subjectRepository.save(subject);
     }
 
-
     public void activeSubject(String subjectCode) {
         Subject subject = subjectRepository.findByCode(subjectCode);
         subject.setActive(true);
