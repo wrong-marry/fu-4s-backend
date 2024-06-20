@@ -63,4 +63,17 @@ public class PostController {
     public ResponseEntity<Boolean> isValidUser(@RequestParam String username, @RequestParam Integer id) {
         return ResponseEntity.ok(postService.isValidUser(username, id));
     }
+
+    @GetMapping("/get")
+    public ResponseEntity<PostDto> getPost(@RequestParam(required = false) String id) {
+        try {
+            if (id == null) throw new Exception();
+            PostDto res = postService.getById(Integer.parseInt(id));
+            if (res == null)
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            return ResponseEntity.ok(res);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
 }

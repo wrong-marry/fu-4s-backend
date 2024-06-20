@@ -1,12 +1,9 @@
 package core.fu4sbackend.service;
 
 import core.fu4sbackend.constant.PostStatus;
-import core.fu4sbackend.constant.UserStatus;
 import core.fu4sbackend.dto.PostDto;
 import core.fu4sbackend.dto.SearchRequest;
-import core.fu4sbackend.dto.UserDto;
 import core.fu4sbackend.entity.Post;
-import core.fu4sbackend.entity.User;
 import core.fu4sbackend.repository.PostRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
@@ -199,6 +196,7 @@ public class PostService {
             // Handle case where post is not in PENDING_APPROVED status
             throw new IllegalStateException("Maybe this post has been pending by another staff");
         }
+    }
 
     public boolean isValidUser(String username, Integer id) {
         return postRepository.findById(id).orElseThrow().getUser().getUsername().equals(username);

@@ -2,7 +2,6 @@ package core.fu4sbackend.controller;
 
 import core.fu4sbackend.constant.PostStatus;
 import core.fu4sbackend.dto.PostDto;
-import core.fu4sbackend.dto.UserDto;
 import core.fu4sbackend.service.PostService;
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
