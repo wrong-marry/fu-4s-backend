@@ -4,6 +4,7 @@ import core.fu4sbackend.constant.PostStatus;
 import core.fu4sbackend.dto.PostDto;
 import core.fu4sbackend.service.PostService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -13,7 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/staff")
-//@Secured("STAFF")
+@Secured("STAFF")
 public class StaffController {
     private final PostService postService;
 

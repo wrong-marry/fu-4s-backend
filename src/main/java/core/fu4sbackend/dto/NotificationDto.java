@@ -16,4 +16,5 @@ public class NotificationDto {
     private Date time;
     private NotificationMessage message;
     private boolean isSeen;
+    private Integer postId;
 }

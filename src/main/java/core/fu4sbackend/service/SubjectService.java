@@ -7,8 +7,10 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -35,8 +37,7 @@ public class SubjectService {
     }
 
     public void deleteSubject(String subjectCode) {
-        Subject subject = (Subject) subjectRepository.findByCode(subjectCode)
-                .orElseThrow(() -> new IllegalArgumentException("Subject not found with code: " + subjectCode));
+        Subject subject = (Subject) subjectRepository.findByCode(subjectCode);
         subjectRepository.delete(subject);
     }
 
@@ -49,5 +50,45 @@ public class SubjectService {
                 .map((subject -> modelMapper.map(subject, SubjectDto.class)))
                 .toList();
     }
+
+    public void deactiveSubject(String subjectCode) {
+        Subject subject = subjectRepository.findByCode(subjectCode);
+        subject.setActive(false);
+        subjectRepository.save(subject);
+    }
+
+    public void activeSubject(String subjectCode) {
+        Subject subject = subjectRepository.findByCode(subjectCode);
+        subject.setActive(true);
+        subjectRepository.save(subject);
+    }
+    public Integer getNumberOfSubjectsByType(boolean isActive) {
+        return subjectRepository.countByIsActive(isActive);
+    }
+
+
+    public int update(SubjectDto subjectDto) {
+        Optional<Subject> optionalSubject = Optional.ofNullable(subjectRepository.findByCode(subjectDto.getCode()));
+        if (optionalSubject.isEmpty()) {
+            return -1; // Invalid subject id
+        }
+        Subject subject = optionalSubject.get();
+        subject.setName(subjectDto.getName());
+        subject.setCode(subjectDto.getCode());
+        subjectRepository.save(subject);
+        return 0; // Successfully updated subject
+    }
+
+
+    @Transactional
+    public void createSubject(SubjectDto subjectDto) {
+        Subject subject = new Subject();
+        subject.setCode(subjectDto.getCode());
+        subject.setName(subjectDto.getName());
+        subject.setSemester(subjectDto.getSemester());
+        subject.setActive(true); // assuming new subjects are active by default
+        subjectRepository.save(subject);
+    }
+
 }
 
