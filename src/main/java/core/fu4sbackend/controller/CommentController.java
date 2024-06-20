@@ -28,16 +28,17 @@ public class CommentController {
         return new ResponseEntity<>(
                 commentService.findByPostId(
                         id,
-                        offset == null || offset.trim().matches("[1-9]+") ? 0 : Integer.parseInt(offset),
+                        offset == null || !offset.trim().matches("[0-9]+") ? 0 : Integer.parseInt(offset),
                         Boolean.valueOf(isStaff),
                         sorted != null),
                 HttpStatus.OK);
     }
 
     @PostMapping("/upload/post-{id}")
-    public ResponseEntity<String> uploadComment(@PathVariable int id, @RequestBody CommentDto commentDto) {
+    public ResponseEntity<String> uploadComment(@PathVariable int id, @RequestBody CommentDto commentDto) throws Exception {
         JSONObject jsonObject = new JSONObject();
-        switch (commentService.save(commentDto, id)) {
+        int newId;
+        switch (newId = commentService.save(commentDto, id)) {
             case -1:
                 jsonObject.put("message", "Invalid username");
                 //DEBUG
@@ -50,6 +51,29 @@ public class CommentController {
                 return new ResponseEntity<>(jsonObject.toString(), HttpStatus.CONFLICT);
             default:
                 jsonObject.put("message", "Successfully uploaded comment");
+                jsonObject.put("id", newId);
+                return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
+        }
+    }
+
+    @PostMapping("/upload/comment-{comment_id}")
+    public ResponseEntity<String> uploadChildComment(@PathVariable int comment_id, @RequestBody CommentDto commentDto) {
+        JSONObject jsonObject = new JSONObject();
+        int newId;
+        switch (newId = commentService.saveChild(commentDto, comment_id)) {
+            case -1:
+                jsonObject.put("message", "Invalid username");
+                //DEBUG
+                System.out.println("Invalid username " + commentDto.getUsername());
+                return new ResponseEntity<>(jsonObject.toString(), HttpStatus.CONFLICT);
+            case -2:
+                jsonObject.put("message", "Invalid post id");
+                //DEBUG
+                System.out.println("Invalid post id " + commentDto.getId());
+                return new ResponseEntity<>(jsonObject.toString(), HttpStatus.CONFLICT);
+            default:
+                jsonObject.put("message", "Successfully uploaded comment");
+                jsonObject.put("id", newId);
                 return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
         }
     }
@@ -58,27 +82,32 @@ public class CommentController {
     @PutMapping("/update/{id}")
     public ResponseEntity<String> updateComment(@PathVariable int id, @RequestBody CommentDto commentDto) {
         JSONObject jsonObject = new JSONObject();
-        String message = switch (commentService.update(id, commentDto.getContent())) {
+        switch (commentService.update(id, commentDto.getContent())) {
             case -1:
-                yield "Invalid comment id";
+                jsonObject.put("message","Invalid comment id");
+                return new ResponseEntity<>(jsonObject.toString(), HttpStatus.CONFLICT);
             case 0:
-                yield "Successfully updated comment";
+                jsonObject.put("message","Successfully updated comment");
+                return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
             default:
-                yield "Something went wrong";
-        };
-        jsonObject.put("message", message);
-        return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
+                jsonObject.put("message","Something went wrong");
+                return new ResponseEntity<>(jsonObject.toString(), HttpStatus.CONFLICT);
+        }
     }
 
     //OWNER ONLY
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteComment(@PathVariable int id) {
         JSONObject jsonObject = new JSONObject();
-
-        if (commentService.delete(id) == 0) {
-            jsonObject.put("message", "Deleted comment");
-            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
-        } else {
+        try {
+            if (commentService.delete(id) == 0) {
+                jsonObject.put("message", "Deleted comment");
+                return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
+            } else {
+                jsonObject.put("message", "Something went wrong");
+                return new ResponseEntity<>(jsonObject.toString(), HttpStatus.CONFLICT);
+            }
+        } catch (Exception e) {
             jsonObject.put("message", "Something went wrong");
             return new ResponseEntity<>(jsonObject.toString(), HttpStatus.CONFLICT);
         }
@@ -104,5 +133,10 @@ public class CommentController {
                 yield new ResponseEntity<>(jsonObject.toString(), HttpStatus.CONFLICT);
             }
         };
+    }
+
+    @GetMapping("/children/comment-{id}")
+    public ResponseEntity<List<CommentDto>> getChildrenComment(@PathVariable int id, @RequestParam(required = false) String offset) {
+        return ResponseEntity.ok(commentService.getAllChildren(id, offset));
     }
 }

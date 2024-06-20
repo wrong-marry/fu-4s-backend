@@ -1,15 +1,9 @@
 package core.fu4sbackend.service;
 
 
-import core.fu4sbackend.repository.QuestionSetRepository;
 import core.fu4sbackend.constant.PostStatus;
 import core.fu4sbackend.dto.AnswerDto;
-import core.fu4sbackend.dto.LearningMaterialDto;
 import core.fu4sbackend.dto.QuestionDto;
-import core.fu4sbackend.dto.QuestionSetDto;
-import core.fu4sbackend.entity.Answer;
-import core.fu4sbackend.entity.LearningMaterial;
-import core.fu4sbackend.entity.Question;
 import core.fu4sbackend.dto.QuestionSetDto;
 import core.fu4sbackend.entity.Answer;
 import core.fu4sbackend.entity.Question;
@@ -103,21 +97,6 @@ public class QuestionSetService {
                 .toList();
     }
 
-    public void editQuestionSet(QuestionSetDto questionSetDto, String username) throws Exception {
-        QuestionSet questionSet = questionSetRepository.findById(questionSetDto.getId())
-                .orElse(null);
-
-        if (questionSet == null) throw new Exception("Question Set not found!");
-
-        if (!questionSet.getUser().getUsername().equals(username)) {
-            throw new Exception("Username mismatch!");
-        }
-
-        ModelMapper modelMapper = new ModelMapper();
-        questionSet.setTitle(questionSetDto.getTitle());
-        //questionSet.setQuestions((Collection<Question>) questionSetDto.getQuestions());
-    }
-
     public void removeQuestionSet(Integer id, String username) throws Exception {
         QuestionSet questionSet = questionSetRepository.findById(id)
                 .orElse(null);
@@ -128,6 +107,13 @@ public class QuestionSetService {
         }
 
         questionSetRepository.delete(questionSet);
+    }
+
+    public String increaseAttempts(int id){
+        QuestionSet questionSet = questionSetRepository.findById(id);
+        questionSet.setAttempts(questionSet.getAttempts() + 1);
+        save(questionSet);
+        return "Increased successfully";
     }
 
     public Integer getNumberOfQuestionSets(String username) {
@@ -182,7 +168,9 @@ public class QuestionSetService {
         return modelMapper.map(questionSet, QuestionSetDto.class);
     }
 
-    public boolean isValidUser(String username, Integer id) {
-        return questionSetRepository.findById(id).orElseThrow().getUser().getUsername().equals(username);
+    @Transactional
+    public QuestionSetDto editQuestionSet(Integer id, String title, String subjectCode, List<QuestionDto> questionDtoList, String username) throws Exception {
+        removeQuestionSet(id, username);
+        return addNewQuestionSet(title, subjectCode, questionDtoList, username);
     }
 }

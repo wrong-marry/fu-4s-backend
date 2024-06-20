@@ -17,5 +17,6 @@ public class CommentDto {
     private CommentStatus status;
     private String username;
     private String account;
+    private Integer childrenNumber;
 }
 

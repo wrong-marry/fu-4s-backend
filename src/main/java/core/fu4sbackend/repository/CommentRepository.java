@@ -15,4 +15,12 @@ public interface CommentRepository extends JpaRepository<Comment, Integer> {
     @Query(value = "select comment from Comment comment where comment.post.id = ?1")
     public List<Comment> findByPostId(Integer id);
 
+    @Query(value = "select comment from Comment comment where comment.parent.id = ?1")
+    List<Comment> findAllByParentId(int commentId);
+
+    @Query(value = "select comment from Comment comment where comment.parent.id = ?1 order by comment.id desc")
+    List<Comment> findAllByParentIdOrderByTime(int commentId);
+
+    @Query(value = "select count(*) from Comment comment where comment.parent.id = ?1")
+    Integer countByParentId(Integer parentId);
 }

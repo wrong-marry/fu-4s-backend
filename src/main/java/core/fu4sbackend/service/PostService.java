@@ -46,8 +46,6 @@ public class PostService {
             case DATE_ASC -> cq.orderBy(cb.asc(root.get("postTime")));
             case TITLE_ASC -> cq.orderBy(cb.asc(root.get("title")));
             case TITLE_DESC -> cq.orderBy(cb.desc(root.get("title")));
-            case USERNAME_DESC -> cq.orderBy(cb.desc(root.get("username")));
-            case USERNAME_ASC -> cq.orderBy(cb.asc(root.get("username")));
             case null, default -> cq.orderBy(cb.desc(root.get("postTime")));
         }
 
@@ -168,7 +166,7 @@ public class PostService {
     public Integer getNumberOfPostsEachStatus(PostStatus status) {
         return postRepository.getAllPostByStatus(status, null).size();
     }
-
+  
     // check if poststatus = pending_approved so setstatus else send a message that "maybe this post haved been pend by another staff"
     public void approvePost(Integer postId) {
         Post post = postRepository.findById(postId).orElse(null);
@@ -201,5 +199,8 @@ public class PostService {
             // Handle case where post is not in PENDING_APPROVED status
             throw new IllegalStateException("Maybe this post has been pending by another staff");
         }
+
+    public boolean isValidUser(String username, Integer id) {
+        return postRepository.findById(id).orElseThrow().getUser().getUsername().equals(username);
     }
 }
