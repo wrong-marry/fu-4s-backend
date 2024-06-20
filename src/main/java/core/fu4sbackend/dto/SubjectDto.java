@@ -11,5 +11,6 @@ public class SubjectDto {
     private String code;
     private String name;
     private int semester;
+    private boolean isActive;
 //    private ArrayList<Post> posts;
 }

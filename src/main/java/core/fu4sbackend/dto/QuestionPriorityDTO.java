@@ -6,14 +6,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-import java.util.List;
-
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-public class LearningMaterialDto extends PostDto{
-    private String content;
-    private List<String> filenames;
+public class QuestionPriorityDTO {
+    private int priority;
+    private int questionId;
+    private String username;
 }
