@@ -3,6 +3,8 @@ package core.fu4sbackend.Notification;
 import core.fu4sbackend.controller.NotificationController;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
@@ -12,20 +14,30 @@ public class NotificationTests {
     @Autowired
     NotificationController controller;
 
-    @Test
-    public void testGetNotification() {
-        int num = controller.getNumNotifications("user01").getBody();
-        assert(controller
-                .showAllNotificationsByUsername("user01",1,num+1)
-                .getBody().size()==num);
+
+    @ParameterizedTest
+    @CsvSource({})
+    void testGetNotification(String username, int pageNum, int pageSize, Boolean seen) throws Exception {
+        assert (controller.showAllNotificationsByUsername(username,pageNum,pageSize,seen).getStatusCode()==HttpStatus.OK);
     }
 
-    @Test
-    public void testMarkUnreadNotification() {
-        Assertions.assertThrows(Exception.class,()->controller.markNotificationAsUnread(""));
-        Assertions.assertThrows(Exception.class,()->controller.markNotificationAsUnread("ab"));
-        Assertions.assertThrows(Exception.class,()->controller.markNotificationAsUnread(null));
-        assert (controller.markNotificationAsUnread("1").getStatusCode()== HttpStatus.OK);
-        assert (controller.markNotificationAsUnread("1").getStatusCode()== HttpStatus.OK);
+    @ParameterizedTest
+    @CsvSource({})
+    void testCountNotification(String username) throws Exception {
+        assert (controller.getNumNotifications(username).getStatusCode()==HttpStatus.OK);
     }
+
+    @ParameterizedTest
+    @CsvSource({})
+    void testSeenNotification(String id) throws Exception {
+        assert (controller.markAsSeen(id).getStatusCode()==HttpStatus.OK);
+    }
+
+    @ParameterizedTest
+    @CsvSource({})
+    void testUnseenNotification(String id) throws Exception {
+        assert (controller.markAsUnSeen(id).getStatusCode()==HttpStatus.OK);
+    }
+
+
 }

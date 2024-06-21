@@ -19,4 +19,10 @@ public class SubjectTests {
         List<SubjectDto> list = subjectController.getAllSubjects(1,num+1);
         assert (!list.isEmpty() && list.size()==num);
     }
+
+    @Test
+    public void testGetAllSubject() {
+        List<SubjectDto> list = subjectController.getAllSubjects(1,0);
+        assert (list.isEmpty());
+    }
 }
