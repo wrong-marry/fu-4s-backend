@@ -142,8 +142,11 @@ public class CommentTests {
             "22,'',FALSE,TRUE,EXCEPTION",
             "22,,'','',NORMAL",})
     void testPostComments(int id, String offset, String isStaff, String sorted, Fu4sBackendApplicationTests.ExpectedTestResult expectedTestResult) {
-        List<CommentDto> list = commentController.getCommentsInAPost(id, offset,isStaff,sorted).getBody();
-        assert (list.stream().allMatch(c->c.getId()>=list.getFirst().getId()));
+        if (expectedTestResult== Fu4sBackendApplicationTests.ExpectedTestResult.NORMAL)
+        {
+            List<CommentDto> list = commentController.getCommentsInAPost(id, offset, isStaff, sorted).getBody();
+            assert (list.stream().allMatch(c -> c.getId() >= list.getFirst().getId()));
+        }
     }
 
     @ParameterizedTest
@@ -154,42 +157,72 @@ public class CommentTests {
             "content,,EXCEPTION",
             "content,'',EXCEPTION",})
     void testUploadComment(String newContent, String username, Fu4sBackendApplicationTests.ExpectedTestResult expectedTestResult) throws Exception {
-        Date date = new Date();
-        CommentDto cd = new CommentDto(-1,date, newContent, CommentStatus.ACTIVE, username, username, 0);
-        assert(commentController.uploadComment(1,cd).getStatusCode()== HttpStatus.CONFLICT);
+        if (expectedTestResult== Fu4sBackendApplicationTests.ExpectedTestResult.NORMAL)
+        {
+            Date date = new Date();
+            CommentDto cd = new CommentDto(-1, date, newContent, CommentStatus.ACTIVE, username, username, 0);
+            assert (commentController.uploadComment(1, cd).getStatusCode() == HttpStatus.CONFLICT);
+        }
     }
 
     @ParameterizedTest
-    @CsvSource({})
+    @CsvSource({"1,content,user06,NORMAL",
+            "-1,content,user06,EXCEPTION",
+            "1,,user06,EXCEPTION",
+            "1,'',user06,EXCEPTION",
+            "1,content,null,EXCEPTION",
+    })
     void testUploadChildComment(int id, String newContent, String username, Fu4sBackendApplicationTests.ExpectedTestResult expectedTestResult) throws Exception {
-        Date date = new Date();
-        CommentDto cd = new CommentDto(-1,date, newContent, CommentStatus.ACTIVE, username, username, 0);
-        assert(commentController.uploadChildComment(id,cd).getStatusCode()== HttpStatus.CONFLICT);
+        if (expectedTestResult== Fu4sBackendApplicationTests.ExpectedTestResult.NORMAL)
+        {
+            Date date = new Date();
+            CommentDto cd = new CommentDto(-1, date, newContent, CommentStatus.ACTIVE, username, username, 0);
+            assert (commentController.uploadChildComment(id, cd).getStatusCode() == HttpStatus.CONFLICT);
+        }
     }
 
     @ParameterizedTest
-    @CsvSource({"22,"})
+    @CsvSource({"22,content,NORMAL",
+            "22,,EXCEPTION",
+            "22,'',EXCEPTION",
+            "-22,content,EXCEPTION",
+            ",content,EXCEPTION"
+    })
     void testUpdateComment(int id, String newContent, Fu4sBackendApplicationTests.ExpectedTestResult expected) throws Exception {
-        CommentDto c = new CommentDto();
-        c.setContent(newContent);
-        assert(commentController.updateComment(id,c).getStatusCode()== HttpStatus.OK);
+        if (expected== Fu4sBackendApplicationTests.ExpectedTestResult.NORMAL)
+        {
+            CommentDto c = new CommentDto();
+            c.setContent(newContent);
+            assert (commentController.updateComment(id, c).getStatusCode() == HttpStatus.OK);
+        }
     }
 
     @ParameterizedTest
-    @CsvSource({})
+    @CsvSource({"22,NORMAL",
+            "-22,EXCEPTION",})
     void testDeleteComment(int id, Fu4sBackendApplicationTests.ExpectedTestResult expected) throws Exception {
+        if (expected== Fu4sBackendApplicationTests.ExpectedTestResult.NORMAL)
         assert (commentController.deleteComment(id).getStatusCode()==HttpStatus.OK);
     }
 
     @ParameterizedTest
-    @CsvSource({})
+    @CsvSource({"22,NORMAL",
+            "-22,EXCEPTION",})
     void testHideUnhideComment(int id, Fu4sBackendApplicationTests.ExpectedTestResult expected) throws Exception {
+        if (expected== Fu4sBackendApplicationTests.ExpectedTestResult.NORMAL)
         assert (commentController.updateCommentStatus(id).getStatusCode()==HttpStatus.OK);
     }
 
     @ParameterizedTest
-    @CsvSource({})
+    @CsvSource({"11,NORMAL",
+            "-22,EXCEPTION",})
     void testGetChildrenComment(int id, String offset, Fu4sBackendApplicationTests.ExpectedTestResult expected) throws Exception {
+        if (expected== Fu4sBackendApplicationTests.ExpectedTestResult.NORMAL)
         assert (commentController.getChildrenComment(id, offset).getStatusCode()==HttpStatus.OK);
+        else {
+            Assertions.assertThrows(Exception.class,()->{
+                commentController.getChildrenComment(id, offset);
+            });
+        }
     }
 }

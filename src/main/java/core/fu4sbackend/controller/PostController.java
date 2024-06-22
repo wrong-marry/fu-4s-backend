@@ -41,7 +41,7 @@ public class PostController {
 
     @GetMapping("/recent")
     public ResponseEntity<List<PostDto>> getRecentPost(@RequestParam(required = false) Integer offset) {
-        SearchRequest sr = new SearchRequest(null, null, null, null, null, SearchRequest.SearchOrder.DATE_DESC, PaginationConstant.RECENT_POST_LOAD_SIZE, offset == null ? 1 : (PaginationConstant.RECENT_POST_LOAD_SIZE / offset), null);
+        SearchRequest sr = new SearchRequest(null, null, null, null, null, SearchRequest.SearchOrder.DATE_DESC, PaginationConstant.RECENT_POST_LOAD_SIZE, (offset == null||offset==0) ? 1 : (PaginationConstant.RECENT_POST_LOAD_SIZE / offset), null);
         return new ResponseEntity<>(postService.findAllByCriteria(sr), HttpStatus.OK);
     }
 

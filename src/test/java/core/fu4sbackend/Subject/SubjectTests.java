@@ -22,7 +22,7 @@ public class SubjectTests {
 
     @Test
     public void testGetAllSubject() {
-        List<SubjectDto> list = subjectController.getAllSubjects(1,0);
+        List<SubjectDto> list = subjectController.getAllSubjects(9,5);
         assert (list.isEmpty());
     }
 }

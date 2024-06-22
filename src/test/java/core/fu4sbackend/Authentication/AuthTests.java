@@ -32,7 +32,8 @@ public class AuthTests {
     UserService userService;
 
     @ParameterizedTest
-    @CsvSource({"user11,passwo,First,Last,test@gmail.com, NORMAL",
+    @CsvSource({"user32,passwo,First,Last,test@gmail.com, NORMAL",
+            "user1,passwo,First,Last,test@gmail.com, EXCEPTION",
             "user11,passwo,First,Last,test@gmail.com, EXCEPTION",
             ",passwo,First,Last,test@gmail.com, EXCEPTION",
             "user11,,First,Last,test@gmail.com, EXCEPTION",
@@ -44,7 +45,6 @@ public class AuthTests {
             "user11,passwo,First,Last,@gmail.com, EXCEPTION",
             "user11,passwo,First,Last,test@gmail., EXCEPTION",
             "user11,passwo,First,Last,, EXCEPTION",
-            "user01,passwo,First,Last,test@gmail.com, EXCEPTION",
     })
     void testAuthentication(String username, String password, String firstname, String lastname, String email, Fu4sBackendApplicationTests.ExpectedTestResult expectedTestResult) {
         if (expectedTestResult== Fu4sBackendApplicationTests.ExpectedTestResult.NORMAL)
@@ -78,10 +78,4 @@ public class AuthTests {
         assertThrows(org.springframework.security.authentication.BadCredentialsException.class,()->authController.authenticate(loginDTO));
     }
 
-    @ParameterizedTest
-    @CsvSource({})
-    void testSignUp(String username, String password, String firstname, String lastname, String email, Fu4sBackendApplicationTests.ExpectedTestResult expectedTestResult) {
-        RegisterDTO registerDTO = new RegisterDTO(username,password,firstname,lastname,email);
-        assertThrows(Exception.class,()->authenticationService.signup(registerDTO));
-    }
 }
