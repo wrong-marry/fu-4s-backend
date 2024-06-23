@@ -1,23 +1,23 @@
 package core.fu4sbackend.controller;
+import core.fu4sbackend.constant.FileConstant;
 import core.fu4sbackend.dto.UserAvatarDto;
 import core.fu4sbackend.dto.UserDto;
 import core.fu4sbackend.service.UserService;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.core.io.*;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.InvalidParameterException;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/user")
@@ -60,7 +60,7 @@ public class UserController {
 
     @PostMapping("/avatar")
     public ResponseEntity<String> getAvatar(@ModelAttribute UserAvatarDto userAvatarDto) throws IOException {
-        String realPath = "images";
+        String realPath = FileConstant.AVATAR_PATH;
         System.out.println(realPath);
         JSONObject jsonObject=new JSONObject();
         Path path = Paths.get(realPath);
@@ -69,7 +69,7 @@ public class UserController {
         }
         try
         {
-            FileOutputStream fos = new FileOutputStream(realPath + "/" + userAvatarDto.getUsername() + ".jpg");
+            FileOutputStream fos = new FileOutputStream(realPath + userAvatarDto.getUsername() + ".jpg");
             fos.write(userAvatarDto.getImage().getBytes());
             fos.close();
             jsonObject.put("message","Successful");
@@ -78,6 +78,12 @@ public class UserController {
             jsonObject.put("message","Failed");
             return new ResponseEntity<>(jsonObject.toString(), HttpStatus.NOT_ACCEPTABLE);
         }
+    }
+
+    @GetMapping(path="/getAvatar", produces = MediaType.IMAGE_JPEG_VALUE)
+    public ResponseEntity<Resource> getAvatar3(@RequestParam String username) throws IOException {
+        Resource resource1 = new PathResource(FileConstant.AVATAR_PATH + username + ".jpg");
+        return ResponseEntity.ok(resource1);
     }
 }
 
