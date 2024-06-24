@@ -31,7 +31,7 @@ public class PostController {
                                                @RequestParam(required = false) SearchRequest.SearchOrder order,
                                                @RequestParam Integer pageSize,
                                                @RequestParam(required = false) Integer page) {
-        SearchRequest sr = new SearchRequest(username, title, subjectCode, postTime, isTest, order, pageSize, page, semester);
+        SearchRequest sr = new SearchRequest(username, title, subjectCode, postTime, isTest, order, pageSize, page-1, semester);
         List<PostDto> list = postService.findAllByCriteria(sr);
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("posts", list);
@@ -41,7 +41,7 @@ public class PostController {
 
     @GetMapping("/recent")
     public ResponseEntity<List<PostDto>> getRecentPost(@RequestParam(required = false) Integer offset) {
-        SearchRequest sr = new SearchRequest(null, null, null, null, null, SearchRequest.SearchOrder.DATE_DESC, PaginationConstant.RECENT_POST_LOAD_SIZE, (offset == null||offset==0) ? 1 : (PaginationConstant.RECENT_POST_LOAD_SIZE / offset), null);
+        SearchRequest sr = new SearchRequest(null, null, null, null, null, SearchRequest.SearchOrder.DATE_DESC, PaginationConstant.RECENT_POST_LOAD_SIZE, (offset == null||offset==0) ? 0 : (offset/PaginationConstant.RECENT_POST_LOAD_SIZE), null);
         return new ResponseEntity<>(postService.findAllByCriteria(sr), HttpStatus.OK);
     }
 

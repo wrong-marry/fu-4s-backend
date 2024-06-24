@@ -6,7 +6,6 @@ import core.fu4sbackend.service.PostService;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,8 +36,7 @@ public class SearchController {
                                              @RequestParam(required = false) SearchRequest.SearchOrder order,
                                              @RequestParam Integer pageSize,
                                              @RequestParam(required = false) Integer page) {
-        boolean weird = false;
-        if (pageSize<1) weird = true;
+        boolean weird = pageSize < 1;
         Boolean test = null;
         try {
             switch (isTest.trim().toLowerCase()) {
@@ -91,7 +89,7 @@ public class SearchController {
         jsonObject.put("totalMaterial", totalMaterial);
         JSONObject jsonResponse = new JSONObject();
         jsonResponse.put("data", jsonObject);
-        return new ResponseEntity<String>(jsonResponse.toString(), (semester>9||semester<1||weird)? HttpStatus.PARTIAL_CONTENT:HttpStatus.OK);
+        return new ResponseEntity<String>(jsonResponse.toString(), ((semester!=null&&(semester>9||semester<1))||weird)? HttpStatus.PARTIAL_CONTENT:HttpStatus.OK);
 
     }
 }
