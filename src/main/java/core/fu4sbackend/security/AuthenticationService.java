@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.security.InvalidParameterException;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,6 +43,7 @@ public class AuthenticationService {
         }
         else if (!StringUtils.hasText(input.getUsername())) throw new InvalidParameterException("Username is required");
 
+        LocalDateTime enrolledDate = LocalDateTime.now();
         User user = User.builder()
                 .username(input.getUsername())
                 .firstName(input.getFirstName())
@@ -50,6 +52,7 @@ public class AuthenticationService {
                 .role(UserRole.USER)
                 .status(UserStatus.ACTIVE)
                 .password(passwordEncoder.encode(input.getPassword()))
+                .enrolledDate(enrolledDate)
                 .build();
 
         userRepository.save(user);
