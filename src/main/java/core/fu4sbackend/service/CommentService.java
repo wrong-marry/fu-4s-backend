@@ -13,7 +13,10 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -29,17 +32,6 @@ public class CommentService {
         this.commentRepository = commentRepository;
     }
 
-    public CommentDto findById(Integer id) {
-        ModelMapper modelMapper = new ModelMapper();
-        modelMapper.createTypeMap(CommentDto.class, Comment.class);
-        Comment comment = commentRepository.findById(id).orElse(null);
-        if (comment == null) return null;
-        CommentDto commentDto = modelMapper.map(comment, CommentDto.class);
-        commentDto.setUsername(comment.getUser().getFirstName() + comment.getUser().getLastName());
-        commentDto.setAccount(comment.getUser().getUsername());
-        return commentDto;
-    }
-
     public List<CommentDto> findByPostId(Integer postId, Integer offset, Boolean isStaff, Boolean sorted) {
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.createTypeMap(CommentDto.class, Comment.class);
@@ -48,13 +40,17 @@ public class CommentService {
                     CommentDto commentDto = modelMapper.map(comment, CommentDto.class);
                     commentDto.setUsername(comment.getUser().getFirstName() + comment.getUser().getLastName());
                     commentDto.setAccount(comment.getUser().getUsername());
+                    commentDto.setChildrenNumber(countChildren(comment.getId()));
                     return commentDto;
                 }).filter(comment -> isStaff || comment.getStatus() == CommentStatus.ACTIVE)
                 .skip(offset).limit(PaginationConstant.COMMENT_LOAD_SIZE).toList();
     }
 
     @Transactional
-    public int save(CommentDto commentDto, Integer postId) {
+    public int save(CommentDto commentDto, Integer postId) throws Exception {
+        if (StringUtils.isEmpty(commentDto.getContent())) {
+            throw new Exception("Empty content not allowed");
+        }
         Comment c = new Comment();
         User u = userRepository.findByUsername(commentDto.getUsername()).orElse(null);
         Post p = postRepository.findById(postId).orElse(null);
@@ -63,10 +59,9 @@ public class CommentService {
         c.setUser(u);
         c.setPost(p);
         c.setContent(commentDto.getContent());
-        c.setDate(commentDto.getDate());
+        c.setDate(new Date());
         c.setStatus(CommentStatus.ACTIVE);
-        commentRepository.save(c);
-        return 0;
+        return commentRepository.save(c).getId();
     }
 
     public int update(Integer id, String commentContent) {
@@ -77,13 +72,13 @@ public class CommentService {
         return 0;
     }
 
-    public int delete(Integer id) {
-        try {
+    @Transactional
+    public int delete(Integer id) throws Exception {
+            for (Comment c : commentRepository.findAllByParentId(id)) {
+                if (delete(c.getId())!=0) throw new Exception();
+            }
             commentRepository.deleteById(id);
             return 0;
-        } catch (Exception e) {
-            return 1;
-        }
     }
 
     public int updateStatus(Integer id) {
@@ -99,5 +94,37 @@ public class CommentService {
             System.out.println(e.getMessage());
             return 1;
         }
+    }
+
+    public int saveChild(CommentDto commentDto, int commentId) {
+        Comment c = new Comment();
+        User u = userRepository.findByUsername(commentDto.getUsername()).orElse(null);
+        Comment parent = commentRepository.findById(commentId).orElse(null);
+        if (u == null) return -1;
+        if (parent == null) return -2;
+        c.setUser(u);
+        c.setParent(parent);
+        c.setContent(commentDto.getContent());
+        c.setDate(new Date());
+        c.setStatus(CommentStatus.ACTIVE);
+        return commentRepository.save(c).getId();
+    }
+
+    public List<CommentDto> getAllChildren(int commentId, String offset) {
+        int offs = 0;
+        if (StringUtils.hasText(offset) && offset.trim().matches("\\d+")) offs = Integer.parseInt(offset);
+        ModelMapper modelMapper = new ModelMapper();
+        modelMapper.createTypeMap(CommentDto.class, Comment.class);
+        return commentRepository.findAllByParentId(commentId).stream().map(comment -> {
+            CommentDto commentDto = modelMapper.map(comment, CommentDto.class);
+            commentDto.setUsername(comment.getUser().getFirstName() + comment.getUser().getLastName());
+            commentDto.setAccount(comment.getUser().getUsername());
+            commentDto.setChildrenNumber(countChildren(comment.getId()));
+            return commentDto;
+        }).skip(offs).limit(PaginationConstant.COMMENT_CHILDREN_LOAD_SIZE).toList();
+    }
+
+    public Integer countChildren(int commentId) {
+        return commentRepository.countByParentId(commentId);
     }
 }

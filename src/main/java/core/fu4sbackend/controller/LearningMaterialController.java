@@ -23,11 +23,6 @@ public class LearningMaterialController {
         this.learningMaterialService = learningMaterialService;
     }
 
-    @GetMapping("/getAll")
-    public List<LearningMaterialDto> getAllLearningMaterials(){
-        return learningMaterialService.getAllLearningMaterials();
-    }
-
     @GetMapping("/getAllByUsername")
     public ResponseEntity<List<LearningMaterialDto>> getAllLearningMaterialsByUsername(
             @RequestParam String username,

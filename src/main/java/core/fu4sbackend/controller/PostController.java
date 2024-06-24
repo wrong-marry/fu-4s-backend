@@ -40,8 +40,8 @@ public class PostController {
     }
 
     @GetMapping("/recent")
-    public ResponseEntity<List<PostDto>> getRecentPost(@RequestParam(required = false) Integer page) {
-        SearchRequest sr = new SearchRequest(null, null, null, null, null, SearchRequest.SearchOrder.DATE_DESC, PaginationConstant.RECENT_POST_LOAD_SIZE, page, null);
+    public ResponseEntity<List<PostDto>> getRecentPost(@RequestParam(required = false) Integer offset) {
+        SearchRequest sr = new SearchRequest(null, null, null, null, null, SearchRequest.SearchOrder.DATE_DESC, PaginationConstant.RECENT_POST_LOAD_SIZE, offset == null ? 1 : (PaginationConstant.RECENT_POST_LOAD_SIZE / offset), null);
         return new ResponseEntity<>(postService.findAllByCriteria(sr), HttpStatus.OK);
     }
 
@@ -52,6 +52,16 @@ public class PostController {
     ) {
         --pageNum;
         return ResponseEntity.ok(postService.getAllByUsername(username, pageNum, pageSize));
+    }
+
+    @GetMapping("/getNum")
+    public ResponseEntity<Integer> getNumPosts(@RequestParam String username) {
+        return ResponseEntity.ok(postService.getNumberOfPosts(username));
+    }
+
+    @GetMapping("/isValidUser")
+    public ResponseEntity<Boolean> isValidUser(@RequestParam String username, @RequestParam Integer id) {
+        return ResponseEntity.ok(postService.isValidUser(username, id));
     }
 
     @GetMapping("/get")
@@ -65,15 +75,5 @@ public class PostController {
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-    }
-
-    @GetMapping("/getNum")
-    public ResponseEntity<Integer> getNumPosts(@RequestParam String username){
-        return ResponseEntity.ok(postService.getNumberOfPosts(username));
-    }
-
-    @GetMapping("/isValidUser")
-    public ResponseEntity<Boolean> isValidUser(@RequestParam String username, @RequestParam Integer id) {
-        return ResponseEntity.ok(postService.isValidUser(username, id));
     }
 }
