@@ -7,6 +7,7 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -34,9 +35,16 @@ public class SearchController {
                                              @RequestParam(required = false) String isTest,
                                              @RequestParam(required = false) String username,
                                              @RequestParam(required = false) SearchRequest.SearchOrder order,
+                                             @RequestParam(required = false) String isStaff,
                                              @RequestParam Integer pageSize,
                                              @RequestParam(required = false) Integer page) {
         boolean weird = pageSize < 1;
+        Boolean staff = isStaff != null && isStaff.trim().equalsIgnoreCase("true");
+        if (staff) {
+            if (!SecurityContextHolder.getContext().getAuthentication().getAuthorities()
+                    .stream().anyMatch(a -> a.getAuthority().equals("STAFF")||a.getAuthority().equals("ADMIN")))
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
         Boolean test = null;
         try {
             switch (isTest.trim().toLowerCase()) {
@@ -68,7 +76,7 @@ public class SearchController {
             questionList = List.of();
         } else {
             sr = new SearchRequest(username, keyword, subjectCode, time, true,
-                    SearchRequest.SearchOrder.DATE_DESC, pageSize, (page == null) ? 0 : page - 1, semester);
+                    SearchRequest.SearchOrder.DATE_DESC, pageSize, (page == null) ? 0 : page - 1, semester, staff);
             if (order != null) sr.setOrder(order);
             totalTest = postService.countAllByCriteria(sr);
             questionList = postService.findAllByCriteria(sr);
@@ -79,7 +87,7 @@ public class SearchController {
             materialList = List.of();
         } else {
             sr = new SearchRequest(username, keyword, subjectCode, time, false,
-                    SearchRequest.SearchOrder.DATE_DESC, pageSize, (page == null) ? 0 : page - 1, semester);
+                    SearchRequest.SearchOrder.DATE_DESC, pageSize, (page == null) ? 0 : page - 1, semester, staff);
             if (order != null) sr.setOrder(order);
             materialList = postService.findAllByCriteria(sr);
             totalMaterial = postService.countAllByCriteria(sr);

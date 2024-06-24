@@ -15,15 +15,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception exception) {
         exception.printStackTrace();
-        if (exception instanceof BadCredentialsException) {
-            return new ResponseEntity<>("Bad credentials", HttpStatus.UNAUTHORIZED);
-        }
-        else if (exception instanceof MalformedJwtException) {
-            return new ResponseEntity<>("Invalid token", HttpStatus.UNAUTHORIZED);
-        }
-        else if (exception instanceof NoSuchElementException) {
-            return new ResponseEntity<>("Resource not found", HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        return switch (exception) {
+            case BadCredentialsException badCredentialsException ->
+                    new ResponseEntity<>("Bad credentials", HttpStatus.UNAUTHORIZED);
+            case MalformedJwtException malformedJwtException ->
+                    new ResponseEntity<>("Invalid token", HttpStatus.UNAUTHORIZED);
+            case NoSuchElementException noSuchElementException ->
+                    new ResponseEntity<>("Resource not found", HttpStatus.NOT_FOUND);
+            default -> new ResponseEntity<>(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        };
     }
 }
