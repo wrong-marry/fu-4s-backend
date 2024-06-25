@@ -2,11 +2,7 @@ package core.fu4sbackend.service;
 
 import core.fu4sbackend.constant.UserRole;
 import core.fu4sbackend.constant.UserStatus;
-import core.fu4sbackend.dto.PostDto;
-import core.fu4sbackend.dto.QuestionSetDto;
 import core.fu4sbackend.dto.UserDto;
-import core.fu4sbackend.entity.Post;
-import core.fu4sbackend.entity.QuestionSet;
 import core.fu4sbackend.entity.User;
 import core.fu4sbackend.repository.UserRepository;
 import org.modelmapper.ModelMapper;
@@ -18,9 +14,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -114,5 +111,18 @@ public class UserService {
         User user = userRepository.findByUsername(username).orElse(null);
         user.setStatus(UserStatus.ACTIVE);
         userRepository.save(user);
+    }
+
+    public int getNumberOfUsersThisMonth() {
+        YearMonth currentMonth = YearMonth.now();
+        LocalDateTime startOfMonth = currentMonth.atDay(1).atStartOfDay();
+        LocalDateTime endOfMonth = currentMonth.atEndOfMonth().atTime(23, 59, 59);
+        return userRepository.countUsersByEnrolledDateBetween(startOfMonth, endOfMonth);
+    }
+    public double calculatePercentageChange(int oldValue, int newValue) {
+        if (oldValue == 0) {
+            return newValue > 0 ? 100.0 : 0.0;
+        }
+        return (newValue * 100.0) / oldValue;
     }
 }

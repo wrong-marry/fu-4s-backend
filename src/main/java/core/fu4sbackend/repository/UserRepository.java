@@ -1,16 +1,14 @@
 package core.fu4sbackend.repository;
 
 import core.fu4sbackend.constant.UserRole;
-import core.fu4sbackend.entity.Post;
 import core.fu4sbackend.entity.User;
-import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,4 +21,5 @@ public interface UserRepository extends JpaRepository<User, String> {
     @Modifying
     @Query("delete from User p where  p.username=?1")
     void deleteByUsername(String username);
+    int countUsersByEnrolledDateBetween(LocalDateTime startDate, LocalDateTime endDate);
 }

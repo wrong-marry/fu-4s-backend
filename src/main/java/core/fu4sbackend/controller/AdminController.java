@@ -148,7 +148,26 @@ public class AdminController {
             return new ResponseEntity<>(jsonObject.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-}  
+
+    @GetMapping("/compareNumberAccounts")
+    public ResponseEntity<Integer> compareAccountsThisMonthLastMonth() {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            int numOfAccountsNow = userSer.getNumberOfUsers();
+            int numOfAccountsThisMonth = userSer.getNumberOfUsersThisMonth();
+
+            double percentChange = userSer.calculatePercentageChange(numOfAccountsNow-numOfAccountsThisMonth, numOfAccountsThisMonth);
+            int percentChangeInt = (int) percentChange;
+
+            return new ResponseEntity<>(percentChangeInt, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+}
+
+
 
 
 
