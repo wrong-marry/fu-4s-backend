@@ -15,6 +15,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -126,5 +129,25 @@ public class CommentService {
 
     public Integer countChildren(int commentId) {
         return commentRepository.countByParentId(commentId);
+    }
+
+
+    public Integer getNumberOfComments() {
+        return commentRepository.findAll().size();
+    }
+    public int getNumberOfCommentsThisMonth() {
+        YearMonth currentMonth = YearMonth.now();
+        LocalDateTime startOfMonth = currentMonth.atDay(1).atStartOfDay();
+        LocalDateTime endOfMonth = currentMonth.atEndOfMonth().atTime(23, 59, 59);
+
+        Date startDate = Date.from(startOfMonth.atZone(ZoneId.systemDefault()).toInstant());
+        Date endDate = Date.from(endOfMonth.atZone(ZoneId.systemDefault()).toInstant());
+
+        return commentRepository.countCommentsByDateBetween(startDate, endDate);}
+    public double calculatePercentageChangeComment(int oldValue, int newValue) {
+        if (oldValue == 0) {
+            return newValue > 0 ? 100.0 : 0.0;
+        }
+        return (newValue * 100.0) / oldValue;
     }
 }

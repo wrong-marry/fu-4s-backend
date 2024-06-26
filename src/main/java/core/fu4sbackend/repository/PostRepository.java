@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 
 @Repository
@@ -16,4 +17,9 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
 
     @Query("select p from Post p where p.status = ?1")
     List<Post> getAllPostByStatus(PostStatus status, Pageable pageable);
+
+    int countPostsByPostTimeBetween(Date startDate, Date endDate);
+
+    int countPostsByPostTimeBetweenAndIsTest(Date startDate, Date endDate, boolean isTest);
+
 }

@@ -4,7 +4,9 @@ package core.fu4sbackend.controller;
 import core.fu4sbackend.constant.UserRole;
 import core.fu4sbackend.dto.SubjectDto;
 import core.fu4sbackend.dto.UserDto;
+import core.fu4sbackend.service.CommentService;
 import core.fu4sbackend.service.SubjectService;
+import core.fu4sbackend.service.TestResultService;
 import core.fu4sbackend.service.UserService;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,11 +23,15 @@ import java.util.List;
 public class AdminController {
     private final UserService userSer;
     private final SubjectService subjectService;
+    private final CommentService commentService ;
+    private final TestResultService testResultService;
 
     @Autowired
-    public AdminController(UserService userSer, SubjectService subjectService) {
+    public AdminController(UserService userSer, SubjectService subjectService, CommentService commentService, TestResultService testResultService) {
         this.userSer = userSer;
         this.subjectService = subjectService;
+        this.commentService = commentService;
+        this.testResultService = testResultService;
     }
 
     @GetMapping("/getAllUser")
@@ -157,6 +163,43 @@ public class AdminController {
             int numOfAccountsThisMonth = userSer.getNumberOfUsersThisMonth();
 
             double percentChange = userSer.calculatePercentageChange(numOfAccountsNow-numOfAccountsThisMonth, numOfAccountsThisMonth);
+            int percentChangeInt = (int) percentChange;
+
+            return new ResponseEntity<>(percentChangeInt, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/getNumComments")
+    public ResponseEntity<Integer> getNumberOfComments(){
+        return ResponseEntity.ok(commentService.getNumberOfComments());
+    }
+    @GetMapping("/getNumTestResults")
+    public ResponseEntity<Integer> getNumberOfTestResults(){
+        return ResponseEntity.ok(testResultService.getNumberOfTestResults());
+    }
+    @GetMapping("/percentTestResultsNew")
+    public ResponseEntity<Integer> PercentTestResultsNew() {
+        try {
+            int numOfTestResultsNow = testResultService.getNumberOfTestResults();
+            int numOfTestResultsThisMonth = testResultService.getNumberOfTestResultsThisMonth();
+
+            double percentChange = testResultService.calculatePercentageChangeTestResult(numOfTestResultsNow-numOfTestResultsThisMonth, numOfTestResultsThisMonth);
+            int percentChangeInt = (int) percentChange;
+
+            return new ResponseEntity<>(percentChangeInt, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @GetMapping("/percentCommentsNew")
+    public ResponseEntity<Integer> PercentCommentsNew() {
+        try {
+            int numOfCommentsNow = commentService.getNumberOfComments();
+            int numOfCommentsThisMonth = commentService.getNumberOfCommentsThisMonth();
+
+            double percentChange = commentService.calculatePercentageChangeComment(numOfCommentsNow-numOfCommentsThisMonth, numOfCommentsThisMonth);
             int percentChangeInt = (int) percentChange;
 
             return new ResponseEntity<>(percentChangeInt, HttpStatus.OK);

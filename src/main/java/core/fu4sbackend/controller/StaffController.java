@@ -70,6 +70,39 @@ public class StaffController {
             return new ResponseEntity<>(jsonObject.toString(), HttpStatus.ALREADY_REPORTED);
         }
     }
+    @GetMapping("/compareNumberPosts")
+    public ResponseEntity<Integer> comparePostsThisMonthLastMonth() {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            int numOfPostsNow = postService.getNumberOfAllPosts();
+            int numOfPostsThisMonth = postService.getNumberOfPostsThisMonth();
+
+            double percentChange = postService.calculatePercentageChangePost(numOfPostsNow - numOfPostsThisMonth, numOfPostsThisMonth);
+            int percentChangeInt = (int) percentChange;
+
+            return new ResponseEntity<>(percentChangeInt, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @GetMapping("/numberMaterialsNew")
+    public ResponseEntity<Integer> NumberMaterialsNew() {
+        try {
+            int numOfTestsNew = postService.getNumberOfMaterialsThisMonth();
+            return new ResponseEntity<>(numOfTestsNew, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @GetMapping("/numberTestsNew")
+    public ResponseEntity<Integer> NumberTestsNew() {
+        try {
+            int numOfTestsNew = postService.getNumberOfTestsThisMonth();
+            return new ResponseEntity<>(numOfTestsNew, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
 }
 

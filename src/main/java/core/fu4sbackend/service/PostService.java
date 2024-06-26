@@ -17,7 +17,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -200,5 +204,46 @@ public class PostService {
 
     public boolean isValidUser(String username, Integer id) {
         return postRepository.findById(id).orElseThrow().getUser().getUsername().equals(username);
+    }
+    public int getNumberOfPostsThisMonth() {
+        YearMonth currentMonth = YearMonth.now();
+        LocalDateTime startOfMonth = currentMonth.atDay(1).atStartOfDay();
+        LocalDateTime endOfMonth = currentMonth.atEndOfMonth().atTime(23, 59, 59);
+
+        Date startDate = Date.from(startOfMonth.atZone(ZoneId.systemDefault()).toInstant());
+        Date endDate = Date.from(endOfMonth.atZone(ZoneId.systemDefault()).toInstant());
+
+        return postRepository.countPostsByPostTimeBetween(startDate, endDate);}
+    public double calculatePercentageChangePost(int oldValue, int newValue) {
+        if (oldValue == 0) {
+            return newValue > 0 ? 100.0 : 0.0;
+        }
+        return (newValue * 100.0) / oldValue;
+    }
+
+    public int getNumberOfMaterialsThisMonth() {
+        YearMonth currentMonth = YearMonth.now();
+        LocalDateTime startOfMonth = currentMonth.atDay(1).atStartOfDay();
+        LocalDateTime endOfMonth = currentMonth.atEndOfMonth().atTime(23, 59, 59);
+
+        Date startDate = Date.from(startOfMonth.atZone(ZoneId.systemDefault()).toInstant());
+        Date endDate = Date.from(endOfMonth.atZone(ZoneId.systemDefault()).toInstant());
+
+        // Gọi phương thức của repository để đếm số lượng bài post với điều kiện isTest = false
+        return postRepository.countPostsByPostTimeBetweenAndIsTest(startDate, endDate, false);
+    }
+
+    public int getNumberOfTestsThisMonth() {
+        // Xác định thời gian bắt đầu và kết thúc của tháng hiện tại
+        YearMonth currentMonth = YearMonth.now();
+        LocalDateTime startOfMonth = currentMonth.atDay(1).atStartOfDay();
+        LocalDateTime endOfMonth = currentMonth.atEndOfMonth().atTime(23, 59, 59);
+
+        // Chuyển đổi thành đối tượng Date để truy vấn cơ sở dữ liệu
+        Date startDate = Date.from(startOfMonth.atZone(ZoneId.systemDefault()).toInstant());
+        Date endDate = Date.from(endOfMonth.atZone(ZoneId.systemDefault()).toInstant());
+
+        // Gọi phương thức của repository để đếm số lượng bài post với điều kiện isTest = false
+        return postRepository.countPostsByPostTimeBetweenAndIsTest(startDate, endDate, true);
     }
 }

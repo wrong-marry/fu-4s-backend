@@ -13,6 +13,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception exception) {
+        exception.printStackTrace();
         if (exception instanceof BadCredentialsException) {
             return new ResponseEntity<>("Bad credentials", HttpStatus.UNAUTHORIZED);
         }
