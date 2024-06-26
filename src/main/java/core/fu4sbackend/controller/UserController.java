@@ -5,7 +5,6 @@ import core.fu4sbackend.dto.UserDto;
 import core.fu4sbackend.service.UserService;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -14,19 +13,14 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.InvalidParameterException;
 
 @RestController
 @RequestMapping("/api/v1/user")
 public class UserController {
-    private final ApplicationContext context;
     private final UserService userService;
     @Autowired
-    public UserController(ApplicationContext context, UserService userService) {
-        this.context = context;
+    public UserController(UserService userService) {
         this.userService = userService;
     }
     @GetMapping
@@ -42,7 +36,7 @@ public class UserController {
     @PutMapping("/edit-profile")
     public UserDto editEmailFirstNameLastName(@RequestBody UserDto userDto,@RequestParam String username){
         if (userDto.getFirstName().length()<6||userDto.getLastName().length()<6
-                ||userDto.getEmail().length()<6||!userDto.getEmail().matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{1,4}$"))
+                ||userDto.getEmail().length()<6||!userDto.getEmail().matches("^[\\w-.]+@([\\w-]+\\.)+[\\w-]{1,4}$"))
             throw new InvalidParameterException("Invalid information");
         return userService.editEmailFirstNameLastName(userDto,username);
     }
@@ -63,10 +57,6 @@ public class UserController {
         String realPath = FileConstant.AVATAR_PATH;
         System.out.println(realPath);
         JSONObject jsonObject=new JSONObject();
-        Path path = Paths.get(realPath);
-        if (!Files.exists(path)) {
-            Files.createDirectory(path);
-        }
         try
         {
             FileOutputStream fos = new FileOutputStream(realPath + userAvatarDto.getUsername() + ".jpg");
@@ -81,7 +71,7 @@ public class UserController {
     }
 
     @GetMapping(path="/getAvatar", produces = MediaType.IMAGE_JPEG_VALUE)
-    public ResponseEntity<Resource> getAvatar3(@RequestParam String username) throws IOException {
+    public ResponseEntity<Resource> getAvatar3(@RequestParam String username)  {
         Resource resource1 = new PathResource(FileConstant.AVATAR_PATH + username + ".jpg");
         return ResponseEntity.ok(resource1);
     }

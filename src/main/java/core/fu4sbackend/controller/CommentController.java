@@ -6,6 +6,7 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,6 +26,14 @@ public class CommentController {
                                                                @RequestParam(required = false) String offset,
                                                                @RequestParam(required = false) String isStaff,
                                                                @RequestParam(required = false) String sorted) {
+
+        boolean staff = isStaff != null && isStaff.trim().equalsIgnoreCase("true");
+        //authorities check
+        if (staff) {
+            if (!SecurityContextHolder.getContext().getAuthentication().getAuthorities()
+                    .stream().anyMatch(a -> a.getAuthority().equals("STAFF")||a.getAuthority().equals("ADMIN")))
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
         return new ResponseEntity<>(
                 commentService.findByPostId(
                         id,

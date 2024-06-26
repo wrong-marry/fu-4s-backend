@@ -40,6 +40,8 @@ public class SearchController {
                                              @RequestParam(required = false) Integer page) {
         boolean weird = pageSize < 1;
         Boolean staff = isStaff != null && isStaff.trim().equalsIgnoreCase("true");
+
+        //authorities check
         if (staff) {
             if (!SecurityContextHolder.getContext().getAuthentication().getAuthorities()
                     .stream().anyMatch(a -> a.getAuthority().equals("STAFF")||a.getAuthority().equals("ADMIN")))
