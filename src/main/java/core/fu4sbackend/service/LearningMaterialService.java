@@ -32,7 +32,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class LearningMaterialService {
@@ -127,7 +126,7 @@ public class LearningMaterialService {
         learningMaterial.setTest(false);
 
         learningMaterial = learningMaterialRepository.save(learningMaterial);
-        if(files != null) for (MultipartFile file : files) {
+        if (files != null) for (MultipartFile file : files) {
             String filePath = System.getProperty("user.dir") + "\\src\\main\\resources\\" + learningMaterial.getId();
             String fileName = file.getOriginalFilename();
             try {
@@ -158,6 +157,7 @@ public class LearningMaterialService {
         return materialFileRepository.findById(fileId)
                 .orElseThrow(() -> new RuntimeException("File not found with id " + fileId));
     }
+
     public List<MaterialFile> getFilesByMaterialId(Integer materialId) {
         return materialFileRepository.findByLearningMaterialId(materialId);
     }
@@ -206,9 +206,53 @@ public class LearningMaterialService {
 
     @Transactional
     public LearningMaterialDto edit(Integer id, String title, String subjectCode, String content, List<MultipartFile> files, String username, boolean deleteAllFiles) throws Exception {
-        if(deleteAllFiles) files = null;
+        LearningMaterial learningMaterial = learningMaterialRepository.findById(id).orElseThrow();
+        learningMaterial.setTitle(title);
+        learningMaterial.setContent(content);
+        learningMaterial.setPostTime(new Date(System.currentTimeMillis()));
+        learningMaterial.setSubject(subjectRepository.findById(subjectCode).orElseThrow());
+        learningMaterialRepository.save(learningMaterial);
 
-        deleteLearningMaterial(id, username);
-        return add(title, subjectCode, content, files, username);
+        if (deleteAllFiles) {
+            String filePath = System.getProperty("user.dir") + "\\src\\main\\resources\\" + id;
+            FileUtils.deleteDirectory(new File(filePath));
+            materialFileRepository.deleteByLearningMaterial(learningMaterial);
+        } else {
+            if(files == null) {
+                // giu nguyen
+            } else {
+                materialFileRepository.deleteByLearningMaterial(learningMaterial);
+                for(MultipartFile file : files) {
+                    MaterialFile materialFile = new MaterialFile();
+                    materialFile.setLearningMaterial(learningMaterial);
+                    materialFile.setFilename(file.getOriginalFilename());
+                    materialFileRepository.save(materialFile);
+                }
+
+                String filePath = System.getProperty("user.dir") + "\\src\\main\\resources\\" + id;
+                FileUtils.deleteDirectory(new File(filePath));
+                for (MultipartFile file : files) {
+                    filePath = System.getProperty("user.dir") + "\\src\\main\\resources\\" + learningMaterial.getId();
+                    String fileName = file.getOriginalFilename();
+                    try {
+                        if (fileName.contains("..")) {
+                            throw new RuntimeException("Sorry! Filename contains invalid path sequence " + fileName);
+                        }
+
+                        Path fileStorageLocation = Paths.get(filePath).toAbsolutePath().normalize();
+                        if (!Files.exists(fileStorageLocation)) {
+                            Files.createDirectories(fileStorageLocation);
+                        }
+                        Path targetLocation = fileStorageLocation.resolve(fileName);
+
+                        Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+                    } catch (Exception e) {
+                    }
+                }
+            }
+        }
+
+        ModelMapper modelMapper = new ModelMapper();
+        return modelMapper.map(learningMaterial, LearningMaterialDto.class);
     }
 }
