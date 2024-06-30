@@ -59,17 +59,17 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${HOSTNAME} '
           
           # Stop all containers (prevents errors if any are still running)
-          docker stop $(docker ps -aq)
+          docker stop $(sudo docker ps -aq)
           
           # Remove all containers (frees up resources)
-          docker rm -f $(docker ps -aq)
+          sudo docker rm -f $(sudo docker ps -aq)
           
           # Remove all unused Docker images (cleans up old images)
           docker image prune -a -f
           
           # Pull the latest image
-          docker pull vnminhhai/fu4s-backend:latest
+          sudo docker pull vnminhhai/fu4s-backend:latest
           
           # Run the new container with environment variables
-          docker run --name fu4sapp -d -p 8080:8080 vnminhhai/fu4s-backend:latest
+          sudo docker run --name fu4sapp -d -p 8080:8080 vnminhhai/fu4s-backend:latest
           '
