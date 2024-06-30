@@ -3,7 +3,7 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - unit_test  # Set to whatever branch you want to trigger the deployment.
+      - ci_pipeline  # Set to whatever branch you want to trigger the deployment.
 
 jobs:
   build_and_push:
