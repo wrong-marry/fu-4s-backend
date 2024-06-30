@@ -36,11 +36,6 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: vnminhhai/fu4s-backend:latest
-          build-args: |
-            DB_URL=${{ secrets.DB_URL }}
-            DB_USERNAME=${{ secrets.DB_USERNAME }}
-            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-            JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}
   deploy:
     runs-on: ubuntu-latest
     needs: build_and_push
@@ -56,7 +51,7 @@ jobs:
         run: |
           echo "${{ secrets.SSH_PRIVATE_KEY }}" |
             tr -d '\r' > key.pem
-            chmod 400 key.pem
+            chmod 600 key.pem
           ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${HOSTNAME} '
           
           # Stop all containers (prevents errors if any are still running)
@@ -72,5 +67,10 @@ jobs:
           sudo docker pull vnminhhai/fu4s-backend:latest
           
           # Run the new container with environment variables
-          sudo docker run --name fu4sapp -d -p 8080:8080 vnminhhai/fu4s-backend:latest
+          sudo docker run --name fu4sapp -d -p 8080:8080 \
+            -e DB_URL=${{ secrets.DB_URL }} \
+            -e DB_USERNAME=${{ secrets.DB_USERNAME }} \
+            -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+            -e JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }} \
+            vnminhhai/fu4s-backend:latest
           '

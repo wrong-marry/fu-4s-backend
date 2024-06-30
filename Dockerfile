@@ -11,18 +11,6 @@
 # Create a stage for resolving and downloading dependencies.
 FROM eclipse-temurin:22-jdk-jammy as deps
 
-ARG DB_URL
-ARG DB_USERNAME
-ARG DB_PASSWORD
-ARG JWT_SECRET_KEY
-
-# Set environment variables
-ENV DB_URL=${DB_URL}
-ENV DB_USERNAME=${DB_USERNAME}
-ENV DB_PASSWORD=${DB_PASSWORD}
-ENV JWT_SECRET_KEY=${JWT_SECRET_KEY}
-
-
 WORKDIR /build
 
 # Copy the mvnw wrapper with executable permissions.
