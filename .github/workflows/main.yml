@@ -70,3 +70,4 @@ jobs:
           
           # Run the new container with environment variables
           docker run --name fu4sapp -d -p 8080:8080 vnminhhai/fu4s-backend:latest
+          '
