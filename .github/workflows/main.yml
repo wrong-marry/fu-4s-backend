@@ -35,7 +35,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: linhpksw/tiemcheit-be-spring-boot-app:latest
+          tags: vnminhhai/fu4s-backend:latest
           build-args: |
             DB_URL=${{ secrets.DB_URL }}
             DB_USERNAME=${{ secrets.DB_USERNAME }}
@@ -62,7 +62,7 @@ jobs:
             docker image prune -a -f
             
             # Pull the latest image
-            docker pull linhpksw/tiemcheit-be-spring-boot-app:latest
+            docker pull vnminhhai/fu4s-backend:latest
             
             # Run the new container with environment variables
-            docker run --name tiemcheitapp -d -p 8080:8080 linhpksw/tiemcheit-be-spring-boot-app:latest
+            docker run --name fu4sapp -d -p 8080:8080 vnminhhai/fu4s-backend:latest
