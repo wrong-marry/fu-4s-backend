@@ -48,7 +48,7 @@ public class NotificationController {
             return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
     }
     @PutMapping("/{id}/seen")
-    public ResponseEntity<String> markAsSeen(@PathVariable("id") String notificationId) {
+    public ResponseEntity<String> markAsSeen(@PathVariable("id") String notificationId) throws IllegalArgumentException {
         notificationService.markAsSeen(Integer.parseInt(notificationId));
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("message", "Notification marked as seen successfully");

@@ -3,16 +3,14 @@ package core.fu4sbackend.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.Serializable;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TestResultDto {
-    private Integer id;
-    private float result;
-    private String date;
+public class UserAvatarDto implements Serializable {
     private String username;
-    private boolean isPersonalized;
-    private QuestionSetDto questionSet;
+    private MultipartFile image;
 }

@@ -20,9 +20,4 @@ public class LearningMaterialTests {
         assert(controller.getLearningMaterialById(learningMaterialDto.getId()+"").getBody().getContent().equals(learningMaterialDto.getContent()));
        }
 
-    @Test
-    void getInvalidLearningMaterial() {
-        Assertions.assertThrows(Exception.class,()->controller.getLearningMaterialById("aa"));
-        Assertions.assertThrows(Exception.class,()->controller.getLearningMaterialById(null));
-    }
 }

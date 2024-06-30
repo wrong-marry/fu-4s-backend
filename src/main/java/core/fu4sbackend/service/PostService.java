@@ -93,6 +93,11 @@ public class PostService {
             else testPredicate = criteriaBuilder.isFalse(root.get("isTest"));
             predicates.add(testPredicate);
         }
+        if (!searchRequest.getIsStaff()) {
+            Predicate staffPredicate = criteriaBuilder.like(root.get("status"), "%" + PostStatus.ACTIVE + "%");
+            predicates.add(staffPredicate);
+        }
+
         return predicates;
     }
 
