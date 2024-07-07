@@ -1,5 +1,6 @@
 package core.fu4sbackend.Authentication;
 
+import core.fu4sbackend.Fu4sBackendApplicationTests;
 import core.fu4sbackend.controller.AuthController;
 import core.fu4sbackend.dto.UserDto;
 import core.fu4sbackend.repository.UserRepository;
@@ -8,9 +9,13 @@ import core.fu4sbackend.security.LoginDTO;
 import core.fu4sbackend.security.RegisterDTO;
 import core.fu4sbackend.service.UserService;
 import org.json.JSONObject;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -26,78 +31,51 @@ public class AuthTests {
     @Autowired
     UserService userService;
 
-    @Test
-    void testAuthentication() {
-        userRepository.deleteByUsername("user11");
-        RegisterDTO registerDTO = new RegisterDTO("user11","pasword123","First","Last","email");
-        JSONObject registerResponse = authenticationService.signup(registerDTO);
-        UserDto u = userService. getByUsername(registerResponse.getString("username"));
-        assert (u.getFirstName().equals(registerDTO.getFirstName())&&u.getEmail().equals(registerDTO.getEmail()));
+    @ParameterizedTest
+    @CsvSource({"user32,passwo,First,Last,test@gmail.com, NORMAL",
+            "user1,passwo,First,Last,test@gmail.com, EXCEPTION",
+            "user11,passwo,First,Last,test@gmail.com, EXCEPTION",
+            ",passwo,First,Last,test@gmail.com, EXCEPTION",
+            "user11,,First,Last,test@gmail.com, EXCEPTION",
+            "user11,passw,First,Last,test@gmail.com, EXCEPTION",
+            "user11,passwo,'',Last,test@gmail.com, EXCEPTION",
+            "user11,passwo,,Last,test@gmail.com, EXCEPTION",
+            "user11,passwo,'',Last,test@gmail.com, EXCEPTION",
+            "user11,passwo,,Last,test@gmail.com, EXCEPTION",
+            "user11,passwo,First,Last,@gmail.com, EXCEPTION",
+            "user11,passwo,First,Last,test@gmail., EXCEPTION",
+            "user11,passwo,First,Last,, EXCEPTION",
+    })
+    void testAuthentication(String username, String password, String firstname, String lastname, String email, Fu4sBackendApplicationTests.ExpectedTestResult expectedTestResult) {
+        if (expectedTestResult== Fu4sBackendApplicationTests.ExpectedTestResult.NORMAL)
+        {
+            userRepository.deleteByUsername(username);
+            RegisterDTO registerDTO = new RegisterDTO(username,password,firstname,lastname,email);
+            JSONObject registerResponse = authenticationService.signup(registerDTO);
+            UserDto u = userService. getByUsername(registerResponse.getString(username));
+            assert (u.getFirstName().equals(registerDTO.getFirstName())&&u.getEmail().equals(registerDTO.getEmail()));
+            LoginDTO loginDTO = new LoginDTO();
+            loginDTO.setUsername(registerDTO.getUsername());
+            loginDTO.setPassword(registerDTO.getPassword());
+            assert(authController.authenticate(loginDTO).getStatusCode()== HttpStatus.OK);
+        }
+        else Assertions.assertThrows(Exception.class, ()->{
+            RegisterDTO registerDTO = new RegisterDTO(username,password,firstname,lastname,email);
+            authenticationService.signup(registerDTO);
+        });
+    }
 
+    @ParameterizedTest
+    @CsvSource({"user11,password123, NORMAL",
+            "user-11,password123, EXCEPTION",
+            ",password123, EXCEPTION",
+            "user11,passw, EXCEPTION",
+            "user11,null, EXCEPTION"})
+    void testCredentials(String username, String password, Fu4sBackendApplicationTests.ExpectedTestResult expectedTestResult) {
         LoginDTO loginDTO = new LoginDTO();
-        loginDTO.setUsername(registerDTO.getUsername());
-        loginDTO.setPassword(registerDTO.getPassword()+"False");
+        loginDTO.setUsername(username);
+        loginDTO.setPassword(password);
         assertThrows(org.springframework.security.authentication.BadCredentialsException.class,()->authController.authenticate(loginDTO));
     }
 
-    @Test
-    void testCredentials() {
-        LoginDTO loginDTO = new LoginDTO();
-        loginDTO.setUsername("");
-        loginDTO.setPassword("password123");
-        assertThrows(org.springframework.security.authentication.BadCredentialsException.class,()->authController.authenticate(loginDTO));
-    }
-
-    @Test
-    void testCredentials2() {
-        LoginDTO loginDTO = new LoginDTO();
-        loginDTO.setUsername(null);
-        loginDTO.setPassword("pasword123");
-        assertThrows(org.springframework.security.authentication.BadCredentialsException.class,()->authController.authenticate(loginDTO));
-    }
-
-    @Test
-    void testCredentials3() {
-        LoginDTO loginDTO = new LoginDTO();
-        loginDTO.setUsername("user01");
-        loginDTO.setPassword("");
-        assertThrows(org.springframework.security.authentication.BadCredentialsException.class,()->authController.authenticate(loginDTO));
-    }
-
-    @Test
-    void testCredentials4() {
-        LoginDTO loginDTO = new LoginDTO();
-        loginDTO.setUsername("user01");
-        loginDTO.setPassword(null);
-        assertThrows(org.springframework.security.authentication.BadCredentialsException.class,()->authController.authenticate(loginDTO));
-    }
-
-    @Test
-    void testSignUp() {
-        RegisterDTO registerDTO = new RegisterDTO("user01","pasword123","First","Last","email");
-        assertThrows(Exception.class,()->authenticationService.signup(registerDTO));
-    }
-
-
-    @Test
-    void testSignUp2() {
-        RegisterDTO registerDTO = new RegisterDTO("","pasword123","First","Last","email");
-        assertThrows(Exception.class,()->authenticationService.signup(registerDTO));
-    }
-
-    @Test
-    void testSignUp3() {
-        RegisterDTO registerDTO = new RegisterDTO(null,"pasword123","First","Last","email");
-        assertThrows(Exception.class,()->authenticationService.signup(registerDTO));
-    }
-    @Test
-    void testSignUp4() {
-        RegisterDTO registerDTO = new RegisterDTO("user01","","First","Last","email");
-        assertThrows(Exception.class,()->authenticationService.signup(registerDTO));
-    }
-    @Test
-    void testSignUp5() {
-        RegisterDTO registerDTO = new RegisterDTO("user01",null,"First","Last","email");
-        assertThrows(Exception.class,()->authenticationService.signup(registerDTO));
-    }
 }

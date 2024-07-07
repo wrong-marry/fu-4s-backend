@@ -11,11 +11,11 @@ import core.fu4sbackend.repository.PostRepository;
 import core.fu4sbackend.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -36,14 +36,16 @@ public class CommentService {
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.createTypeMap(CommentDto.class, Comment.class);
         List<Comment> comments = sorted ? commentRepository.findByPostIdOrderByTime(postId) : commentRepository.findByPostId(postId);
+
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
         return comments.stream().map(comment -> {
-                    CommentDto commentDto = modelMapper.map(comment, CommentDto.class);
-                    commentDto.setUsername(comment.getUser().getFirstName() + comment.getUser().getLastName());
-                    commentDto.setAccount(comment.getUser().getUsername());
-                    commentDto.setChildrenNumber(countChildren(comment.getId()));
-                    return commentDto;
-                }).filter(comment -> isStaff || comment.getStatus() == CommentStatus.ACTIVE)
-                .skip(offset).limit(PaginationConstant.COMMENT_LOAD_SIZE).toList();
+            CommentDto commentDto = modelMapper.map(comment, CommentDto.class);
+            commentDto.setUsername(comment.getUser().getFirstName() + comment.getUser().getLastName());
+            commentDto.setAccount(comment.getUser().getUsername());
+            commentDto.setChildrenNumber(countChildren(comment.getId()));
+            return commentDto;
+        }).filter(comment -> isStaff || comment.getStatus() == CommentStatus.ACTIVE || comment.getAccount().equals(username))
+        .skip(offset).limit(PaginationConstant.COMMENT_LOAD_SIZE).toList();
     }
 
     @Transactional

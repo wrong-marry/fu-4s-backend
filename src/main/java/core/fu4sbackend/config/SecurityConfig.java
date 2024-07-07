@@ -1,5 +1,6 @@
 package core.fu4sbackend.config;
 
+import core.fu4sbackend.security.AuthenticationEntryPoint;
 import core.fu4sbackend.security.JwtFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,10 +27,12 @@ import java.util.Arrays;
 public class SecurityConfig {
     private final AuthenticationProvider authenticationProvider;
     private final JwtFilter jwtAuthenticationFilter;
+    private final AuthenticationEntryPoint authenticationEntryPoint;
 
-    public SecurityConfig(AuthenticationProvider authenticationProvider, JwtFilter jwtAuthenticationFilter) {
+    public SecurityConfig(AuthenticationProvider authenticationProvider, JwtFilter jwtAuthenticationFilter, AuthenticationEntryPoint authenticationEntryPoint) {
         this.authenticationProvider = authenticationProvider;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.authenticationEntryPoint = authenticationEntryPoint;
     }
 
     @Bean
@@ -37,6 +40,7 @@ public class SecurityConfig {
         http.cors((cors) -> cors
                 .configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
+                .exceptionHandling(eh->eh.authenticationEntryPoint(authenticationEntryPoint))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/auth/**","/api/v1/getAllPost/**","api/v1/**")
                         .permitAll()

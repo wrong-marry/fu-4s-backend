@@ -6,6 +6,7 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,6 +26,14 @@ public class CommentController {
                                                                @RequestParam(required = false) String offset,
                                                                @RequestParam(required = false) String isStaff,
                                                                @RequestParam(required = false) String sorted) {
+
+        boolean staff = isStaff != null && isStaff.trim().equalsIgnoreCase("true");
+        //authorities check
+        if (staff) {
+            if (SecurityContextHolder.getContext().getAuthentication().getAuthorities()
+                    .stream().noneMatch(a -> a.getAuthority().equals("STAFF")||a.getAuthority().equals("ADMIN")))
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
         return new ResponseEntity<>(
                 commentService.findByPostId(
                         id,
@@ -82,17 +91,20 @@ public class CommentController {
     @PutMapping("/update/{id}")
     public ResponseEntity<String> updateComment(@PathVariable int id, @RequestBody CommentDto commentDto) {
         JSONObject jsonObject = new JSONObject();
-        switch (commentService.update(id, commentDto.getContent())) {
-            case -1:
-                jsonObject.put("message","Invalid comment id");
-                return new ResponseEntity<>(jsonObject.toString(), HttpStatus.CONFLICT);
-            case 0:
-                jsonObject.put("message","Successfully updated comment");
-                return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
-            default:
-                jsonObject.put("message","Something went wrong");
-                return new ResponseEntity<>(jsonObject.toString(), HttpStatus.CONFLICT);
-        }
+        return switch (commentService.update(id, commentDto.getContent())) {
+            case -1 -> {
+                jsonObject.put("message", "Invalid comment id");
+                yield new ResponseEntity<>(jsonObject.toString(), HttpStatus.CONFLICT);
+            }
+            case 0 -> {
+                jsonObject.put("message", "Successfully updated comment");
+                yield new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
+            }
+            default -> {
+                jsonObject.put("message", "Something went wrong");
+                yield new ResponseEntity<>(jsonObject.toString(), HttpStatus.CONFLICT);
+            }
+        };
     }
 
     //OWNER ONLY
