@@ -2,6 +2,7 @@ package core.fu4sbackend.controller;
 
 
 import core.fu4sbackend.dto.LearningMaterialDto;
+import core.fu4sbackend.dto.LearningMaterialRequestDto;
 import core.fu4sbackend.service.LearningMaterialService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -49,16 +50,6 @@ public class LearningMaterialController {
         return ResponseEntity.ok(learningMaterialDto);
     }
 
-    @PostMapping("/addNew")
-    public ResponseEntity<LearningMaterialDto> addNewLearningMaterial(
-            @RequestParam String title,
-            @RequestParam String content,
-            @RequestParam String subjectCode,
-            @RequestBody(required = false) List<MultipartFile> files,
-            @RequestParam String username
-    ) throws Exception {
-        return ResponseEntity.ok(learningMaterialService.add(title, subjectCode, content, files, username));
-    }
 
     @GetMapping("/getById")
     public ResponseEntity<LearningMaterialDto> getLearningMaterialById(@RequestParam Integer id) {
@@ -81,6 +72,20 @@ public class LearningMaterialController {
         learningMaterialService.deleteLearningMaterial(id, username);
         return ResponseEntity.ok("ok");
     }
+
+    @PostMapping("/addNew")
+    public ResponseEntity<LearningMaterialDto> addNewLearningMaterial(
+            @RequestBody LearningMaterialRequestDto learningMaterialRequest
+    ) throws Exception {
+        return ResponseEntity.ok(learningMaterialService.add(
+                learningMaterialRequest.getTitle(),
+                learningMaterialRequest.getSubjectCode(),
+                learningMaterialRequest.getContent(),
+                learningMaterialRequest.getFiles(),
+                learningMaterialRequest.getUsername()
+        ));
+    }
+
 
     @PutMapping("/edit")
     public ResponseEntity<LearningMaterialDto> editLearningMaterial(

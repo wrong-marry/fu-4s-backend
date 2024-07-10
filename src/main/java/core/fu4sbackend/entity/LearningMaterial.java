@@ -1,8 +1,6 @@
 package core.fu4sbackend.entity;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -15,6 +13,8 @@ import java.util.Collection;
 @Entity
 @SuperBuilder
 public class LearningMaterial extends Post {
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
     private String content;
 
     @OneToMany(mappedBy = "learningMaterial", cascade = CascadeType.ALL)
