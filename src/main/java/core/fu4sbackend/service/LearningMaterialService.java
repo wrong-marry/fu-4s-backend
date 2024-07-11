@@ -164,6 +164,13 @@ public class LearningMaterialService {
 
     public LearningMaterialDto getById(Integer id) {
         ModelMapper modelMapper = new ModelMapper();
+
+
+        // Configure custom mapping rules
+        modelMapper.createTypeMap(LearningMaterial.class, LearningMaterialDto.class)
+                .addMapping(src -> src.getUser().getUsername(), LearningMaterialDto::setUsername)
+                .addMapping(src -> src.getSubject().getCode(), LearningMaterialDto::setSubjectCode);
+
         LearningMaterial learningMaterial = learningMaterialRepository.findById(id).orElseThrow();
 
         List<String> list = new ArrayList<>();
