@@ -136,6 +136,12 @@ public class PostService {
         return mapPostDto(post);
     }
 
+    public String UsernameById(int id) {
+        Post post = postRepository.findById(id).orElse(null);
+        if (post == null) return null;
+        return post.getUser().getUsername();
+    }
+
     public List<PostDto> getAllPosts(Integer pageNum, Integer pageSize) {
         Pageable paging = PageRequest.of(pageNum, pageSize, Sort.by("id").descending());
         List<Post> postList = postRepository.findAll(paging).toList();
