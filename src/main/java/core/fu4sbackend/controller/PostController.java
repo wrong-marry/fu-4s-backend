@@ -76,4 +76,31 @@ public class PostController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
+
+    @GetMapping("/getUsernameById")
+    public String getUsernameById(@RequestParam String id) {
+        try {
+            if (id == null) throw new Exception();
+            return  postService.UsernameById(Integer.parseInt(id));
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    @GetMapping("/getPostByUserName")
+    public ResponseEntity<List<PostDto>> getUsernameById(
+            @RequestParam String username,
+            @RequestParam(required = false) Integer offset) {
+        SearchRequest sr = new SearchRequest(username, null, null, null, null, SearchRequest.SearchOrder.DATE_DESC, PaginationConstant.RECENT_POST_LOAD_SIZE, offset == null ? 1 : (PaginationConstant.RECENT_POST_LOAD_SIZE / offset), null);
+        return new ResponseEntity<>(postService.findAllByCriteria(sr), HttpStatus.OK);
+    }
+
+
+    @GetMapping("/getPostBySubjectCode")
+    public ResponseEntity<List<PostDto>> getPostBySubjectCode(
+            @RequestParam String subjectCode,
+            @RequestParam(required = false) Integer offset) {
+        SearchRequest sr = new SearchRequest(null, null, subjectCode, null, null, SearchRequest.SearchOrder.DATE_DESC, PaginationConstant.RECENT_POST_LOAD_SIZE, offset == null ? 1 : (PaginationConstant.RECENT_POST_LOAD_SIZE / offset), null);
+        return new ResponseEntity<>(postService.findAllByCriteria(sr), HttpStatus.OK);
+    }
 }
