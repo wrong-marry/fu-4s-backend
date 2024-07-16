@@ -4,7 +4,9 @@ import core.fu4sbackend.constant.PostStatus;
 import core.fu4sbackend.dto.PostDto;
 import core.fu4sbackend.dto.SearchRequest;
 import core.fu4sbackend.entity.Post;
+import core.fu4sbackend.entity.Subject;
 import core.fu4sbackend.repository.PostRepository;
+import core.fu4sbackend.repository.SubjectRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -12,6 +14,8 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -20,18 +24,19 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class PostService {
+    private static final Logger logger = LoggerFactory.getLogger(PostService.class);
     private final PostRepository postRepository;
+    private final SubjectRepository subjectRepository ;
     private final EntityManager em;
 
-    public PostService(PostRepository postRepository, EntityManager em) {
+    public PostService(PostRepository postRepository, EntityManager em, SubjectRepository subjectRepository) {
         this.postRepository = postRepository;
+        this.subjectRepository = subjectRepository;
         this.em = em;
     }
 
@@ -246,4 +251,124 @@ public class PostService {
         // Gọi phương thức của repository để đếm số lượng bài post với điều kiện isTest = false
         return postRepository.countPostsByPostTimeBetweenAndIsTest(startDate, endDate, true);
     }
+
+    public Map<String, Map<YearMonth, Integer>> getNumberOfPostsPerSubjectLast12Months() {
+        try {
+            Map<String, Map<YearMonth, Integer>> subjectPostCountMap = new HashMap<>();
+
+            // Lấy danh sách tất cả các môn học
+            List<Subject> subjects = subjectRepository.findAll();
+
+            // Khởi tạo Map với tất cả các môn học và 12 tháng gần nhất
+            YearMonth currentMonth = YearMonth.now();
+            for (Subject subject : subjects) {
+                Map<YearMonth, Integer> monthlyPostCounts = new HashMap<>();
+                for (int i = 0; i < 12; i++) {
+                    YearMonth month = currentMonth.minusMonths(i);
+                    monthlyPostCounts.put(month, 0);
+                }
+                subjectPostCountMap.put(subject.getCode(), monthlyPostCounts);
+            }
+
+            // Đếm số bài viết cho từng môn học trong 12 tháng gần nhất
+            for (int i = 0; i < 12; i++) {
+                YearMonth month = currentMonth.minusMonths(i);
+                LocalDateTime startOfMonth = month.atDay(1).atStartOfDay();
+                LocalDateTime endOfMonth = month.atEndOfMonth().atTime(23, 59, 59);
+
+                Date startDate = Date.from(startOfMonth.atZone(ZoneId.systemDefault()).toInstant());
+                Date endDate = Date.from(endOfMonth.atZone(ZoneId.systemDefault()).toInstant());
+
+                List<Object[]> monthlyPostCount = postRepository.countPostsByPostTimeBetweenGroupBySubjectCode(startDate, endDate);
+
+                for (Object[] result : monthlyPostCount) {
+                    String subjectCode = (String) result[0];
+                    Long count = (Long) result[1];
+
+                    Map<YearMonth, Integer> monthlyCounts = subjectPostCountMap.get(subjectCode);
+                    if (monthlyCounts != null) {
+                        monthlyCounts.put(month, count.intValue());
+                    }
+                }
+            }
+
+            return subjectPostCountMap;
+        } catch (Exception e) {
+            logger.error("Error occurred while calculating the number of posts per subject for the last 12 months: ", e);
+            throw new RuntimeException("Failed to calculate post statistics", e);
+        }
+    }
+
+    public PostDto getMostRecentPendingApprovedPost() {
+        try{
+            Post post = postRepository.findTopByStatusOrderByPostTimeDesc(PostStatus.valueOf("PENDING_APPROVE")).orElse(null);
+            if (post == null) return null;
+            return mapPostDto(post);
+    } catch (Exception e) {
+        // Log chi tiết lỗi
+        e.printStackTrace();
+        throw e;
+    }
+        }
+
+    public void restoredPost(Integer postid) {
+            Post post = postRepository.findById(postid).orElse(null);
+
+            if (post == null) {
+                // Handle case where post does not exist
+                throw new IllegalArgumentException("Post not found");
+            }
+            if (post.getStatus() == PostStatus.HIDDEN) {
+                post.setStatus(PostStatus.ACTIVE);
+                postRepository.save(post);
+            } else {
+                // Handle case where post is not in PENDING_APPROVED status
+                throw new IllegalStateException("Maybe this post has been pending by another staff");
+            }
+        }
+
+    public void hidenPost(Integer postid) {
+        Post post = postRepository.findById(postid).orElse(null);
+
+        if (post == null) {
+            // Handle case where post does not exist
+            throw new IllegalArgumentException("Post not found");
+        }
+        if (post.getStatus() == PostStatus.ACTIVE) {
+            post.setStatus(PostStatus.HIDDEN);
+            postRepository.save(post);
+        } else {
+            // Handle case where post is not in PENDING_APPROVED status
+            throw new IllegalStateException("Maybe this post has been pending by another staff");
+        }
+    }
+
+    public void deletedPost(Integer postid) {
+        Post post = postRepository.findById(postid).orElse(null);
+
+        if (post == null) {
+            // Handle case where post does not exist
+            throw new IllegalArgumentException("Post not found");
+        }
+        if (post.getStatus() == PostStatus.HIDDEN) {
+            postRepository.delete(post);
+        } else {
+            // Handle case where post is not in PENDING_APPROVED status
+            throw new IllegalStateException("Maybe this post has been pending by another staff");
+        }
+    }
+    public List<PostDto> searchAndFilterPosts(String keyword, String subject) {
+        List<Post> posts = postRepository.searchAndFilterPosts(keyword, subject); List<PostDto> postDtos = new ArrayList<>();
+
+        ModelMapper modelMapper = new ModelMapper();
+        postDtos = posts
+                .stream()
+                .map(post  -> {
+                    PostDto postDto =  modelMapper.map(post, PostDto.class);
+                    return postDto ;
+                })
+                .collect(Collectors.toList());
+        return postDtos;
+    }
+
 }

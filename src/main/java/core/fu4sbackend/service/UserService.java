@@ -3,6 +3,7 @@ package core.fu4sbackend.service;
 import core.fu4sbackend.constant.UserRole;
 import core.fu4sbackend.constant.UserStatus;
 import core.fu4sbackend.dto.UserDto;
+import core.fu4sbackend.dto.UserPostCountDto;
 import core.fu4sbackend.entity.User;
 import core.fu4sbackend.repository.UserRepository;
 import org.modelmapper.ModelMapper;
@@ -30,6 +31,18 @@ public class UserService {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
+    public UserPostCountDto getUserDto(User user) {
+        int postCount = user.getPosts().size(); // Assuming User entity has a getPosts() method
+        return new UserPostCountDto(
+                user.getUsername(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getEmail(),
+                user.getRole(),
+                user.getStatus(),
+                user.getEnrolledDate(),
+                postCount        );
+    }
 
     public UserDto getByUsername(String username) {
         ModelMapper modelMapper = new ModelMapper();
@@ -38,31 +51,25 @@ public class UserService {
         return userDto;
     }
 
-    public List<UserDto> getAllUsers(Integer pageNum, Integer pageSize) {
+    public List<UserPostCountDto> getAllUsers(Integer pageNum, Integer pageSize) {
         Pageable paging = PageRequest.of(pageNum, pageSize, Sort.by("username").descending());
         List<User> userList = userRepository.findAll(paging).toList();
-        List<UserDto> userDtos = new ArrayList<>();
 
-        ModelMapper modelMapper = new ModelMapper();
-        userDtos = userList
+        return userList
                 .stream()
-                .map(user  -> {
-                    UserDto userDto =  modelMapper.map(user, UserDto.class);
-                    return userDto ;
-                })
+                .map(this::getUserDto)
                 .collect(Collectors.toList());
-        return userDtos;
     }
 
-    public List<UserDto> getAllByUserRole (UserRole userrole, Integer pageNum, Integer pageSize) {
+    public List<UserPostCountDto> getAllByUserRole (UserRole userrole, Integer pageNum, Integer pageSize) {
         Pageable paging = PageRequest.of(pageNum, pageSize, Sort.by("username").descending());
         List<User> list = userRepository.getAllByUserRole(userrole, paging);
 
         ModelMapper modelMapper = new ModelMapper();
         return list
                 .stream()
-                .map(user -> modelMapper.map(user, UserDto.class))
-                .toList();
+                .map(this::getUserDto)
+                .collect(Collectors.toList());
     }
 
     public Integer getNumberOfUserByRole(UserRole userrole) {
@@ -110,6 +117,16 @@ public class UserService {
     public void activateUser(String username) {
         User user = userRepository.findByUsername(username).orElse(null);
         user.setStatus(UserStatus.ACTIVE);
+        userRepository.save(user);
+    }
+    public void promoteUser(String username) {
+        User user = userRepository.findByUsername(username).orElse(null);
+        user.setRole(UserRole.STAFF);
+        userRepository.save(user);
+    }
+    public void demoteUser(String username) {
+        User user = userRepository.findByUsername(username).orElse(null);
+        user.setRole(UserRole.USER);
         userRepository.save(user);
     }
 

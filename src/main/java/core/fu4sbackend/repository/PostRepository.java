@@ -5,10 +5,13 @@ import core.fu4sbackend.entity.Post;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Integer> {
@@ -22,4 +25,15 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
 
     int countPostsByPostTimeBetweenAndIsTest(Date startDate, Date endDate, boolean isTest);
 
-}
+    @Query("SELECT p.subject.code, COUNT(p) FROM Post p WHERE p.postTime BETWEEN :startDate AND :endDate GROUP BY p.subject.code")
+    List<Object[]> countPostsByPostTimeBetweenGroupBySubjectCode(@Param("startDate") Date startDate, @Param("endDate") Date endDate);
+
+    Optional<Post> findTopByStatusOrderByPostTimeDesc(PostStatus status);
+
+    @Query("SELECT p FROM Post p WHERE " +
+            "(:keyword IS NULL OR p.title LIKE %:keyword%) AND " +
+            "(:subject IS NULL OR p.subject.code = :subject)")
+    List<Post> searchAndFilterPosts(@Param("keyword") String keyword,
+                                    @Param("subject") String subject
+                                   );
+   }
