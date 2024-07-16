@@ -36,4 +36,10 @@ public class SubjectController {
     public ResponseEntity<List<SubjectDto>> getAll() {
         return ResponseEntity.ok(subjectService.getAll());
     }
+
+    @GetMapping("/getAllSubjectCodes")
+    public ResponseEntity<List<String>> getAllSubjectCodes() {
+        List<String> subjectCodes = subjectService.getAllSubjectCodes();
+        return ResponseEntity.ok(subjectCodes);
+    }
 }
