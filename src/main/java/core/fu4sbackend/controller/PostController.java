@@ -76,4 +76,18 @@ public class PostController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
+    @GetMapping("/get-pending")
+    public ResponseEntity<PostDto> getPendingApprovedPost() {
+        try {
+            PostDto post = postService.getMostRecentPendingApprovedPost();
+            if (post == null) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+            return ResponseEntity.ok(post);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
 }
