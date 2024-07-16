@@ -1,16 +1,20 @@
 package core.fu4sbackend.service;
 
 import core.fu4sbackend.constant.CommentStatus;
+import core.fu4sbackend.constant.NotificationMessage;
 import core.fu4sbackend.constant.PaginationConstant;
 import core.fu4sbackend.dto.CommentDto;
 import core.fu4sbackend.entity.Comment;
+import core.fu4sbackend.entity.Notification;
 import core.fu4sbackend.entity.Post;
 import core.fu4sbackend.entity.User;
 import core.fu4sbackend.repository.CommentRepository;
+import core.fu4sbackend.repository.NotificationRepository;
 import core.fu4sbackend.repository.PostRepository;
 import core.fu4sbackend.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -27,12 +31,14 @@ public class CommentService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
+    private final NotificationRepository notificationRepository;
 
     @Autowired
-    public CommentService(UserRepository userRepository, PostRepository postRepository, CommentRepository commentRepository) {
+    public CommentService(UserRepository userRepository, PostRepository postRepository, CommentRepository commentRepository, NotificationRepository notificationRepository) {
         this.userRepository = userRepository;
         this.postRepository = postRepository;
         this.commentRepository = commentRepository;
+        this.notificationRepository = notificationRepository;
     }
 
     public List<CommentDto> findByPostId(Integer postId, Integer offset, Boolean isStaff, Boolean sorted) {
@@ -64,6 +70,20 @@ public class CommentService {
         c.setContent(commentDto.getContent());
         c.setDate(new Date());
         c.setStatus(CommentStatus.ACTIVE);
+
+        Notification newNotification = new Notification();
+        User getter = p.getUser();
+        if (!getter.getUsername().equals(SecurityContextHolder.getContext().getAuthentication().getName()))
+        {
+            //DEBUG
+            System.out.println("User: "+getter.getUsername());
+            newNotification.setUser(getter);
+            newNotification.setSeen(false);
+            newNotification.setTime(new Date());
+            newNotification.setPostId(p.getId());
+            newNotification.setMessage(NotificationMessage.COMMENT_REPLY);
+            notificationRepository.save(newNotification);
+        }
         return commentRepository.save(c).getId();
     }
 
@@ -110,6 +130,23 @@ public class CommentService {
         c.setContent(commentDto.getContent());
         c.setDate(new Date());
         c.setStatus(CommentStatus.ACTIVE);
+
+        Notification newNotification = new Notification();
+        User getter = parent.getUser();
+
+        if (!getter.getUsername().equals(SecurityContextHolder.getContext().getAuthentication().getName()))
+        {
+            //DEBUG
+            System.out.println("User: "+getter.getUsername());
+            newNotification.setUser(getter);
+            newNotification.setSeen(false);
+            newNotification.setTime(new Date());
+            //DEBUG
+            System.out.println("Post id: "+parent.getPost().getId());
+            newNotification.setPostId(parent.getPost().getId());
+            newNotification.setMessage(NotificationMessage.COMMENT_REPLY);
+            notificationRepository.save(newNotification);
+        }
         return commentRepository.save(c).getId();
     }
 
