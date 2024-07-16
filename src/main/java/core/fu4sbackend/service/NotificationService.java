@@ -66,7 +66,7 @@ public class NotificationService {
         notificationRepository.save(notification);
     }
 
-    public void markAsSeen(int notificationId) throws IllegalArgumentException{
+    public void markAsSeen(int notificationId) {
         if (notificationId < 1) {
             throw new IllegalArgumentException("Invalid notification ID");
         }

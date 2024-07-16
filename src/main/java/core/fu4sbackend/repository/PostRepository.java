@@ -1,7 +1,9 @@
 package core.fu4sbackend.repository;
 
 import core.fu4sbackend.constant.PostStatus;
+import core.fu4sbackend.dto.PostDto;
 import core.fu4sbackend.entity.Post;
+import core.fu4sbackend.entity.Subject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -21,6 +23,13 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     @Query("select p from Post p where p.status = ?1")
     List<Post> getAllPostByStatus(PostStatus status, Pageable pageable);
 
+    @Query("SELECT p from Post p WHERE p.subject.code = :subjectCode")
+    List<PostDto> findBySubjectCode(@Param("subjectCode") String subjectCode, Pageable pageable);
+
+//    List<Post> findBySubject(Subject subject);
+    List<Post> findBySubject(Subject subject, Pageable pageable);
+
+}
     int countPostsByPostTimeBetween(Date startDate, Date endDate);
 
     int countPostsByPostTimeBetweenAndIsTest(Date startDate, Date endDate, boolean isTest);

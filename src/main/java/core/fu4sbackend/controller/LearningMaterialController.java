@@ -54,10 +54,9 @@ public class LearningMaterialController {
             @RequestParam String title,
             @RequestParam String content,
             @RequestParam String subjectCode,
-            @RequestBody List<MultipartFile> files,
+            @RequestBody(required = false) List<MultipartFile> files,
             @RequestParam String username
     ) throws Exception {
-        System.out.println(files.size());
         return ResponseEntity.ok(learningMaterialService.add(title, subjectCode, content, files, username));
     }
 
@@ -81,6 +80,19 @@ public class LearningMaterialController {
     ) throws Exception {
         learningMaterialService.deleteLearningMaterial(id, username);
         return ResponseEntity.ok("ok");
+    }
+
+    @PutMapping("/edit")
+    public ResponseEntity<LearningMaterialDto> editLearningMaterial(
+            @RequestParam Integer id,
+            @RequestParam String title,
+            @RequestParam String content,
+            @RequestParam String subjectCode,
+            @RequestBody(required = false) List<MultipartFile> files,
+            @RequestParam String username,
+            @RequestParam boolean deleteAllFiles
+    ) throws Exception {
+        return ResponseEntity.ok(learningMaterialService.edit(id, title, subjectCode, content, files, username, deleteAllFiles));
     }
 }
 

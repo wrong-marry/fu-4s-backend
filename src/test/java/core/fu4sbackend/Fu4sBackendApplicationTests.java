@@ -7,11 +7,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-public class Fu4sBackendApplicationTests {
-	public enum ExpectedTestResult {
-		EXCEPTION,
-		NORMAL,
-		ABNORMAL_RESPONSE
+class Fu4sBackendApplicationTests {
+	@Autowired
+	CommentController commentController;
+    @Autowired
+    private CommentService commentService;
+
+	@Test
+	void contextLoads() {
 	}
 
 }

@@ -5,9 +5,7 @@ import core.fu4sbackend.dto.SearchRequest;
 import core.fu4sbackend.service.PostService;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -35,18 +33,8 @@ public class SearchController {
                                              @RequestParam(required = false) String isTest,
                                              @RequestParam(required = false) String username,
                                              @RequestParam(required = false) SearchRequest.SearchOrder order,
-                                             @RequestParam(required = false) String isStaff,
                                              @RequestParam Integer pageSize,
                                              @RequestParam(required = false) Integer page) {
-        boolean weird = pageSize < 1;
-        Boolean staff = isStaff != null && isStaff.trim().equalsIgnoreCase("true");
-
-        //authorities check
-        if (staff) {
-            if (!SecurityContextHolder.getContext().getAuthentication().getAuthorities()
-                    .stream().anyMatch(a -> a.getAuthority().equals("STAFF")||a.getAuthority().equals("ADMIN")))
-                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
         Boolean test = null;
         try {
             switch (isTest.trim().toLowerCase()) {
@@ -65,8 +53,11 @@ public class SearchController {
         try {
             time = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss SS:SS'Z'").parse(postTime);
         } catch (Exception t) {
-            weird=true;
+            //EMPTY CATCH PHRASE
+            System.out.print("");
+
         }
+
 
         List<PostDto> questionList;
         List<PostDto> materialList;
@@ -78,7 +69,7 @@ public class SearchController {
             questionList = List.of();
         } else {
             sr = new SearchRequest(username, keyword, subjectCode, time, true,
-                    SearchRequest.SearchOrder.DATE_DESC, pageSize, (page == null) ? 0 : page - 1, semester, staff);
+                    SearchRequest.SearchOrder.DATE_DESC, pageSize, (page == null) ? 0 : page - 1, semester);
             if (order != null) sr.setOrder(order);
             totalTest = postService.countAllByCriteria(sr);
             questionList = postService.findAllByCriteria(sr);
@@ -89,7 +80,7 @@ public class SearchController {
             materialList = List.of();
         } else {
             sr = new SearchRequest(username, keyword, subjectCode, time, false,
-                    SearchRequest.SearchOrder.DATE_DESC, pageSize, (page == null) ? 0 : page - 1, semester, staff);
+                    SearchRequest.SearchOrder.DATE_DESC, pageSize, (page == null) ? 0 : page - 1, semester);
             if (order != null) sr.setOrder(order);
             materialList = postService.findAllByCriteria(sr);
             totalMaterial = postService.countAllByCriteria(sr);
@@ -99,7 +90,7 @@ public class SearchController {
         jsonObject.put("totalMaterial", totalMaterial);
         JSONObject jsonResponse = new JSONObject();
         jsonResponse.put("data", jsonObject);
-        return new ResponseEntity<String>(jsonResponse.toString(), ((semester!=null&&(semester>9||semester<1))||weird)? HttpStatus.PARTIAL_CONTENT:HttpStatus.OK);
+        return ResponseEntity.ok(jsonResponse.toString());
 
     }
 }

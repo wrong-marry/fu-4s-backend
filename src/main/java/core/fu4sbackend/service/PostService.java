@@ -102,11 +102,6 @@ public class PostService {
             else testPredicate = criteriaBuilder.isFalse(root.get("isTest"));
             predicates.add(testPredicate);
         }
-        if (!searchRequest.getIsStaff()) {
-            Predicate staffPredicate = criteriaBuilder.like(root.get("status"), "%" + PostStatus.ACTIVE + "%");
-            predicates.add(staffPredicate);
-        }
-
         return predicates;
     }
 
@@ -148,6 +143,12 @@ public class PostService {
         Post post = postRepository.findById(id).orElse(null);
         if (post == null) return null;
         return mapPostDto(post);
+    }
+
+    public String UsernameById(int id) {
+        Post post = postRepository.findById(id).orElse(null);
+        if (post == null) return null;
+        return post.getUser().getUsername();
     }
 
     public List<PostDto> getAllPosts(Integer pageNum, Integer pageSize) {
@@ -215,6 +216,24 @@ public class PostService {
     public boolean isValidUser(String username, Integer id) {
         return postRepository.findById(id).orElseThrow().getUser().getUsername().equals(username);
     }
+    public List<PostDto> getPostBySubjectCode(String subjectCode, Integer offset, Integer pageSize) {
+        int page = offset != null ? offset / pageSize : 0;
+        return postRepository.findBySubjectCode(subjectCode, PageRequest.of(page, pageSize));
+    }
+
+
+    public List<Post> getPostsBySubjectCode(String subjectCode,  Integer pageNum, Integer pageSize) {
+        Subject subject = new Subject();
+        subject.setCode(subjectCode);
+        Pageable paging = PageRequest.of(pageNum, pageSize, Sort.by("postTime").descending());
+        return postRepository.findBySubject(subject, paging);
+    }
+
+//    public List<Post> getPostsBySubjectCode(String subjectCode) {
+//        Subject subject = new Subject();
+//        subject.setCode(subjectCode);
+//        return postRepository.findBySubject(subject);
+//    }
     public int getNumberOfPostsThisMonth() {
         YearMonth currentMonth = YearMonth.now();
         LocalDateTime startOfMonth = currentMonth.atDay(1).atStartOfDay();
@@ -375,5 +394,4 @@ public class PostService {
                 .collect(Collectors.toList());
         return postDtos;
     }
-
 }
