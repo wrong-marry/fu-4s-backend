@@ -41,8 +41,10 @@ public class AuthenticationService {
         if(userRepository.findByUsername(input.getUsername()).isPresent()) {
             throw new UsernameNotFoundException("Username is already in use");
         }
-        else if (!StringUtils.hasText(input.getUsername())) throw new InvalidParameterException("Username is required");
-
+        else if (!StringUtils.hasText(input.getUsername())||input.getUsername().length()<6) throw new InvalidParameterException("Username is empty or too short");
+        else if (!StringUtils.hasText(input.getPassword())||input.getPassword().length()<6) throw new InvalidParameterException("Password is too short");
+        else if (!StringUtils.hasText(input.getEmail())||!input.getEmail().matches("^[\\w-.]+@([\\w-]+\\.)+[\\w-]{1,4}$")) throw new InvalidParameterException("Invalid email");
+  
         LocalDateTime enrolledDate = LocalDateTime.now();
         User user = User.builder()
                 .username(input.getUsername())

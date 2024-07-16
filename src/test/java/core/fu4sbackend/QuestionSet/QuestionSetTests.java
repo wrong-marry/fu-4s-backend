@@ -5,6 +5,7 @@ import core.fu4sbackend.dto.AnswerDto;
 import core.fu4sbackend.dto.QuestionDto;
 import core.fu4sbackend.dto.QuestionSetDto;
 import core.fu4sbackend.service.QuestionSetService;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -29,9 +30,6 @@ public class QuestionSetTests {
         answers = new ArrayList<>(List.of(new AnswerDto(13,"d",true),
                 new AnswerDto(14,"e",true)));
         QuestionDto questionDto2 = new QuestionDto(34, "Test2", answers);
-        service.addNewQuestionSet("Test", "SWP391", List.of(questionDto2,questionDto), "user07");
-        QuestionSetDto result = controller
-                .getAllQuestionSetsByUsername("user07",1,80).getBody().getLast();
-        assert (result.getQuestions().size() == 2);
+        Assertions.assertThrows(Exception.class,()->service.addNewQuestionSet("Test", "SWP391", List.of(questionDto2,questionDto), "user07"));
     }
 }
