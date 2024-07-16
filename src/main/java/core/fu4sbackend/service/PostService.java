@@ -4,6 +4,7 @@ import core.fu4sbackend.constant.PostStatus;
 import core.fu4sbackend.dto.PostDto;
 import core.fu4sbackend.dto.SearchRequest;
 import core.fu4sbackend.entity.Post;
+import core.fu4sbackend.entity.Subject;
 import core.fu4sbackend.repository.PostRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
@@ -207,4 +208,23 @@ public class PostService {
     public boolean isValidUser(String username, Integer id) {
         return postRepository.findById(id).orElseThrow().getUser().getUsername().equals(username);
     }
+
+    public List<PostDto> getPostBySubjectCode(String subjectCode, Integer offset, Integer pageSize) {
+        int page = offset != null ? offset / pageSize : 0;
+        return postRepository.findBySubjectCode(subjectCode, PageRequest.of(page, pageSize));
+    }
+
+
+    public List<Post> getPostsBySubjectCode(String subjectCode,  Integer pageNum, Integer pageSize) {
+        Subject subject = new Subject();
+        subject.setCode(subjectCode);
+        Pageable paging = PageRequest.of(pageNum, pageSize, Sort.by("postTime").descending());
+        return postRepository.findBySubject(subject, paging);
+    }
+
+//    public List<Post> getPostsBySubjectCode(String subjectCode) {
+//        Subject subject = new Subject();
+//        subject.setCode(subjectCode);
+//        return postRepository.findBySubject(subject);
+//    }
 }

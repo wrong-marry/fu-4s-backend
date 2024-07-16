@@ -3,6 +3,7 @@ package core.fu4sbackend.controller;
 import core.fu4sbackend.constant.PaginationConstant;
 import core.fu4sbackend.dto.PostDto;
 import core.fu4sbackend.dto.SearchRequest;
+import core.fu4sbackend.entity.Post;
 import core.fu4sbackend.service.PostService;
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
@@ -38,6 +39,7 @@ public class PostController {
         jsonObject.put("total", postService.countAllByCriteria(sr));
         return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
     }
+
 
     @GetMapping("/recent")
     public ResponseEntity<List<PostDto>> getRecentPost(@RequestParam(required = false) Integer offset) {
@@ -88,13 +90,12 @@ public class PostController {
     }
 
     @GetMapping("/getPostByUserName")
-    public ResponseEntity<List<PostDto>> getUsernameById(
+    public ResponseEntity<List<PostDto>> getPostByUserName(
             @RequestParam String username,
             @RequestParam(required = false) Integer offset) {
         SearchRequest sr = new SearchRequest(username, null, null, null, null, SearchRequest.SearchOrder.DATE_DESC, PaginationConstant.RECENT_POST_LOAD_SIZE, offset == null ? 1 : (PaginationConstant.RECENT_POST_LOAD_SIZE / offset), null);
         return new ResponseEntity<>(postService.findAllByCriteria(sr), HttpStatus.OK);
     }
-
 
     @GetMapping("/getPostBySubjectCode")
     public ResponseEntity<List<PostDto>> getPostBySubjectCode(

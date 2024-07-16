@@ -12,4 +12,6 @@ public interface SubjectRepository extends JpaRepository<Subject, String> {
     public List<Subject> findAllByOrderBySemesterAsc();
 
     Integer countByIsActive(boolean isActive);
+
+    public List<Subject> findBySemester(int semester);
 }
