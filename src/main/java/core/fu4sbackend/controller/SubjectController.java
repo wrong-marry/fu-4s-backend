@@ -15,7 +15,6 @@ public class SubjectController {
     private final SubjectService subjectService;
     private final PostService postService;
 
-
     public SubjectController(SubjectService subjectService, PostService postService) {
         this.subjectService = subjectService;
         this.postService = postService;
@@ -34,7 +33,6 @@ public class SubjectController {
         return ResponseEntity.ok(subjectService.getNumberOfSubjects());
     }
 
-
     @GetMapping("/getAll")
     public ResponseEntity<List<SubjectDto>> getAll() {
         return ResponseEntity.ok(subjectService.getAll());
@@ -51,6 +49,7 @@ public class SubjectController {
     public List<SubjectDto> getSubjectsBySemester(@PathVariable int semester) {
         return subjectService.getSubjectsBySemester(semester);
     }
+
     @GetMapping("/getAllSubjectCodes")
     public ResponseEntity<List<String>> getAllSubjectCodes() {
         List<String> subjectCodes = subjectService.getAllSubjectCodes();
