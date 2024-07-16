@@ -50,6 +50,7 @@ public class SubjectController {
     @GetMapping("/semester/{semester}")
     public List<SubjectDto> getSubjectsBySemester(@PathVariable int semester) {
         return subjectService.getSubjectsBySemester(semester);
+    }
     @GetMapping("/getAllSubjectCodes")
     public ResponseEntity<List<String>> getAllSubjectCodes() {
         List<String> subjectCodes = subjectService.getAllSubjectCodes();

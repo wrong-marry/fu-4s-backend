@@ -29,7 +29,6 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
 //    List<Post> findBySubject(Subject subject);
     List<Post> findBySubject(Subject subject, Pageable pageable);
 
-}
     int countPostsByPostTimeBetween(Date startDate, Date endDate);
 
     int countPostsByPostTimeBetweenAndIsTest(Date startDate, Date endDate, boolean isTest);
