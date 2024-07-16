@@ -97,12 +97,13 @@ public class PostController {
         return new ResponseEntity<>(postService.findAllByCriteria(sr), HttpStatus.OK);
     }
 
-    @GetMapping("/getPostBySubjectCode")
-    public ResponseEntity<List<PostDto>> getPostBySubjectCode(
-            @RequestParam String subjectCode,
+
+    @GetMapping("/subject/{code}")
+    public ResponseEntity<List<PostDto>> getPostsBySubjectCode(
+            @PathVariable String code,
             @RequestParam(required = false) Integer offset) {
-        SearchRequest sr = new SearchRequest(null, null, subjectCode, null, null, SearchRequest.SearchOrder.DATE_DESC, PaginationConstant.RECENT_POST_LOAD_SIZE, offset == null ? 1 : (PaginationConstant.RECENT_POST_LOAD_SIZE / offset), null);
-        return new ResponseEntity<>(postService.findAllByCriteria(sr), HttpStatus.OK);
+        List<PostDto> posts = postService.getPostsBySubjectCode(code, offset);
+        return ResponseEntity.ok(posts);
     }
     @GetMapping("/get-pending")
     public ResponseEntity<PostDto> getPendingApprovedPost() {
