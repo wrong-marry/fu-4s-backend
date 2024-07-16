@@ -4,6 +4,7 @@ package core.fu4sbackend.controller;
 import core.fu4sbackend.constant.UserRole;
 import core.fu4sbackend.dto.SubjectDto;
 import core.fu4sbackend.dto.UserDto;
+import core.fu4sbackend.dto.UserPostCountDto;
 import core.fu4sbackend.service.CommentService;
 import core.fu4sbackend.service.SubjectService;
 import core.fu4sbackend.service.TestResultService;
@@ -35,12 +36,18 @@ public class AdminController {
     }
 
     @GetMapping("/getAllUser")
-    public List<UserDto> getAllUsers(@RequestParam Integer pageNum,
+    public List<UserPostCountDto> getAllUsers(@RequestParam Integer pageNum,
                                      @RequestParam Integer pageSize){
         --pageNum;
-        List<UserDto> userDtoList = userSer.getAllUsers(pageNum, pageSize);
+        List<UserPostCountDto> userDtoList = userSer.getAllUsers(pageNum, pageSize);
         return userDtoList;
     }
+//    @GetMapping("/getAllUserNoPaging")
+//    public List<UserDto> getAllUsersNoPaging(){
+//        List<UserDto> userDtoList = userSer.getAllUsers();
+//        return userDtoList;
+//    }
+
 
     @GetMapping("/getNumUser")
     public ResponseEntity<Integer> getNumberOfUsers(){
@@ -48,11 +55,11 @@ public class AdminController {
     }
 
     @GetMapping("/getAllByUserRole")
-    public List<UserDto> getAllByUserRole(@RequestParam UserRole userrole,
-                                          @RequestParam Integer pageNum,
-                                         @RequestParam Integer pageSize){
+    public List<UserPostCountDto> getAllByUserRole(@RequestParam UserRole userrole,
+                                                       @RequestParam Integer pageNum,
+                                                       @RequestParam Integer pageSize){
         --pageNum;
-        List<UserDto> userDtoList = userSer.getAllByUserRole(userrole,pageNum, pageSize);
+        List<UserPostCountDto> userDtoList = userSer.getAllByUserRole(userrole,pageNum, pageSize);
         return userDtoList;
     }
     @GetMapping("/getNumEachRole")
@@ -207,7 +214,32 @@ public class AdminController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    @PutMapping("/promoteUser")
+    public ResponseEntity<String> promoteUser(@RequestParam("username") String username) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            userSer.promoteUser(username);
+            jsonObject.put("message", "Active successfully!");
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
 
+        } catch (Exception e) {
+            jsonObject.put("message", "Internal server error");
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @PutMapping("/demoteUser")
+    public ResponseEntity<String> demoteUser(@RequestParam("username") String username) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            userSer.demoteUser(username);
+            jsonObject.put("message", "Active successfully!");
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
+
+        } catch (Exception e) {
+            jsonObject.put("message", "Internal server error");
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
 
 
