@@ -13,7 +13,7 @@ import java.util.ArrayList;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserDto {
+public class UserPostCountDto {
     private String username;
     private String firstName;
     private String lastName;
@@ -21,8 +21,9 @@ public class UserDto {
     private UserRole role;
     private UserStatus status;
     private LocalDateTime enrolledDate ;
+    private int postCount;
 //    private ArrayList<Notification> notifications;
 //    private ArrayList<Comment> comments;
-   //private ArrayList<Post> posts;
+    //private ArrayList<Post> posts;
 //    private ArrayList<TestResult> testResults;
 }

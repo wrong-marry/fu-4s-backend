@@ -90,5 +90,11 @@ public class SubjectService {
         subjectRepository.save(subject);
     }
 
+    public List<String> getAllSubjectCodes() {
+        List<Subject> subjects = subjectRepository.findAll();
+        return subjects.stream()
+                .map(Subject::getCode)
+                .collect(Collectors.toList());
+    }
 }
 
