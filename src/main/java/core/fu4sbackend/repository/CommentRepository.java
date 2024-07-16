@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 
 @Repository
@@ -23,4 +24,6 @@ public interface CommentRepository extends JpaRepository<Comment, Integer> {
 
     @Query(value = "select count(*) from Comment comment where comment.parent.id = ?1")
     Integer countByParentId(Integer parentId);
+
+    int countCommentsByDateBetween(Date startDate, Date endDate);
 }

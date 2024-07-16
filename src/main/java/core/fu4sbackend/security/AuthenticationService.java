@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.security.InvalidParameterException;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,8 +41,11 @@ public class AuthenticationService {
         if(userRepository.findByUsername(input.getUsername()).isPresent()) {
             throw new UsernameNotFoundException("Username is already in use");
         }
-        else if (!StringUtils.hasText(input.getUsername())) throw new InvalidParameterException("Username is required");
-
+        else if (!StringUtils.hasText(input.getUsername())||input.getUsername().length()<6) throw new InvalidParameterException("Username is empty or too short");
+        else if (!StringUtils.hasText(input.getPassword())||input.getPassword().length()<6) throw new InvalidParameterException("Password is too short");
+        else if (!StringUtils.hasText(input.getEmail())||!input.getEmail().matches("^[\\w-.]+@([\\w-]+\\.)+[\\w-]{1,4}$")) throw new InvalidParameterException("Invalid email");
+  
+        LocalDateTime enrolledDate = LocalDateTime.now();
         User user = User.builder()
                 .username(input.getUsername())
                 .firstName(input.getFirstName())
@@ -50,6 +54,7 @@ public class AuthenticationService {
                 .role(UserRole.USER)
                 .status(UserStatus.ACTIVE)
                 .password(passwordEncoder.encode(input.getPassword()))
+                .enrolledDate(enrolledDate)
                 .build();
 
         userRepository.save(user);

@@ -40,7 +40,6 @@ public class SubjectController {
         return ResponseEntity.ok(subjectService.getAll());
     }
 
-
     @GetMapping("/{code}")
     public ResponseEntity<SubjectDto> getSubjectByCode(@PathVariable String code) {
         Optional<SubjectDto> subjectDto = subjectService.getSubjectByCode(code);
@@ -51,5 +50,9 @@ public class SubjectController {
     @GetMapping("/semester/{semester}")
     public List<SubjectDto> getSubjectsBySemester(@PathVariable int semester) {
         return subjectService.getSubjectsBySemester(semester);
+    @GetMapping("/getAllSubjectCodes")
+    public ResponseEntity<List<String>> getAllSubjectCodes() {
+        List<String> subjectCodes = subjectService.getAllSubjectCodes();
+        return ResponseEntity.ok(subjectCodes);
     }
 }

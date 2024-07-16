@@ -94,6 +94,7 @@ public class SubjectService {
         ModelMapper modelMapper = new ModelMapper();
         return Optional.ofNullable(subjectRepository.findByCode(code))
                 .map(subject -> modelMapper.map(subject, SubjectDto.class));
+                .collect(Collectors.toList());
     }
 
 
@@ -102,6 +103,10 @@ public class SubjectService {
         ModelMapper modelMapper = new ModelMapper();
         return subjects.stream()
                 .map(subject -> modelMapper.map(subject, SubjectDto.class))
+    public List<String> getAllSubjectCodes() {
+        List<Subject> subjects = subjectRepository.findAll();
+        return subjects.stream()
+                .map(Subject::getCode)
                 .collect(Collectors.toList());
     }
 }

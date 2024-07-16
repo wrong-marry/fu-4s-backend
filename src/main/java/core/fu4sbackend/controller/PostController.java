@@ -104,4 +104,18 @@ public class PostController {
         SearchRequest sr = new SearchRequest(null, null, subjectCode, null, null, SearchRequest.SearchOrder.DATE_DESC, PaginationConstant.RECENT_POST_LOAD_SIZE, offset == null ? 1 : (PaginationConstant.RECENT_POST_LOAD_SIZE / offset), null);
         return new ResponseEntity<>(postService.findAllByCriteria(sr), HttpStatus.OK);
     }
+    @GetMapping("/get-pending")
+    public ResponseEntity<PostDto> getPendingApprovedPost() {
+        try {
+            PostDto post = postService.getMostRecentPendingApprovedPost();
+            if (post == null) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+            return ResponseEntity.ok(post);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
 }
