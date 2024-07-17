@@ -45,5 +45,4 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
                                    );
 
     Page<Post> findBySubjectCodeAndStatus(String code, PostStatus status, Pageable pageable);
-    Page<Post> findBySubjectCodeAndStatus(String code, PostStatus status);
 }
