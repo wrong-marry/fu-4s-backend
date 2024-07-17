@@ -79,8 +79,8 @@ public class PostController {
         }
     }
 
-    @GetMapping("/getUsernameById")
-    public String getUsernameById(@RequestParam String id) {
+    @GetMapping("/getUsernameByPostId")
+    public String getUsernameByPostId(@RequestParam String id) {
         try {
             if (id == null) throw new Exception();
             return  postService.UsernameById(Integer.parseInt(id));
