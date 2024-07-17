@@ -396,4 +396,9 @@ public class PostService {
                 .collect(Collectors.toList());
         return postDtos;
     }
+
+    public int countActivePostsBySubjectCode(String code) {
+        Page<Post> postPage = postRepository.findBySubjectCodeAndStatus(code, PostStatus.ACTIVE);
+        return (int) postPage.getTotalElements();
+    }
 }

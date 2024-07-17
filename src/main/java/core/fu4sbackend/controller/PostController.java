@@ -105,6 +105,13 @@ public class PostController {
         List<PostDto> posts = postService.getPostsBySubjectCode(code, offset);
         return ResponseEntity.ok(posts);
     }
+
+
+    @GetMapping("/subject/count-{code}")
+    public int countActivePostsBySubjectCode(    @PathVariable String code ){
+        return postService.countActivePostsBySubjectCode(code);
+    }
+
     @GetMapping("/get-pending")
     public ResponseEntity<PostDto> getPendingApprovedPost() {
         try {
