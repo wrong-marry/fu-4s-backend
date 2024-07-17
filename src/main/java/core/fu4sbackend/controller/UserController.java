@@ -1,9 +1,9 @@
 package core.fu4sbackend.controller;
 import core.fu4sbackend.constant.FileConstant;
-import core.fu4sbackend.dto.QuestionSetDto;
 import core.fu4sbackend.dto.UserAvatarDto;
 import core.fu4sbackend.dto.UserDto;
 import core.fu4sbackend.service.UserService;
+import org.apache.velocity.exception.ResourceNotFoundException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.PathResource;
@@ -75,6 +75,9 @@ public class UserController {
     @GetMapping(path="/getAvatar", produces = MediaType.IMAGE_JPEG_VALUE)
     public ResponseEntity<Resource> getAvatar3(@RequestParam String username)  {
         Resource resource1 = new PathResource(FileConstant.AVATAR_PATH + username + ".jpg");
+        if (!resource1.exists()) {
+            throw new ResourceNotFoundException("File not found " + username);
+        }
         return ResponseEntity.ok(resource1);
     }
 }
