@@ -40,7 +40,7 @@ public class PostController {
         return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
     }
 
-    @GetMapping("/recent")
+
     public ResponseEntity<List<PostDto>> getRecentPost(@RequestParam(required = false) Integer offset, @RequestParam(required = false) String isStaff) {
         SearchRequest sr = new SearchRequest(null, null, null,
                 null, null, SearchRequest.SearchOrder.DATE_DESC,

@@ -1,6 +1,5 @@
 package core.fu4sbackend.exception;
 
-import org.apache.velocity.exception.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -16,9 +15,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleException(Exception exception) {
         if (exception instanceof BadCredentialsException) {
             return new ResponseEntity<>("Bad credentials", HttpStatus.UNAUTHORIZED);
-        }
-        else if (exception instanceof ResourceNotFoundException) {
-            return new ResponseEntity<>("No files found", HttpStatus.NO_CONTENT);
         }
         return new ResponseEntity<>(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
