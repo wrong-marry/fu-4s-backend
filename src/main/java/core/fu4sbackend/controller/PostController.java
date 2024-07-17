@@ -30,10 +30,10 @@ public class PostController {
                                                @RequestParam(required = false) Boolean isTest,
                                                @RequestParam(required = false) String username,
                                                @RequestParam(required = false) SearchRequest.SearchOrder order,
+                                               @RequestParam(required = false) String isStaff,
                                                @RequestParam Integer pageSize,
                                                @RequestParam(required = false) Integer page) {
-        SearchRequest sr = new SearchRequest(username, title, subjectCode, postTime, isTest, order, pageSize, page, semester);
-        List<PostDto> list = postService.findAllByCriteria(sr);
+        SearchRequest sr = new SearchRequest(username, title, subjectCode, postTime, isTest, order, pageSize, page-1, semester, isStaff!=null&& isStaff.trim().equalsIgnoreCase("true"));List<PostDto> list = postService.findAllByCriteria(sr);
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("posts", list);
         jsonObject.put("total", postService.countAllByCriteria(sr));
@@ -41,9 +41,12 @@ public class PostController {
     }
 
 
-    @GetMapping("/recent")
-    public ResponseEntity<List<PostDto>> getRecentPost(@RequestParam(required = false) Integer offset) {
-        SearchRequest sr = new SearchRequest(null, null, null, null, null, SearchRequest.SearchOrder.DATE_DESC, PaginationConstant.RECENT_POST_LOAD_SIZE, offset == null ? 1 : (PaginationConstant.RECENT_POST_LOAD_SIZE / offset), null);
+    public ResponseEntity<List<PostDto>> getRecentPost(@RequestParam(required = false) Integer offset, @RequestParam(required = false) String isStaff) {
+        SearchRequest sr = new SearchRequest(null, null, null,
+                null, null, SearchRequest.SearchOrder.DATE_DESC,
+                PaginationConstant.RECENT_POST_LOAD_SIZE, (offset == null||offset==0) ? 0 :
+                (offset/PaginationConstant.RECENT_POST_LOAD_SIZE), null,
+                isStaff!=null&& isStaff.trim().equalsIgnoreCase("true"));
         return new ResponseEntity<>(postService.findAllByCriteria(sr), HttpStatus.OK);
     }
 
@@ -93,7 +96,7 @@ public class PostController {
     public ResponseEntity<List<PostDto>> getPostByUserName(
             @RequestParam String username,
             @RequestParam(required = false) Integer offset) {
-        SearchRequest sr = new SearchRequest(username, null, null, null, null, SearchRequest.SearchOrder.DATE_DESC, PaginationConstant.RECENT_POST_LOAD_SIZE, offset == null ? 1 : (PaginationConstant.RECENT_POST_LOAD_SIZE / offset), null);
+        SearchRequest sr = new SearchRequest(username, null, null, null, null, SearchRequest.SearchOrder.DATE_DESC, PaginationConstant.RECENT_POST_LOAD_SIZE, offset == null ? 1 : (PaginationConstant.RECENT_POST_LOAD_SIZE / offset), null,true);
         return new ResponseEntity<>(postService.findAllByCriteria(sr), HttpStatus.OK);
     }
 
