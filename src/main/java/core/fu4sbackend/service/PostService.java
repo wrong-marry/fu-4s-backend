@@ -222,18 +222,18 @@ public class PostService {
 
 
     public List<PostDto> getPostsBySubjectCode(String code, Integer offset) {
-        ModelMapper modelMapper = new ModelMapper();
 
         int page = offset == null ? 0 : offset - 1;
         int size = PaginationConstant.RECENT_POST_LOAD_SIZE;
         Sort sort = Sort.by("postTime").descending();
         Pageable pageable = PageRequest.of(page, size, sort);
         Page<Post> postPage = postRepository.findBySubjectCodeAndStatus(code, PostStatus.ACTIVE, pageable);
-        List<Post> posts = postPage.getContent();
 
-        return posts.stream()
-                .map(post -> modelMapper.map(post, PostDto.class))
-                .collect(Collectors.toList());
+        List<PostDto> result = new ArrayList<>();
+        for (Post post : postPage.getContent()) {
+            result.add(mapPostDto(post));
+        }
+        return result;
     }
 
     public int getNumberOfPostsThisMonth() {
