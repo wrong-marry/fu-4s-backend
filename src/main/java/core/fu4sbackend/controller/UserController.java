@@ -1,12 +1,21 @@
 package core.fu4sbackend.controller;
-import core.fu4sbackend.dto.QuestionSetDto;
+import core.fu4sbackend.constant.FileConstant;
+import core.fu4sbackend.dto.UserAvatarDto;
 import core.fu4sbackend.dto.UserDto;
 import core.fu4sbackend.service.UserService;
+import org.apache.velocity.exception.ResourceNotFoundException;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.PathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.security.InvalidParameterException;
 import java.util.List;
 
 @RestController
@@ -29,6 +38,9 @@ public class UserController {
     }
     @PutMapping("/edit-profile")
     public UserDto editEmailFirstNameLastName(@RequestBody UserDto userDto,@RequestParam String username){
+        if (userDto.getFirstName().length()<6||userDto.getLastName().length()<6
+                ||userDto.getEmail().length()<6||!userDto.getEmail().matches("^[\\w-.]+@([\\w-]+\\.)+[\\w-]{1,4}$"))
+            throw new InvalidParameterException("Invalid information");
         return userService.editEmailFirstNameLastName(userDto,username);
     }
 //    @GetMapping("/getAll")
@@ -39,7 +51,34 @@ public class UserController {
     @PutMapping("/change-password")
     public UserDto changePassword(@RequestParam String username,@RequestParam String newPassword)
     {
+        if (newPassword.length()<6) throw new InvalidParameterException("Password too short");
         return userService.changePassword(newPassword,username);
+    }
+    @PostMapping("/avatar")
+    public ResponseEntity<String> getAvatar(@ModelAttribute UserAvatarDto userAvatarDto) throws IOException {
+        String realPath = FileConstant.AVATAR_PATH;
+        System.out.println(realPath);
+        JSONObject jsonObject=new JSONObject();
+        try
+        {
+            FileOutputStream fos = new FileOutputStream(realPath + userAvatarDto.getUsername() + ".jpg");
+            fos.write(userAvatarDto.getImage().getBytes());
+            fos.close();
+            jsonObject.put("message","Successful");
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
+        } catch (Exception e) {
+            jsonObject.put("message","Failed");
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.NOT_ACCEPTABLE);
+        }
+    }
+
+    @GetMapping(path="/getAvatar", produces = MediaType.IMAGE_JPEG_VALUE)
+    public ResponseEntity<Resource> getAvatar3(@RequestParam String username)  {
+        Resource resource1 = new PathResource(FileConstant.AVATAR_PATH + username + ".jpg");
+        if (!resource1.exists()) {
+            throw new ResourceNotFoundException("File not found " + username);
+        }
+        return ResponseEntity.ok(resource1);
     }
 }
 
