@@ -396,4 +396,10 @@ public class PostService {
                 .collect(Collectors.toList());
         return postDtos;
     }
+
+    public int countPostsBySubjectCode(String code) {
+            if (!subjectRepository.existsByCode(code)) return -1;
+            Page<Post> posts = postRepository.findBySubjectCodeAndStatus(code, PostStatus.ACTIVE, Pageable.unpaged());
+            return (int) posts.getTotalElements();
+    }
 }

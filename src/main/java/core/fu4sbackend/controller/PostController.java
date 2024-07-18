@@ -6,6 +6,7 @@ import core.fu4sbackend.dto.SearchRequest;
 import core.fu4sbackend.entity.Post;
 import core.fu4sbackend.service.PostService;
 import org.json.JSONObject;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -104,6 +105,10 @@ public class PostController {
             @RequestParam(required = false) Integer offset) {
         List<PostDto> posts = postService.getPostsBySubjectCode(code, offset);
         return ResponseEntity.ok(posts);
+    }
+
+    @GetMapping("/subject/count-{code}")
+    public int countPostsBySubjectCode(@PathVariable String code)  {return postService.countPostsBySubjectCode(code);
     }
     @GetMapping("/get-pending")
     public ResponseEntity<PostDto> getPendingApprovedPost() {
