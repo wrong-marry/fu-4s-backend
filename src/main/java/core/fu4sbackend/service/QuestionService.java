@@ -74,6 +74,7 @@ public class QuestionService {
 
             //picking questions to add
             for(int i=0;i<numberOfQuestions;i++){
+
                 numberOfPartitions = 0;
                 partitionsPerLevel = 1;
                 previousBound = 0;
@@ -83,7 +84,7 @@ public class QuestionService {
                 //calculate number of partitions should be created
                 for(int j=QuestionPriorityService.MAX_QUESTION_PRIORITY;j>=0;j--){
                     if(!allQuestionsByPriority[j].isEmpty()||allQuestionsByPriority[j]==null){
-                        numberOfPartitions+=partitionsPerLevel;
+                        numberOfPartitions+=partitionsPerLevel*allQuestionsByPriority[j].size();
                         partitionsPerLevel*=2;
                     }
                 }
@@ -94,12 +95,13 @@ public class QuestionService {
                 //initialize ranges
                 for(int j=QuestionPriorityService.MAX_QUESTION_PRIORITY;j>=0;j--){
                     if(!allQuestionsByPriority[j].isEmpty()){
+                        System.out.println(previousBound);
                         priorityRangeList.addRange(
                                 previousBound + 1,
-                                previousBound + partitionsPerLevel*rangePerPartition,
+                                previousBound + partitionsPerLevel * rangePerPartition * allQuestionsByPriority[j].size(),
                                 j
                                 );
-                        previousBound = previousBound + partitionsPerLevel * rangePerPartition;
+                        previousBound = previousBound + partitionsPerLevel * rangePerPartition * allQuestionsByPriority[j].size();
                         partitionsPerLevel *= 2;
 
                     }
@@ -109,6 +111,7 @@ public class QuestionService {
                         allQuestionsByPriority[priorityRangeList.findPriorityOfNumber(generatedRandomNumber)],
                         randomQuestions,
                         1);
+                System.out.println("new question");
             }
         }
         return randomQuestions;
