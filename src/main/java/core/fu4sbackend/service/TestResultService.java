@@ -11,6 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 
@@ -69,4 +72,26 @@ public class TestResultService {
         testResult.setDate(new Date(System.currentTimeMillis()));
         return modelMapper.map(testResultRepository.save(testResult), TestResultDto.class);
     }
+
+    public Integer getNumberOfTestResults() {
+        return testResultRepository.findAll().size();
+    }
+
+    public int getNumberOfTestResultsThisMonth() {
+            YearMonth currentMonth = YearMonth.now();
+            LocalDateTime startOfMonth = currentMonth.atDay(1).atStartOfDay();
+            LocalDateTime endOfMonth = currentMonth.atEndOfMonth().atTime(23, 59, 59);
+
+            Date startDate = Date.from(startOfMonth.atZone(ZoneId.systemDefault()).toInstant());
+            Date endDate = Date.from(endOfMonth.atZone(ZoneId.systemDefault()).toInstant());
+
+            return testResultRepository.countTestResultsByDateBetween(startDate, endDate);}
+        public double calculatePercentageChangeTestResult(int oldValue, int newValue) {
+            if (oldValue == 0) {
+                return newValue > 0 ? 100.0 : 0.0;
+            }
+            return (newValue * 100.0) / oldValue;
+        }
+
+
 }

@@ -90,5 +90,25 @@ public class SubjectService {
         subjectRepository.save(subject);
     }
 
+    public Optional<SubjectDto> getSubjectByCode(String code) {
+        ModelMapper modelMapper = new ModelMapper();
+        return Optional.ofNullable(subjectRepository.findByCode(code))
+                .map(subject -> modelMapper.map(subject, SubjectDto.class));
+    }
+
+
+    public List<SubjectDto> getSubjectsBySemester(int semester) {
+        List<Subject> subjects = subjectRepository.findBySemester(semester);
+        ModelMapper modelMapper = new ModelMapper();
+        return subjects.stream()
+                .map(subject -> modelMapper.map(subject, SubjectDto.class))
+                .collect(Collectors.toList());
+    }
+    public List<String> getAllSubjectCodes() {
+        List<Subject> subjects = subjectRepository.findAll();
+        return subjects.stream()
+                .map(Subject::getCode)
+                .collect(Collectors.toList());
+    }
 }
 

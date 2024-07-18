@@ -8,6 +8,7 @@ import core.fu4sbackend.repository.LearningMaterialRepository;
 import core.fu4sbackend.repository.MaterialFileRepository;
 import core.fu4sbackend.repository.SubjectRepository;
 import core.fu4sbackend.repository.UserRepository;
+import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -31,7 +32,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class LearningMaterialService {
@@ -79,6 +79,7 @@ public class LearningMaterialService {
         }
     }
 
+
 //    public List<LearningMaterialDto> findByKeyword(String keyword){
 //        List<LearningMaterial> learningMaterials = learningMaterialRepository.findByKeyword(keyword);
 //        List<LearningMaterialDto> learningMaterialDtos;
@@ -125,12 +126,8 @@ public class LearningMaterialService {
         learningMaterial.setTest(false);
 
         learningMaterial = learningMaterialRepository.save(learningMaterial);
-
-
-        for(MultipartFile file : files) {
-            if(file.isEmpty()) throw new Exception("invalid file jaha");
-
-            String filePath = System.getProperty("user.dir")+"\\src\\main\\resources\\" + learningMaterial.getId();
+        if (files != null) for (MultipartFile file : files) {
+            String filePath = System.getProperty("user.dir") + "\\src\\main\\resources\\" + learningMaterial.getId();
             String fileName = file.getOriginalFilename();
             try {
                 if (fileName.contains("..")) {
@@ -138,14 +135,14 @@ public class LearningMaterialService {
                 }
 
                 Path fileStorageLocation = Paths.get(filePath).toAbsolutePath().normalize();
-                if(!Files.exists(fileStorageLocation)) {
+                if (!Files.exists(fileStorageLocation)) {
                     Files.createDirectories(fileStorageLocation);
                 }
                 Path targetLocation = fileStorageLocation.resolve(fileName);
 
                 Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+            } catch (Exception e) {
             }
-            catch (Exception e){}
 
             MaterialFile materialFile = new MaterialFile();
             materialFile.setLearningMaterial(learningMaterial);
@@ -160,16 +157,24 @@ public class LearningMaterialService {
         return materialFileRepository.findById(fileId)
                 .orElseThrow(() -> new RuntimeException("File not found with id " + fileId));
     }
+
     public List<MaterialFile> getFilesByMaterialId(Integer materialId) {
         return materialFileRepository.findByLearningMaterialId(materialId);
     }
 
     public LearningMaterialDto getById(Integer id) {
         ModelMapper modelMapper = new ModelMapper();
+
+
+        // Configure custom mapping rules
+        modelMapper.createTypeMap(LearningMaterial.class, LearningMaterialDto.class)
+                .addMapping(src -> src.getUser().getUsername(), LearningMaterialDto::setUsername)
+                .addMapping(src -> src.getSubject().getCode(), LearningMaterialDto::setSubjectCode);
+
         LearningMaterial learningMaterial = learningMaterialRepository.findById(id).orElseThrow();
 
         List<String> list = new ArrayList<>();
-        for(MaterialFile materialFile : learningMaterial.getFiles()) {
+        for (MaterialFile materialFile : learningMaterial.getFiles()) {
             list.add(materialFile.getFilename());
         }
         LearningMaterialDto learningMaterialDto = modelMapper.map(learningMaterial, LearningMaterialDto.class);
@@ -182,7 +187,7 @@ public class LearningMaterialService {
         LearningMaterial learningMaterial = learningMaterialRepository.findById(id).orElseThrow();
         MaterialFile materialFile = materialFileRepository.findByLearningMaterialAndFilename(learningMaterial, filename);
 
-        String filePath = System.getProperty("user.dir")+"\\src\\main\\resources\\"+ learningMaterial.getId() + "\\" + materialFile.getFilename();
+        String filePath = System.getProperty("user.dir") + "\\src\\main\\resources\\" + learningMaterial.getId() + "\\" + materialFile.getFilename();
         Path path = Paths.get(filePath);
 
         File file = new File(filePath);
@@ -196,10 +201,65 @@ public class LearningMaterialService {
     public void deleteLearningMaterial(Integer id, String username) throws Exception {
         LearningMaterial learningMaterial = learningMaterialRepository.findById(id).orElseThrow();
 
-        if(!learningMaterial.getUser().getUsername().equals(username)) {
+        if (!learningMaterial.getUser().getUsername().equals(username)) {
             throw new Exception("Username mismatched!");
         }
 
+        String filePath = System.getProperty("user.dir") + "\\src\\main\\resources\\" + id;
+        FileUtils.deleteDirectory(new File(filePath));
+
         learningMaterialRepository.delete(learningMaterial);
+    }
+
+    @Transactional
+    public LearningMaterialDto edit(Integer id, String title, String subjectCode, String content, List<MultipartFile> files, String username, boolean deleteAllFiles) throws Exception {
+        LearningMaterial learningMaterial = learningMaterialRepository.findById(id).orElseThrow();
+        learningMaterial.setTitle(title);
+        learningMaterial.setContent(content);
+        learningMaterial.setPostTime(new Date(System.currentTimeMillis()));
+        learningMaterial.setSubject(subjectRepository.findById(subjectCode).orElseThrow());
+        learningMaterialRepository.save(learningMaterial);
+
+        if (deleteAllFiles) {
+            String filePath = System.getProperty("user.dir") + "\\src\\main\\resources\\" + id;
+            FileUtils.deleteDirectory(new File(filePath));
+            materialFileRepository.deleteByLearningMaterial(learningMaterial);
+        } else {
+            if(files == null) {
+                // giu nguyen
+            } else {
+                materialFileRepository.deleteByLearningMaterial(learningMaterial);
+                for(MultipartFile file : files) {
+                    MaterialFile materialFile = new MaterialFile();
+                    materialFile.setLearningMaterial(learningMaterial);
+                    materialFile.setFilename(file.getOriginalFilename());
+                    materialFileRepository.save(materialFile);
+                }
+
+                String filePath = System.getProperty("user.dir") + "\\src\\main\\resources\\" + id;
+                FileUtils.deleteDirectory(new File(filePath));
+                for (MultipartFile file : files) {
+                    filePath = System.getProperty("user.dir") + "\\src\\main\\resources\\" + learningMaterial.getId();
+                    String fileName = file.getOriginalFilename();
+                    try {
+                        if (fileName.contains("..")) {
+                            throw new RuntimeException("Sorry! Filename contains invalid path sequence " + fileName);
+                        }
+
+                        Path fileStorageLocation = Paths.get(filePath).toAbsolutePath().normalize();
+                        if (!Files.exists(fileStorageLocation)) {
+                            Files.createDirectories(fileStorageLocation);
+                        }
+                        Path targetLocation = fileStorageLocation.resolve(fileName);
+
+                        Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+                    } catch (Exception e) {
+                    }
+                }
+            }
+        }
+
+        ModelMapper modelMapper = new ModelMapper();
+        return modelMapper.map(learningMaterial, LearningMaterialDto.class);
     }
 }

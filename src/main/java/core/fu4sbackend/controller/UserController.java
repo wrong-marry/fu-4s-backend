@@ -3,9 +3,11 @@ import core.fu4sbackend.constant.FileConstant;
 import core.fu4sbackend.dto.UserAvatarDto;
 import core.fu4sbackend.dto.UserDto;
 import core.fu4sbackend.service.UserService;
+import org.apache.velocity.exception.ResourceNotFoundException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.*;
+import org.springframework.core.io.PathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.InvalidParameterException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/user")
@@ -51,7 +54,6 @@ public class UserController {
         if (newPassword.length()<6) throw new InvalidParameterException("Password too short");
         return userService.changePassword(newPassword,username);
     }
-
     @PostMapping("/avatar")
     public ResponseEntity<String> getAvatar(@ModelAttribute UserAvatarDto userAvatarDto) throws IOException {
         String realPath = FileConstant.AVATAR_PATH;
@@ -73,6 +75,9 @@ public class UserController {
     @GetMapping(path="/getAvatar", produces = MediaType.IMAGE_JPEG_VALUE)
     public ResponseEntity<Resource> getAvatar3(@RequestParam String username)  {
         Resource resource1 = new PathResource(FileConstant.AVATAR_PATH + username + ".jpg");
+        if (!resource1.exists()) {
+            throw new ResourceNotFoundException("File not found " + username);
+        }
         return ResponseEntity.ok(resource1);
     }
 }

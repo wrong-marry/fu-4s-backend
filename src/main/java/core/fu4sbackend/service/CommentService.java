@@ -1,12 +1,15 @@
 package core.fu4sbackend.service;
 
 import core.fu4sbackend.constant.CommentStatus;
+import core.fu4sbackend.constant.NotificationMessage;
 import core.fu4sbackend.constant.PaginationConstant;
 import core.fu4sbackend.dto.CommentDto;
 import core.fu4sbackend.entity.Comment;
+import core.fu4sbackend.entity.Notification;
 import core.fu4sbackend.entity.Post;
 import core.fu4sbackend.entity.User;
 import core.fu4sbackend.repository.CommentRepository;
+import core.fu4sbackend.repository.NotificationRepository;
 import core.fu4sbackend.repository.PostRepository;
 import core.fu4sbackend.repository.UserRepository;
 import org.modelmapper.ModelMapper;
@@ -16,6 +19,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -24,28 +31,28 @@ public class CommentService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
+    private final NotificationRepository notificationRepository;
 
     @Autowired
-    public CommentService(UserRepository userRepository, PostRepository postRepository, CommentRepository commentRepository) {
+    public CommentService(UserRepository userRepository, PostRepository postRepository, CommentRepository commentRepository, NotificationRepository notificationRepository) {
         this.userRepository = userRepository;
         this.postRepository = postRepository;
         this.commentRepository = commentRepository;
+        this.notificationRepository = notificationRepository;
     }
 
     public List<CommentDto> findByPostId(Integer postId, Integer offset, Boolean isStaff, Boolean sorted) {
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.createTypeMap(CommentDto.class, Comment.class);
         List<Comment> comments = sorted ? commentRepository.findByPostIdOrderByTime(postId) : commentRepository.findByPostId(postId);
-
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
         return comments.stream().map(comment -> {
-            CommentDto commentDto = modelMapper.map(comment, CommentDto.class);
-            commentDto.setUsername(comment.getUser().getFirstName() + comment.getUser().getLastName());
-            commentDto.setAccount(comment.getUser().getUsername());
-            commentDto.setChildrenNumber(countChildren(comment.getId()));
-            return commentDto;
-        }).filter(comment -> isStaff || comment.getStatus() == CommentStatus.ACTIVE || comment.getAccount().equals(username))
-        .skip(offset).limit(PaginationConstant.COMMENT_LOAD_SIZE).toList();
+                    CommentDto commentDto = modelMapper.map(comment, CommentDto.class);
+                    commentDto.setUsername(comment.getUser().getFirstName() + comment.getUser().getLastName());
+                    commentDto.setAccount(comment.getUser().getUsername());
+                    commentDto.setChildrenNumber(countChildren(comment.getId()));
+                    return commentDto;
+                }).filter(comment -> isStaff || comment.getStatus() == CommentStatus.ACTIVE)
+                .skip(offset).limit(PaginationConstant.COMMENT_LOAD_SIZE).toList();
     }
 
     @Transactional
@@ -63,6 +70,20 @@ public class CommentService {
         c.setContent(commentDto.getContent());
         c.setDate(new Date());
         c.setStatus(CommentStatus.ACTIVE);
+
+        Notification newNotification = new Notification();
+        User getter = p.getUser();
+        if (!getter.getUsername().equals(SecurityContextHolder.getContext().getAuthentication().getName()))
+        {
+            //DEBUG
+            System.out.println("User: "+getter.getUsername());
+            newNotification.setUser(getter);
+            newNotification.setSeen(false);
+            newNotification.setTime(new Date());
+            newNotification.setPostId(p.getId());
+            newNotification.setMessage(NotificationMessage.COMMENT_REPLY);
+            notificationRepository.save(newNotification);
+        }
         return commentRepository.save(c).getId();
     }
 
@@ -109,6 +130,23 @@ public class CommentService {
         c.setContent(commentDto.getContent());
         c.setDate(new Date());
         c.setStatus(CommentStatus.ACTIVE);
+
+        Notification newNotification = new Notification();
+        User getter = parent.getUser();
+
+        if (!getter.getUsername().equals(SecurityContextHolder.getContext().getAuthentication().getName()))
+        {
+            //DEBUG
+            System.out.println("User: "+getter.getUsername());
+            newNotification.setUser(getter);
+            newNotification.setSeen(false);
+            newNotification.setTime(new Date());
+            //DEBUG
+            System.out.println("Post id: "+parent.getPost().getId());
+            newNotification.setPostId(parent.getPost().getId());
+            newNotification.setMessage(NotificationMessage.COMMENT_REPLY);
+            notificationRepository.save(newNotification);
+        }
         return commentRepository.save(c).getId();
     }
 
@@ -128,5 +166,25 @@ public class CommentService {
 
     public Integer countChildren(int commentId) {
         return commentRepository.countByParentId(commentId);
+    }
+
+
+    public Integer getNumberOfComments() {
+        return commentRepository.findAll().size();
+    }
+    public int getNumberOfCommentsThisMonth() {
+        YearMonth currentMonth = YearMonth.now();
+        LocalDateTime startOfMonth = currentMonth.atDay(1).atStartOfDay();
+        LocalDateTime endOfMonth = currentMonth.atEndOfMonth().atTime(23, 59, 59);
+
+        Date startDate = Date.from(startOfMonth.atZone(ZoneId.systemDefault()).toInstant());
+        Date endDate = Date.from(endOfMonth.atZone(ZoneId.systemDefault()).toInstant());
+
+        return commentRepository.countCommentsByDateBetween(startDate, endDate);}
+    public double calculatePercentageChangeComment(int oldValue, int newValue) {
+        if (oldValue == 0) {
+            return newValue > 0 ? 100.0 : 0.0;
+        }
+        return (newValue * 100.0) / oldValue;
     }
 }

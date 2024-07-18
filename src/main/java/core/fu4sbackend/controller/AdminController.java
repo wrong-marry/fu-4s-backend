@@ -4,7 +4,10 @@ package core.fu4sbackend.controller;
 import core.fu4sbackend.constant.UserRole;
 import core.fu4sbackend.dto.SubjectDto;
 import core.fu4sbackend.dto.UserDto;
+import core.fu4sbackend.dto.UserPostCountDto;
+import core.fu4sbackend.service.CommentService;
 import core.fu4sbackend.service.SubjectService;
+import core.fu4sbackend.service.TestResultService;
 import core.fu4sbackend.service.UserService;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,20 +24,30 @@ import java.util.List;
 public class AdminController {
     private final UserService userSer;
     private final SubjectService subjectService;
+    private final CommentService commentService ;
+    private final TestResultService testResultService;
 
     @Autowired
-    public AdminController(UserService userSer, SubjectService subjectService) {
+    public AdminController(UserService userSer, SubjectService subjectService, CommentService commentService, TestResultService testResultService) {
         this.userSer = userSer;
         this.subjectService = subjectService;
+        this.commentService = commentService;
+        this.testResultService = testResultService;
     }
 
     @GetMapping("/getAllUser")
-    public List<UserDto> getAllUsers(@RequestParam Integer pageNum,
+    public List<UserPostCountDto> getAllUsers(@RequestParam Integer pageNum,
                                      @RequestParam Integer pageSize){
         --pageNum;
-        List<UserDto> userDtoList = userSer.getAllUsers(pageNum, pageSize);
+        List<UserPostCountDto> userDtoList = userSer.getAllUsers(pageNum, pageSize);
         return userDtoList;
     }
+//    @GetMapping("/getAllUserNoPaging")
+//    public List<UserDto> getAllUsersNoPaging(){
+//        List<UserDto> userDtoList = userSer.getAllUsers();
+//        return userDtoList;
+//    }
+
 
     @GetMapping("/getNumUser")
     public ResponseEntity<Integer> getNumberOfUsers(){
@@ -42,11 +55,11 @@ public class AdminController {
     }
 
     @GetMapping("/getAllByUserRole")
-    public List<UserDto> getAllByUserRole(@RequestParam UserRole userrole,
-                                          @RequestParam Integer pageNum,
-                                         @RequestParam Integer pageSize){
+    public List<UserPostCountDto> getAllByUserRole(@RequestParam UserRole userrole,
+                                                       @RequestParam Integer pageNum,
+                                                       @RequestParam Integer pageSize){
         --pageNum;
-        List<UserDto> userDtoList = userSer.getAllByUserRole(userrole,pageNum, pageSize);
+        List<UserPostCountDto> userDtoList = userSer.getAllByUserRole(userrole,pageNum, pageSize);
         return userDtoList;
     }
     @GetMapping("/getNumEachRole")
@@ -148,7 +161,88 @@ public class AdminController {
             return new ResponseEntity<>(jsonObject.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-}  
+
+    @GetMapping("/compareNumberAccounts")
+    public ResponseEntity<Integer> compareAccountsThisMonthLastMonth() {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            int numOfAccountsNow = userSer.getNumberOfUsers();
+            int numOfAccountsThisMonth = userSer.getNumberOfUsersThisMonth();
+
+            double percentChange = userSer.calculatePercentageChange(numOfAccountsNow-numOfAccountsThisMonth, numOfAccountsThisMonth);
+            int percentChangeInt = (int) percentChange;
+
+            return new ResponseEntity<>(percentChangeInt, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/getNumComments")
+    public ResponseEntity<Integer> getNumberOfComments(){
+        return ResponseEntity.ok(commentService.getNumberOfComments());
+    }
+    @GetMapping("/getNumTestResults")
+    public ResponseEntity<Integer> getNumberOfTestResults(){
+        return ResponseEntity.ok(testResultService.getNumberOfTestResults());
+    }
+    @GetMapping("/percentTestResultsNew")
+    public ResponseEntity<Integer> PercentTestResultsNew() {
+        try {
+            int numOfTestResultsNow = testResultService.getNumberOfTestResults();
+            int numOfTestResultsThisMonth = testResultService.getNumberOfTestResultsThisMonth();
+
+            double percentChange = testResultService.calculatePercentageChangeTestResult(numOfTestResultsNow-numOfTestResultsThisMonth, numOfTestResultsThisMonth);
+            int percentChangeInt = (int) percentChange;
+
+            return new ResponseEntity<>(percentChangeInt, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @GetMapping("/percentCommentsNew")
+    public ResponseEntity<Integer> PercentCommentsNew() {
+        try {
+            int numOfCommentsNow = commentService.getNumberOfComments();
+            int numOfCommentsThisMonth = commentService.getNumberOfCommentsThisMonth();
+
+            double percentChange = commentService.calculatePercentageChangeComment(numOfCommentsNow-numOfCommentsThisMonth, numOfCommentsThisMonth);
+            int percentChangeInt = (int) percentChange;
+
+            return new ResponseEntity<>(percentChangeInt, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @PutMapping("/promoteUser")
+    public ResponseEntity<String> promoteUser(@RequestParam("username") String username) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            userSer.promoteUser(username);
+            jsonObject.put("message", "Active successfully!");
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
+
+        } catch (Exception e) {
+            jsonObject.put("message", "Internal server error");
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @PutMapping("/demoteUser")
+    public ResponseEntity<String> demoteUser(@RequestParam("username") String username) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            userSer.demoteUser(username);
+            jsonObject.put("message", "Active successfully!");
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
+
+        } catch (Exception e) {
+            jsonObject.put("message", "Internal server error");
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+}
+
+
 
 
 

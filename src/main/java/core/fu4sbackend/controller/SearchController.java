@@ -65,8 +65,10 @@ public class SearchController {
         try {
             time = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss SS:SS'Z'").parse(postTime);
         } catch (Exception t) {
+            //EMPTY CATCH PHRASE
             weird=true;
         }
+
 
         List<PostDto> questionList;
         List<PostDto> materialList;
@@ -99,7 +101,7 @@ public class SearchController {
         jsonObject.put("totalMaterial", totalMaterial);
         JSONObject jsonResponse = new JSONObject();
         jsonResponse.put("data", jsonObject);
-        return new ResponseEntity<String>(jsonResponse.toString(), ((semester!=null&&(semester>9||semester<1))||weird)? HttpStatus.PARTIAL_CONTENT:HttpStatus.OK);
 
+        return new ResponseEntity<String>(jsonResponse.toString(), ((semester!=null&&(semester>9||semester<1))||weird)? HttpStatus.PARTIAL_CONTENT:HttpStatus.OK);
     }
 }

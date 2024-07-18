@@ -26,7 +26,6 @@ public class CommentController {
                                                                @RequestParam(required = false) String offset,
                                                                @RequestParam(required = false) String isStaff,
                                                                @RequestParam(required = false) String sorted) {
-
         boolean staff = isStaff != null && isStaff.trim().equalsIgnoreCase("true");
         //authorities check
         if (staff) {
