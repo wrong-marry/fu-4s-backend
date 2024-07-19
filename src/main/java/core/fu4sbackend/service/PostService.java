@@ -123,11 +123,11 @@ public class PostService {
         Pageable paging = PageRequest.of(pageNum, pageSize, Sort.by("postTime").descending());
         List<Post> list = postRepository.getAllByUsername(username, paging);
 
-        ModelMapper modelMapper = new ModelMapper();
-        return list
-                .stream()
-                .map(post -> modelMapper.map(post, PostDto.class))
-                .toList();
+        List<PostDto> result = new ArrayList<>();
+        for (Post post : list) {
+            result.add(mapPostDto(post));
+        }
+        return result;
     }
 
     public List<PostDto> getAllByPostStatus(PostStatus status, Integer pageNum, Integer pageSize) {

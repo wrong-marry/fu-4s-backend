@@ -1,6 +1,5 @@
 package core.fu4sbackend.entity;
 
-import core.fu4sbackend.constant.NotificationMessage;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,8 +20,7 @@ public class Notification {
 
     private Date time;
 
-    @Enumerated(EnumType.STRING)
-    private NotificationMessage message;
+    private String message;
 
     private boolean isSeen;
 
