@@ -12,7 +12,7 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class DirectNotificationDto {
-    private NotificationMessage message;
+    private String message;
     private String username ;
 
 }
