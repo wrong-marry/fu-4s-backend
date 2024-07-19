@@ -2,13 +2,8 @@
 package core.fu4sbackend.controller;
 
 import core.fu4sbackend.constant.UserRole;
-import core.fu4sbackend.dto.SubjectDto;
-import core.fu4sbackend.dto.UserDto;
-import core.fu4sbackend.dto.UserPostCountDto;
-import core.fu4sbackend.service.CommentService;
-import core.fu4sbackend.service.SubjectService;
-import core.fu4sbackend.service.TestResultService;
-import core.fu4sbackend.service.UserService;
+import core.fu4sbackend.dto.*;
+import core.fu4sbackend.service.*;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -240,6 +235,19 @@ public class AdminController {
             return new ResponseEntity<>(jsonObject.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @PostMapping("/createDirectNoti")
+    public ResponseEntity<String> createDirectNoti(@RequestBody DirectNotificationDto notiDto) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            NotificationService.createDirectNoti(notiDto);
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.CREATED);
+        } catch (Exception e) {
+            jsonObject.put("message", "Internal server error");
+            return new ResponseEntity<>(jsonObject.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }
 
 
