@@ -25,8 +25,9 @@ public class NotificationService {
     private static UserRepository userRepository;
 
     @Autowired
-        public NotificationService(NotificationRepository notificationRepository) {
+        public NotificationService(NotificationRepository notificationRepository, UserRepository user ) {
         this.notificationRepository = notificationRepository;
+        this.userRepository = user;
     }
 
     public Integer getNumberOfNotifications(String username) {
@@ -109,6 +110,7 @@ public class NotificationService {
         // Convert NotificationDto to Notification entity
         Notification notification = new Notification();
         notification.setTime(new Date());
+
         notification.setMessage(notiDto.getMessage());
         notification.setSeen(false); // assuming new notifications are not seen
 
@@ -118,7 +120,6 @@ public class NotificationService {
             throw new Exception("User not found");
         }
         notification.setUser(user);
-
         // Save the notification
         notificationRepository.save(notification);
     }
