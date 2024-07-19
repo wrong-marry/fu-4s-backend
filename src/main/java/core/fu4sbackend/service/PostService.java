@@ -1,5 +1,6 @@
 package core.fu4sbackend.service;
 
+import core.fu4sbackend.constant.PaginationConstant;
 import core.fu4sbackend.constant.PostStatus;
 import core.fu4sbackend.dto.PostDto;
 import core.fu4sbackend.dto.SearchRequest;
@@ -16,6 +17,7 @@ import jakarta.persistence.criteria.Root;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -121,11 +123,11 @@ public class PostService {
         Pageable paging = PageRequest.of(pageNum, pageSize, Sort.by("postTime").descending());
         List<Post> list = postRepository.getAllByUsername(username, paging);
 
-        ModelMapper modelMapper = new ModelMapper();
-        return list
-                .stream()
-                .map(post -> modelMapper.map(post, PostDto.class))
-                .toList();
+        List<PostDto> result = new ArrayList<>();
+        for (Post post : list) {
+            result.add(mapPostDto(post));
+        }
+        return result;
     }
 
     public List<PostDto> getAllByPostStatus(PostStatus status, Integer pageNum, Integer pageSize) {
@@ -216,24 +218,24 @@ public class PostService {
     public boolean isValidUser(String username, Integer id) {
         return postRepository.findById(id).orElseThrow().getUser().getUsername().equals(username);
     }
-    public List<PostDto> getPostBySubjectCode(String subjectCode, Integer offset, Integer pageSize) {
-        int page = offset != null ? offset / pageSize : 0;
-        return postRepository.findBySubjectCode(subjectCode, PageRequest.of(page, pageSize));
+
+
+
+    public List<PostDto> getPostsBySubjectCode(String code, Integer offset) {
+
+        int page = offset == null ? 0 : offset - 1;
+        int size = PaginationConstant.RECENT_POST_LOAD_SIZE;
+        Sort sort = Sort.by("postTime").descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<Post> postPage = postRepository.findBySubjectCodeAndStatus(code, PostStatus.ACTIVE, pageable);
+
+        List<PostDto> result = new ArrayList<>();
+        for (Post post : postPage.getContent()) {
+            result.add(mapPostDto(post));
+        }
+        return result;
     }
 
-
-    public List<Post> getPostsBySubjectCode(String subjectCode,  Integer pageNum, Integer pageSize) {
-        Subject subject = new Subject();
-        subject.setCode(subjectCode);
-        Pageable paging = PageRequest.of(pageNum, pageSize, Sort.by("postTime").descending());
-        return postRepository.findBySubject(subject, paging);
-    }
-
-//    public List<Post> getPostsBySubjectCode(String subjectCode) {
-//        Subject subject = new Subject();
-//        subject.setCode(subjectCode);
-//        return postRepository.findBySubject(subject);
-//    }
     public int getNumberOfPostsThisMonth() {
         YearMonth currentMonth = YearMonth.now();
         LocalDateTime startOfMonth = currentMonth.atDay(1).atStartOfDay();
@@ -393,5 +395,11 @@ public class PostService {
                 })
                 .collect(Collectors.toList());
         return postDtos;
+    }
+
+    public int countPostsBySubjectCode(String code) {
+            if (!subjectRepository.existsByCode(code)) return -1;
+            Page<Post> posts = postRepository.findBySubjectCodeAndStatus(code, PostStatus.ACTIVE, Pageable.unpaged());
+            return (int) posts.getTotalElements();
     }
 }

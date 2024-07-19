@@ -4,6 +4,7 @@ import core.fu4sbackend.constant.PostStatus;
 import core.fu4sbackend.dto.PostDto;
 import core.fu4sbackend.entity.Post;
 import core.fu4sbackend.entity.Subject;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -23,8 +24,6 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     @Query("select p from Post p where p.status = ?1")
     List<Post> getAllPostByStatus(PostStatus status, Pageable pageable);
 
-    @Query("SELECT p from Post p WHERE p.subject.code = :subjectCode")
-    List<PostDto> findBySubjectCode(@Param("subjectCode") String subjectCode, Pageable pageable);
 
 //    List<Post> findBySubject(Subject subject);
     List<Post> findBySubject(Subject subject, Pageable pageable);
@@ -44,4 +43,6 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     List<Post> searchAndFilterPosts(@Param("keyword") String keyword,
                                     @Param("subject") String subject
                                    );
-   }
+
+    Page<Post> findBySubjectCodeAndStatus(String code, PostStatus status, Pageable pageable);
+}
