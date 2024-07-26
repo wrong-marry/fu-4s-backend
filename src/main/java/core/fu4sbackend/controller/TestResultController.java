@@ -28,4 +28,8 @@ public class TestResultController {
     public TestResultDto saveTestResult(@RequestParam float score,@RequestParam String username,@RequestParam int questionSetId,@RequestParam boolean isPersonalized) {
         return testResultService.saveTestResult(score,username,questionSetId,isPersonalized);
     }
+    @GetMapping("get-all")
+    public List<TestResultDto> getAllTestResultsByUser(@RequestParam String username) {
+        return testResultService.getTestResultsByUser(username);
+    }
 }

@@ -73,7 +73,7 @@ public class UserService {
     }
 
     public Integer getNumberOfUserByRole(UserRole userrole) {
-        System.out.println(userRepository.getAllByUserRole(userrole, null).size());
+        //System.out.println(userRepository.getAllByUserRole(userrole, null).size());
         return userRepository.getAllByUserRole(userrole, null).size();
     }
 

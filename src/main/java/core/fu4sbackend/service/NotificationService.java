@@ -1,8 +1,13 @@
 package core.fu4sbackend.service;
 
+import core.fu4sbackend.dto.DirectNotificationDto;
 import core.fu4sbackend.dto.NotificationDto;
+import core.fu4sbackend.dto.SubjectDto;
 import core.fu4sbackend.entity.Notification;
+import core.fu4sbackend.entity.Subject;
+import core.fu4sbackend.entity.User;
 import core.fu4sbackend.repository.NotificationRepository;
+import core.fu4sbackend.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -10,16 +15,19 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
 public class NotificationService {
 
-    private NotificationRepository notificationRepository;
+    private static NotificationRepository notificationRepository;
+    private static UserRepository userRepository;
 
     @Autowired
-        public NotificationService(NotificationRepository notificationRepository) {
+        public NotificationService(NotificationRepository notificationRepository, UserRepository user ) {
         this.notificationRepository = notificationRepository;
+        this.userRepository = user;
     }
 
     public Integer getNumberOfNotifications(String username) {
@@ -97,6 +105,23 @@ public class NotificationService {
         } else {
             throw new RuntimeException("Notification not found");
         }
+    }
+    public static void createDirectNoti(DirectNotificationDto notiDto) throws Exception {
+        // Convert NotificationDto to Notification entity
+        Notification notification = new Notification();
+        notification.setTime(new Date());
+
+        notification.setMessage(notiDto.getMessage());
+        notification.setSeen(false); // assuming new notifications are not seen
+
+        // Fetch the user entity
+        User user = userRepository.findByUsername(notiDto.getUsername()).orElse(null);
+        if (user == null) {
+            throw new Exception("User not found");
+        }
+        notification.setUser(user);
+        // Save the notification
+        notificationRepository.save(notification);
     }
 
 }

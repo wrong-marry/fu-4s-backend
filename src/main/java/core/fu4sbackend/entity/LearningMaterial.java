@@ -14,7 +14,7 @@ import java.util.Collection;
 @SuperBuilder
 public class LearningMaterial extends Post {
     @Lob
-    @Column
+    @Column(columnDefinition = "LONGTEXT")
     private String content;
 
     @OneToMany(mappedBy = "learningMaterial", cascade = CascadeType.ALL)

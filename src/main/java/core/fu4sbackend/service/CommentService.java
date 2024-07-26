@@ -1,7 +1,6 @@
 package core.fu4sbackend.service;
 
 import core.fu4sbackend.constant.CommentStatus;
-import core.fu4sbackend.constant.NotificationMessage;
 import core.fu4sbackend.constant.PaginationConstant;
 import core.fu4sbackend.dto.CommentDto;
 import core.fu4sbackend.entity.Comment;
@@ -81,7 +80,7 @@ public class CommentService {
             newNotification.setSeen(false);
             newNotification.setTime(new Date());
             newNotification.setPostId(p.getId());
-            newNotification.setMessage(NotificationMessage.COMMENT_REPLY);
+            newNotification.setMessage("\'" +c.getUser().getFirstName()  + c.getUser().getLastName() + "\' commented on your post");
             notificationRepository.save(newNotification);
         }
         return commentRepository.save(c).getId();
@@ -144,7 +143,7 @@ public class CommentService {
             //DEBUG
             System.out.println("Post id: "+parent.getPost().getId());
             newNotification.setPostId(parent.getPost().getId());
-            newNotification.setMessage(NotificationMessage.COMMENT_REPLY);
+            newNotification.setMessage("\'" +c.getUser().getFirstName() + " " + c.getUser().getLastName() + "\' replied to your comment");
             notificationRepository.save(newNotification);
         }
         return commentRepository.save(c).getId();
