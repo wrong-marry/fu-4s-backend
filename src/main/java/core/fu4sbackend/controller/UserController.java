@@ -61,12 +61,21 @@ public class UserController {
         JSONObject jsonObject=new JSONObject();
         try
         {
+            java.io.File directory = new java.io.File(realPath.substring(0,realPath.length()-1));
+            if (!directory.exists()) {
+                if (directory.mkdir()) {
+                    System.out.println("Directory is created!");
+                } else {
+                    System.out.println("Failed to create directory!");
+                }
+            }
             FileOutputStream fos = new FileOutputStream(realPath + userAvatarDto.getUsername() + ".jpg");
             fos.write(userAvatarDto.getImage().getBytes());
             fos.close();
             jsonObject.put("message","Successful");
             return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
         } catch (Exception e) {
+            System.out.println("Failed");
             jsonObject.put("message","Failed");
             return new ResponseEntity<>(jsonObject.toString(), HttpStatus.NOT_ACCEPTABLE);
         }
