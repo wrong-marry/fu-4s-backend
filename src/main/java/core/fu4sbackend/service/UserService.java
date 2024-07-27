@@ -4,7 +4,9 @@ import core.fu4sbackend.constant.UserRole;
 import core.fu4sbackend.constant.UserStatus;
 import core.fu4sbackend.dto.UserDto;
 import core.fu4sbackend.dto.UserPostCountDto;
+import core.fu4sbackend.entity.Notification;
 import core.fu4sbackend.entity.User;
+import core.fu4sbackend.repository.NotificationRepository;
 import core.fu4sbackend.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,18 +20,23 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static core.fu4sbackend.service.NotificationService.notificationRepository;
 
 @Service
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final NotificationRepository notificationRepository;
 
     @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, NotificationRepository notificationRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.notificationRepository = notificationRepository;
     }
     public UserPostCountDto getUserDto(User user) {
         int postCount = user.getPosts().size(); // Assuming User entity has a getPosts() method
@@ -118,16 +125,34 @@ public class UserService {
         User user = userRepository.findByUsername(username).orElse(null);
         user.setStatus(UserStatus.ACTIVE);
         userRepository.save(user);
+        Notification newNotification = new Notification();
+        newNotification.setUser(user);
+        newNotification.setSeen(false);
+        newNotification.setTime(new Date());
+        newNotification.setMessage("Your account has been activated.");
+        notificationRepository.save(newNotification);
     }
     public void promoteUser(String username) {
         User user = userRepository.findByUsername(username).orElse(null);
         user.setRole(UserRole.STAFF);
         userRepository.save(user);
+        Notification newNotification = new Notification();
+        newNotification.setUser(user);
+        newNotification.setSeen(false);
+        newNotification.setTime(new Date());
+        newNotification.setMessage("You have been promoted to STAFF role.");
+        notificationRepository.save(newNotification);
     }
     public void demoteUser(String username) {
         User user = userRepository.findByUsername(username).orElse(null);
         user.setRole(UserRole.USER);
         userRepository.save(user);
+        Notification newNotification = new Notification();
+        newNotification.setUser(user);
+        newNotification.setSeen(false);
+        newNotification.setTime(new Date());
+        newNotification.setMessage("You have been demoted to USER role.");
+        notificationRepository.save(newNotification);
     }
 
     public int getNumberOfUsersThisMonth() {
