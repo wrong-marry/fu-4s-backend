@@ -10,9 +10,9 @@ import java.util.List;
 
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, Integer> {
-    @Query("select n from Notification n where n.user.username = ?1")
+    @Query("select n from Notification n where n.user.username = ?1 order by n.time desc")
     List<Notification> getAllByUsername(String username, Pageable pageable);
 
-    @Query("SELECT n FROM Notification n WHERE n.user.username = :username AND n.isSeen = :seen")
+    @Query("SELECT n FROM Notification n WHERE n.user.username = :username AND n.isSeen = :seen order by n.time desc")
     List<Notification> getAllByUsernameAndSeen(String username, boolean seen, Pageable pageable);
 }
