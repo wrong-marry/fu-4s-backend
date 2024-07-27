@@ -9,6 +9,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import java.util.Arrays;
+
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -20,6 +22,9 @@ public class GlobalExceptionHandler {
         else if (exception instanceof ResourceNotFoundException) {
             return new ResponseEntity<>("No files found", HttpStatus.NO_CONTENT);
         }
+        System.out.print("Root cause: ");
+        Arrays.stream(exception.getStackTrace()).findFirst().ifPresent(System.out::println);
+        System.out.println(exception.getMessage());
         return new ResponseEntity<>(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

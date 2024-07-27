@@ -4,8 +4,11 @@ import core.fu4sbackend.constant.PaginationConstant;
 import core.fu4sbackend.constant.PostStatus;
 import core.fu4sbackend.dto.PostDto;
 import core.fu4sbackend.dto.SearchRequest;
+import core.fu4sbackend.entity.Notification;
 import core.fu4sbackend.entity.Post;
 import core.fu4sbackend.entity.Subject;
+import core.fu4sbackend.entity.User;
+import core.fu4sbackend.repository.NotificationRepository;
 import core.fu4sbackend.repository.PostRepository;
 import core.fu4sbackend.repository.SubjectRepository;
 import jakarta.persistence.EntityManager;
@@ -35,11 +38,14 @@ public class PostService {
     private final PostRepository postRepository;
     private final SubjectRepository subjectRepository ;
     private final EntityManager em;
+    private final NotificationRepository notificationRepository;
 
-    public PostService(PostRepository postRepository, EntityManager em, SubjectRepository subjectRepository) {
+
+    public PostService(PostRepository postRepository, EntityManager em, SubjectRepository subjectRepository, NotificationRepository notificationRepository) {
         this.postRepository = postRepository;
         this.subjectRepository = subjectRepository;
         this.em = em;
+        this.notificationRepository = notificationRepository;
     }
 
     //NOT IMPLEMENTED: SEARCH FILTER WITH USERNAME
@@ -104,6 +110,10 @@ public class PostService {
             else testPredicate = criteriaBuilder.isFalse(root.get("isTest"));
             predicates.add(testPredicate);
         }
+        if (!searchRequest.getIsStaff()) {
+            Predicate staffPredicate = criteriaBuilder.like(root.get("status"), "%" + PostStatus.ACTIVE + "%");
+            predicates.add(staffPredicate);
+        }
         return predicates;
     }
 
@@ -148,7 +158,9 @@ public class PostService {
         ModelMapper modelMapper = new ModelMapper();
         return list
                 .stream()
-                .map(post -> modelMapper.map(post, PostDto.class))
+                .map(post -> {modelMapper.map(post, PostDto.class);
+                    User user = post.getUser();
+                    return new PostDto(post.getId(), post.getPostTime(), post.getTitle(), post.isTest(), post.getStatus(), user.getUsername(), post.getSubject().getCode());})
                 .toList();
     }
 
@@ -204,8 +216,15 @@ public class PostService {
         if (post.getStatus() == PostStatus.PENDING_APPROVE) {
             post.setStatus(PostStatus.ACTIVE);
             postRepository.save(post);
+
+            Notification newNotification = new Notification();
+            newNotification.setUser(post.getUser());
+            newNotification.setSeen(false);
+            newNotification.setTime(new Date());
+            newNotification.setPostId(post.getId());
+            newNotification.setMessage("Your post \""+post.getTitle()+"\" has been approved");
+            notificationRepository.save(newNotification);
         } else {
-            // Handle case where post is not in PENDING_APPROVED status
             throw new IllegalStateException("Maybe this post has been pending by another staff");
         }
     }
@@ -220,6 +239,14 @@ public class PostService {
         if (post.getStatus() == PostStatus.PENDING_APPROVE) {
             post.setStatus(PostStatus.HIDDEN);
             postRepository.save(post);
+
+            Notification newNotification = new Notification();
+            newNotification.setUser(post.getUser());
+            newNotification.setSeen(false);
+            newNotification.setTime(new Date());
+            newNotification.setPostId(post.getId());
+            newNotification.setMessage("Your post \""+post.getTitle()+"\" has been denied");
+            notificationRepository.save(newNotification);
         } else {
             // Handle case where post is not in PENDING_APPROVED status
             throw new IllegalStateException("Maybe this post has been pending by another staff");
@@ -358,6 +385,14 @@ public class PostService {
             if (post.getStatus() == PostStatus.HIDDEN) {
                 post.setStatus(PostStatus.ACTIVE);
                 postRepository.save(post);
+
+                Notification newNotification = new Notification();
+                newNotification.setUser(post.getUser());
+                newNotification.setSeen(false);
+                newNotification.setTime(new Date());
+                newNotification.setPostId(post.getId());
+                newNotification.setMessage("Your post \""+post.getTitle()+"\" has been restored");
+                notificationRepository.save(newNotification);
             } else {
                 // Handle case where post is not in PENDING_APPROVED status
                 throw new IllegalStateException("Maybe this post has been pending by another staff");
@@ -374,8 +409,16 @@ public class PostService {
         if (post.getStatus() == PostStatus.ACTIVE) {
             post.setStatus(PostStatus.HIDDEN);
             postRepository.save(post);
+
+            Notification newNotification = new Notification();
+            newNotification.setUser(post.getUser());
+            newNotification.setSeen(false);
+            newNotification.setTime(new Date());
+            newNotification.setPostId(post.getId());
+            newNotification.setMessage("Your post \""+post.getTitle()+"\" has been hidden");
+            notificationRepository.save(newNotification);
+
         } else {
-            // Handle case where post is not in PENDING_APPROVED status
             throw new IllegalStateException("Maybe this post has been pending by another staff");
         }
     }
@@ -384,13 +427,18 @@ public class PostService {
         Post post = postRepository.findById(postid).orElse(null);
 
         if (post == null) {
-            // Handle case where post does not exist
             throw new IllegalArgumentException("Post not found");
         }
         if (post.getStatus() == PostStatus.HIDDEN) {
+
+            Notification newNotification = new Notification();
+            newNotification.setUser(post.getUser());
+            newNotification.setSeen(false);
+            newNotification.setTime(new Date());
+            newNotification.setMessage("Your post \""+post.getTitle()+"\" has been deleted");
             postRepository.delete(post);
+            notificationRepository.save(newNotification);
         } else {
-            // Handle case where post is not in PENDING_APPROVED status
             throw new IllegalStateException("Maybe this post has been pending by another staff");
         }
     }

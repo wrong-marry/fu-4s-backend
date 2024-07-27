@@ -24,12 +24,22 @@ public class SubjectService {
 
     public List<SubjectDto> getAllSubjectDtos(Integer pageNum, Integer pageSize) {
         Pageable paging = PageRequest.of(pageNum, pageSize);
-        List<Subject> subjects = subjectRepository.findAll(paging).toList();
+        List<Subject> subjects = subjectRepository.findAll(paging).toList().stream().filter(Subject::isActive).toList();
         ModelMapper modelMapper = new ModelMapper();
 
         return subjects.stream()
                 .map(subject -> modelMapper.map(subject, SubjectDto.class))
                 .collect(Collectors.toList());
+    }
+
+
+    public List<SubjectDto> getAllActive() {
+        List<Subject> subjects = subjectRepository.findAllActiveOrderBySemesterAsc();
+
+        ModelMapper modelMapper = new ModelMapper();
+        return subjects.stream()
+                .map((subject -> modelMapper.map(subject, SubjectDto.class)))
+                .toList();
     }
 
     public Integer getNumberOfSubjects() {
