@@ -20,6 +20,7 @@ public class GlobalExceptionHandler {
         else if (exception instanceof ResourceNotFoundException) {
             return new ResponseEntity<>("No files found", HttpStatus.NO_CONTENT);
         }
+        exception.printStackTrace();
         return new ResponseEntity<>(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
