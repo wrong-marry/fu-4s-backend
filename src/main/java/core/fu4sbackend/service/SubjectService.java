@@ -24,7 +24,7 @@ public class SubjectService {
 
     public List<SubjectDto> getAllSubjectDtos(Integer pageNum, Integer pageSize) {
         Pageable paging = PageRequest.of(pageNum, pageSize);
-        List<Subject> subjects = subjectRepository.findAll(paging).toList();
+        List<Subject> subjects = subjectRepository.findAll(paging).toList().stream().filter(Subject::isActive).toList();
         ModelMapper modelMapper = new ModelMapper();
 
         return subjects.stream()
