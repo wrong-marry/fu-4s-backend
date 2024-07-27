@@ -32,6 +32,16 @@ public class SubjectService {
                 .collect(Collectors.toList());
     }
 
+
+    public List<SubjectDto> getAllActive() {
+        List<Subject> subjects = subjectRepository.findAllActiveOrderBySemesterAsc();
+
+        ModelMapper modelMapper = new ModelMapper();
+        return subjects.stream()
+                .map((subject -> modelMapper.map(subject, SubjectDto.class)))
+                .toList();
+    }
+
     public Integer getNumberOfSubjects() {
         return subjectRepository.findAll().size();
     }

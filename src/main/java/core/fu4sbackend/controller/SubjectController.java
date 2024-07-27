@@ -38,6 +38,12 @@ public class SubjectController {
         return ResponseEntity.ok(subjectService.getAll());
     }
 
+    @GetMapping("/getAllActive")
+    public ResponseEntity<List<SubjectDto>> getAllActive() {
+        return ResponseEntity.ok(subjectService.getAllActive());
+    }
+
+
     @GetMapping("/{code}")
     public ResponseEntity<SubjectDto> getSubjectByCode(@PathVariable String code) {
         Optional<SubjectDto> subjectDto = subjectService.getSubjectByCode(code);
