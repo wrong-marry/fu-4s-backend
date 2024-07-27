@@ -44,13 +44,14 @@ public class CommentService {
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.createTypeMap(CommentDto.class, Comment.class);
         List<Comment> comments = sorted ? commentRepository.findByPostIdOrderByTime(postId) : commentRepository.findByPostId(postId);
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
         return comments.stream().map(comment -> {
                     CommentDto commentDto = modelMapper.map(comment, CommentDto.class);
                     commentDto.setUsername(comment.getUser().getFirstName() + comment.getUser().getLastName());
                     commentDto.setAccount(comment.getUser().getUsername());
                     commentDto.setChildrenNumber(countChildren(comment.getId()));
                     return commentDto;
-                }).filter(comment -> isStaff || comment.getStatus() == CommentStatus.ACTIVE)
+                }).filter(comment -> isStaff || comment.getStatus() == CommentStatus.ACTIVE || comment.getAccount().equals(username))
                 .skip(offset).limit(PaginationConstant.COMMENT_LOAD_SIZE).toList();
     }
 
