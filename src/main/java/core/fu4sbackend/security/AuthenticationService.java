@@ -77,7 +77,7 @@ public class AuthenticationService {
         if(authentication.isAuthenticated()) {
             User u = userRepository.findByUsername(input.getUsername()).orElseThrow();
 
-            if(u.getStatus() == UserStatus.BANNED) throw new RuntimeException("Your account is banned!");
+            if(u.getStatus() == UserStatus.BANNED) throw new IllegalStateException("Account is banned");
 
             Map<String, String> res = new HashMap<>();
             res.put("username", u.getUsername());

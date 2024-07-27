@@ -234,3 +234,5 @@ VALUES
 #     ( 'Test 6!', '2024-05-15 10:30:00', 'ACTIVE', 15, 'user10'),
 #     ( 'Test 7!', '2024-05-15 10:30:00', 'ACTIVE', 15, 'user10'),
 #     ( 'Test 8!', '2024-05-15 10:30:00', 'ACTIVE', 15, 'user10');
+
+select * from user

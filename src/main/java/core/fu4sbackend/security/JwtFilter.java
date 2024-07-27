@@ -55,6 +55,8 @@ public class JwtFilter extends OncePerRequestFilter {
             if (username != null && authentication == null) {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
 
+                if (!userDetails.isAccountNonLocked())
+                    throw new IllegalStateException("Account is banned");
                 if (jwtService.isTokenValid(jwt, userDetails)) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userDetails,
