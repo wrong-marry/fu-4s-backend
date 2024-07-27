@@ -60,6 +60,14 @@ public class PostController {
         return ResponseEntity.ok(postService.getAllByUsername(username, pageNum, pageSize));
     }
 
+    @GetMapping("/getAllActivePostsByUsername")
+    public ResponseEntity<List<PostDto>> getAllActivePostsByUsername(@RequestParam String username,
+                                                                @RequestParam Integer pageNum,
+                                                                @RequestParam Integer pageSize
+    ) {
+        --pageNum;
+        return ResponseEntity.ok(postService.getAllActivePostByUsername(username, pageNum, pageSize));
+    }
     @GetMapping("/getNum")
     public ResponseEntity<Integer> getNumPosts(@RequestParam String username) {
         return ResponseEntity.ok(postService.getNumberOfPosts(username));

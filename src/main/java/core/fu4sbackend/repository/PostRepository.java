@@ -21,6 +21,10 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     @Query("select p from Post p where p.user.username = ?1")
     List<Post> getAllByUsername(String username, Pageable pageable);
 
+
+    @Query("select p from Post p where p.user.username = ?1 and p.status = 'ACTIVE'")
+    List<Post> getAllActivePostByUsername(String username, Pageable pageable);
+
     @Query("select p from Post p where p.status = ?1")
     List<Post> getAllPostByStatus(PostStatus status, Pageable pageable);
 

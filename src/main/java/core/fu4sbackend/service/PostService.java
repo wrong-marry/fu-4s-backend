@@ -130,6 +130,17 @@ public class PostService {
         return result;
     }
 
+    public List<PostDto> getAllActivePostByUsername(String username, Integer pageNum, Integer pageSize) {
+        Pageable paging = PageRequest.of(pageNum, pageSize, Sort.by("postTime").descending());
+        List<Post> list = postRepository.getAllActivePostByUsername(username, paging);
+
+        List<PostDto> result = new ArrayList<>();
+        for (Post post : list) {
+            result.add(mapPostDto(post));
+        }
+        return result;
+    }
+
     public List<PostDto> getAllByPostStatus(PostStatus status, Integer pageNum, Integer pageSize) {
         Pageable paging = PageRequest.of(pageNum, pageSize, Sort.by("postTime").descending());
         List<Post> list = postRepository.getAllPostByStatus(status,paging);
