@@ -2,6 +2,7 @@ package core.fu4sbackend.service;
 
 import core.fu4sbackend.constant.CommentStatus;
 import core.fu4sbackend.constant.PaginationConstant;
+import core.fu4sbackend.constant.PostStatus;
 import core.fu4sbackend.dto.CommentDto;
 import core.fu4sbackend.entity.Comment;
 import core.fu4sbackend.entity.Notification;
@@ -18,10 +19,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.security.InvalidParameterException;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -57,8 +58,8 @@ public class CommentService {
 
     @Transactional
     public int save(CommentDto commentDto, Integer postId) throws Exception {
-        if (StringUtils.isEmpty(commentDto.getContent())) {
-            throw new Exception("Empty content not allowed");
+        if (!StringUtils.hasLength(commentDto.getContent())) {
+            throw new InvalidParameterException("Empty content not allowed");
         }
         Comment c = new Comment();
         User u = userRepository.findByUsername(commentDto.getUsername()).orElse(null);
@@ -66,6 +67,7 @@ public class CommentService {
         if (u == null) return -1;
         if (p == null) return -2;
         c.setUser(u);
+        if (!p.getStatus().equals(PostStatus.ACTIVE)) throw new InvalidParameterException("Cannot comment on inactive post");
         c.setPost(p);
         c.setContent(commentDto.getContent());
         c.setDate(new Date());
@@ -75,13 +77,11 @@ public class CommentService {
         User getter = p.getUser();
         if (!getter.getUsername().equals(SecurityContextHolder.getContext().getAuthentication().getName()))
         {
-            //DEBUG
-            System.out.println("User: "+getter.getUsername());
             newNotification.setUser(getter);
             newNotification.setSeen(false);
             newNotification.setTime(new Date());
             newNotification.setPostId(p.getId());
-            newNotification.setMessage("\'" +c.getUser().getFirstName()  + c.getUser().getLastName() + "\' commented on your post");
+            newNotification.setMessage("'" +c.getUser().getFirstName()  + c.getUser().getLastName() + "' commented on your post");
             notificationRepository.save(newNotification);
         }
         return commentRepository.save(c).getId();
@@ -90,6 +90,9 @@ public class CommentService {
     public int update(Integer id, String commentContent) {
         Comment c = commentRepository.findById(id).orElse(null);
         if (c == null) return -1;
+        if (!StringUtils.hasLength(commentContent)) {
+            throw new InvalidParameterException("Empty content not allowed");
+        }
         c.setContent(commentContent);
         commentRepository.save(c);
         return 0;
@@ -127,6 +130,9 @@ public class CommentService {
         if (parent == null) return -2;
         c.setUser(u);
         c.setParent(parent);
+        if (!StringUtils.hasLength(commentDto.getContent())) {
+            throw new InvalidParameterException("Empty content not allowed");
+        }
         c.setContent(commentDto.getContent());
         c.setDate(new Date());
         c.setStatus(CommentStatus.ACTIVE);
@@ -136,15 +142,11 @@ public class CommentService {
 
         if (!getter.getUsername().equals(SecurityContextHolder.getContext().getAuthentication().getName()))
         {
-            //DEBUG
-            System.out.println("User: "+getter.getUsername());
             newNotification.setUser(getter);
             newNotification.setSeen(false);
             newNotification.setTime(new Date());
-            //DEBUG
-            System.out.println("Post id: "+parent.getPost().getId());
             newNotification.setPostId(parent.getPost().getId());
-            newNotification.setMessage("\'" +c.getUser().getFirstName() + " " + c.getUser().getLastName() + "\' replied to your comment");
+            newNotification.setMessage("'" +c.getUser().getFirstName() + " " + c.getUser().getLastName() + "' replied to your comment");
             notificationRepository.save(newNotification);
         }
         return commentRepository.save(c).getId();

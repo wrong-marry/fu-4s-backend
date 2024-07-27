@@ -48,14 +48,10 @@ public class CommentController {
         int newId;
         switch (newId = commentService.save(commentDto, id)) {
             case -1:
-                jsonObject.put("message", "Invalid username");
-                //DEBUG
-                System.out.println("Invalid username " + commentDto.getUsername());
+                jsonObject.put("message", "Invalid username: "+commentDto.getUsername());
                 return new ResponseEntity<>(jsonObject.toString(), HttpStatus.CONFLICT);
             case -2:
-                jsonObject.put("message", "Invalid post id");
-                //DEBUG
-                System.out.println("Invalid post id " + commentDto.getId());
+                jsonObject.put("message", "Invalid post id: "+id);
                 return new ResponseEntity<>(jsonObject.toString(), HttpStatus.CONFLICT);
             default:
                 jsonObject.put("message", "Successfully uploaded comment");
@@ -70,14 +66,10 @@ public class CommentController {
         int newId;
         switch (newId = commentService.saveChild(commentDto, comment_id)) {
             case -1:
-                jsonObject.put("message", "Invalid username");
-                //DEBUG
-                System.out.println("Invalid username " + commentDto.getUsername());
+                jsonObject.put("message", "Invalid username: " + commentDto.getUsername());
                 return new ResponseEntity<>(jsonObject.toString(), HttpStatus.CONFLICT);
             case -2:
-                jsonObject.put("message", "Invalid post id");
-                //DEBUG
-                System.out.println("Invalid post id " + commentDto.getId());
+                jsonObject.put("message", "Invalid post id: "+comment_id);
                 return new ResponseEntity<>(jsonObject.toString(), HttpStatus.CONFLICT);
             default:
                 jsonObject.put("message", "Successfully uploaded comment");
@@ -130,9 +122,7 @@ public class CommentController {
         JSONObject jsonObject = new JSONObject();
         return switch (commentService.updateStatus(id)) {
             case -1 -> {
-                jsonObject.put("message", "Invalid comment id");
-                //DEBUG
-                System.out.println("Comment id: " + id);
+                jsonObject.put("message", "Invalid comment id: " + id);
                 yield new ResponseEntity<>(jsonObject.toString(), HttpStatus.CONFLICT);
             }
             case 0 -> {
