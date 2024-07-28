@@ -111,9 +111,42 @@ public class CommentService {
         try {
             Comment c = commentRepository.findById(id).orElse(null);
             if (c == null) return -1;
-            if (c.getStatus() == CommentStatus.ACTIVE)
+            if (c.getStatus() == CommentStatus.ACTIVE) {
                 c.setStatus(CommentStatus.HIDDEN);
-            else c.setStatus(CommentStatus.ACTIVE);
+                //Send notification to the user
+                Notification newNotification = new Notification();
+                User getter = c.getUser();
+                if (!getter.getUsername().equals(SecurityContextHolder.getContext().getAuthentication().getName()))
+                {
+                    Comment comment = c;
+                    while (comment.getPost()==null) comment = comment.getParent();
+                    newNotification.setUser(getter);
+                    newNotification.setSeen(false);
+                    newNotification.setTime(new Date());
+                    newNotification.setPostId(comment.getPost().getId());
+                    newNotification.setMessage("'A staff has hidden your comment");
+                    notificationRepository.save(newNotification);
+                }
+            }
+            else {
+                c.setStatus(CommentStatus.ACTIVE);
+                //Send notification to the user
+                Notification newNotification = new Notification();
+                User getter = c.getUser();
+                if (!getter.getUsername().equals(SecurityContextHolder.getContext().getAuthentication().getName()))
+                {
+                    Comment comment = c;
+                    //DEBUG
+                    System.out.println(comment.getPost());
+                    while (comment.getPost()==null) comment = comment.getParent();
+                    newNotification.setUser(getter);
+                    newNotification.setSeen(false);
+                    newNotification.setTime(new Date());
+                    newNotification.setPostId(comment.getPost().getId());
+                    newNotification.setMessage("'A staff has unhidden your comment");
+                    notificationRepository.save(newNotification);
+                }
+            }
             commentRepository.save(c);
             return 0;
         } catch (Exception e) {
